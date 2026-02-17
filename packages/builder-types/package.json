@@ -1,6 +1,6 @@
 {
   "name": "@goldenhippo/builder-types",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Shared Builder.io type definitions for Golden Hippo schema packages",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
