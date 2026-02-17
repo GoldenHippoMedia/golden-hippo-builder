@@ -2,6 +2,18 @@
 
 Nx monorepo for Golden Hippo's Builder.io integration. Published to [npm](https://www.npmjs.com/org/goldenhippo).
 
+## Table of Contents
+
+- [Packages](#packages)
+- [Documentation](#documentation)
+- [Quick Start](#quick-start)
+- [Consuming Schemas](#consuming-schemas)
+- [Plugin CDN URLs](#plugin-cdn-urls)
+- [Making Changes](#making-changes)
+- [Project Structure](#project-structure)
+
+## Packages
+
 | Package                               | Description                                                                    | npm             |
 | ------------------------------------- | ------------------------------------------------------------------------------ | --------------- |
 | `@goldenhippo/builder-types`          | Shared Builder.io type definitions (`ModelShape`, `BuilderIOFieldTypes`, etc.) | Published       |
@@ -38,9 +50,17 @@ npm install @goldenhippo/builder-cart-schemas
 ```
 
 ```typescript
-import { createProductModel, type BuilderProductContent } from '@goldenhippo/builder-cart-schemas';
-import { createPageModel } from '@goldenhippo/builder-cart-schemas/page';
-import type { ModelShape } from '@goldenhippo/builder-types';
+import { fetchOneEntry } from '@builder.io/sdk-angular';
+import type { BuilderProductContent } from '@goldenhippo/builder-cart-schemas';
+
+const product = await fetchOneEntry({
+  model: 'product',
+  apiKey: BUILDER_API_KEY,
+  userAttributes: { urlPath: '/products/example' },
+});
+
+const typed = product as BuilderProductContent;
+console.log(typed?.data?.displayName);
 ```
 
 ## Plugin CDN URLs
