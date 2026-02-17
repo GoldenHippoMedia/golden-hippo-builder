@@ -65,12 +65,18 @@ Runs on push to `main` only. Uses the [changesets/action](https://github.com/cha
 - Runs `npm run build`
 - Runs `changeset publish` which publishes all bumped packages to npm
 
-### Required Secrets
+### Authentication
 
-| Secret         | Where                            | Purpose                                 |
-| -------------- | -------------------------------- | --------------------------------------- |
-| `NPM_TOKEN`    | GitHub repo > Settings > Secrets | npm automation token for publishing     |
-| `GITHUB_TOKEN` | Provided automatically           | Used by changesets action to create PRs |
+Publishing uses **npm trusted publishers** (OIDC) — no long-lived npm tokens are needed.
+
+| Credential      | Source                          | Purpose                                 |
+| ---------------- | ------------------------------- | --------------------------------------- |
+| OIDC token       | Generated automatically by GitHub Actions | Authenticates with npm via trusted publishers |
+| `GITHUB_TOKEN`   | Provided automatically by GitHub | Used by changesets action to create PRs |
+
+The release workflow has `id-token: write` permission, which allows GitHub Actions to generate OIDC tokens. Each package has `publishConfig.provenance: true`, which enables provenance attestations (cryptographic proof the package was built from this repo).
+
+See [Repository Setup](./repository-setup.md) for how to configure trusted publishers on npm.
 
 ## The Release Lifecycle
 

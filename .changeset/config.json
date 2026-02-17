@@ -1,6 +1,6 @@
 {
   "$schema": "https://unpkg.com/@changesets/config@3.1.1/schema.json",
-  "changelog": ["@changesets/changelog-github", { "repo": "user/repo" }],
+  "changelog": ["@changesets/changelog-github", { "repo": "GoldenHippoMedia/golden-hippo-builder" }],
   "commit": false,
   "fixed": [],
   "linked": [

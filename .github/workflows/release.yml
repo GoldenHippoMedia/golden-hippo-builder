@@ -26,6 +26,9 @@ jobs:
           cache: npm
           registry-url: https://registry.npmjs.org
 
+      - name: Install latest npm (required for trusted publishing)
+        run: npm install -g npm@latest
+
       - run: npm ci
 
       - run: npm run build
@@ -40,4 +43,3 @@ jobs:
           commit: 'chore: version packages'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

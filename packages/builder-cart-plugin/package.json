@@ -3,8 +3,14 @@
   "version": "0.1.0",
   "description": "Builder.io plugin for Golden Hippo commerce brand management",
   "main": "dist/plugin.system.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/GoldenHippoMedia/golden-hippo-builder.git",
+    "directory": "packages/builder-cart-plugin"
+  },
   "publishConfig": {
-    "access": "public"
+    "access": "public",
+    "provenance": true
   },
   "files": [
     "dist"
