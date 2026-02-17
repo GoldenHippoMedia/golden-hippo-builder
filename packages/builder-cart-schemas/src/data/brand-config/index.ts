@@ -1,4 +1,4 @@
-import { BuilderResponseBaseData, ModelShape } from '@goldenhippo/builder-types';
+import { BuilderContentReference, BuilderResponseBaseData, ModelShape } from '@goldenhippo/builder-types';
 import {
   BasicHeaderCTAType,
   BasicHeaderLink,
@@ -19,6 +19,7 @@ import {
   SubscriptionCancelReasons,
 } from './sections';
 import { BuilderContent } from '@builder.io/sdk';
+import { BuilderProductGridFilterGroupContent } from '../product-grid-filter-group.model';
 
 export const createBrandConfigModel = (gridFilterModelId: string, bannerModelId: string): ModelShape => {
   return {
@@ -69,7 +70,7 @@ export type BuilderBrandConfigContent = BuilderContent &
       banners: {
         banner: {
           id: string;
-          name: string;
+          value: BuilderContentReference<BuilderContent>;
         };
         alwaysShow: boolean;
       }[];
@@ -215,6 +216,7 @@ export type BuilderBrandConfigContent = BuilderContent &
         productGridFilterGroups: {
           filterConfig: {
             id: string;
+            value: BuilderContentReference<BuilderProductGridFilterGroupContent>;
           };
         }[];
         productGridHideRestricted: boolean;

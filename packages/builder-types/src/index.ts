@@ -1,1 +1,6 @@
-export type { BuilderResponseBaseData, ModelShape, BuilderIOFieldTypes } from './builder.types';
+export type {
+  BuilderResponseBaseData,
+  BuilderContentReference,
+  ModelShape,
+  BuilderIOFieldTypes,
+} from './builder.types';
