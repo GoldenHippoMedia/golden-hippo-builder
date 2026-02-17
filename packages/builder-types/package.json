@@ -1,0 +1,62 @@
+{
+  "name": "@goldenhippo/builder-types",
+  "version": "0.1.0",
+  "description": "Shared Builder.io type definitions for Golden Hippo schema packages",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src/"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "peerDependencies": {
+    "@builder.io/sdk": ">=2.0.0",
+    "@builder.io/app-context": ">=1.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@builder.io/sdk": {
+      "optional": true
+    },
+    "@builder.io/app-context": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "tsup": "^8.5.1",
+    "@builder.io/sdk": "^6.2.0",
+    "@builder.io/app-context": "^1.0.0"
+  },
+  "nx": {
+    "tags": [
+      "scope:shared",
+      "type:schema"
+    ],
+    "targets": {
+      "build": {
+        "outputs": [
+          "{projectRoot}/dist"
+        ]
+      }
+    }
+  }
+}

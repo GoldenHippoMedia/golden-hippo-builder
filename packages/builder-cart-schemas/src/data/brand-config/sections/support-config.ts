@@ -1,0 +1,92 @@
+import { BuilderIOFieldTypes } from '@goldenhippo/builder-types';
+
+export const createSupportConfig = (): BuilderIOFieldTypes => {
+  return {
+    name: 'support',
+    friendlyName: 'Support Information',
+    type: 'object',
+    defaultCollapsed: true,
+    localized: false,
+    subFields: [
+      {
+        name: 'email',
+        friendlyName: 'Support Email',
+        type: 'text',
+        required: true,
+        localized: true,
+        helperText: 'Email address for customer support inquiries',
+        defaultCollapsed: true,
+      },
+      {
+        name: 'phone',
+        friendlyName: 'Support Phone Number',
+        type: 'text',
+        required: true,
+        localized: true,
+        helperText: 'Phone number for customer support inquiries',
+        defaultCollapsed: true,
+      },
+      {
+        name: 'phoneDisplay',
+        friendlyName: 'Support Phone Display',
+        type: 'text',
+        required: true,
+        localized: true,
+        helperText: 'Formatted phone number for display',
+        defaultCollapsed: true,
+      },
+      {
+        name: 'address',
+        friendlyName: 'Support Address',
+        type: 'object',
+        required: true,
+        localized: false,
+        helperText: 'Support address for customer inquiries',
+        defaultCollapsed: true,
+        subFields: [
+          {
+            name: 'street',
+            friendlyName: 'Street',
+            type: 'text',
+            required: true,
+            helperText: 'Street address for support',
+            defaultCollapsed: true,
+          },
+          {
+            name: 'city',
+            friendlyName: 'City',
+            type: 'text',
+            required: true,
+            helperText: 'City for support address',
+            defaultCollapsed: true,
+          },
+          {
+            name: 'state',
+            friendlyName: 'State Code',
+            type: 'text',
+            required: true,
+            helperText: 'State code for support address (e.g. CA)',
+            defaultCollapsed: true,
+          },
+          {
+            name: 'zipcode',
+            friendlyName: 'Zip Code',
+            type: 'text',
+            required: true,
+            helperText: 'Zip code for support address',
+            defaultCollapsed: true,
+          },
+        ],
+      },
+      {
+        name: 'addressString',
+        friendlyName: 'Support Address String',
+        type: 'text',
+        required: false,
+        localized: false,
+        helperText: 'The full support address as a string',
+        defaultCollapsed: true,
+      },
+    ],
+  };
+};

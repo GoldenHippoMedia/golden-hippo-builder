@@ -1,0 +1,27 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "moduleResolution": "bundler",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "allowSyntheticDefaultImports": true,
+    "baseUrl": "./src",
+    "paths": {
+      "@application/*": ["application/*"],
+      "@components/*": ["components/*"],
+      "@core/*": ["core/*"],
+      "@services/*": ["services/*"],
+      "@utils/*": ["utils/*"],
+      "@goldenhippo/builder-types": ["../../packages/builder-types/src/index.ts"],
+      "@goldenhippo/builder-cart-schemas": ["../../packages/builder-cart-schemas/src/index.ts"],
+      "@goldenhippo/builder-ui": ["../../packages/builder-ui/src/index.ts"]
+    },
+    "typeRoots": ["src/types", "node_modules/@types"]
+  },
+  "include": ["src/**/*.ts", "src/**/*.tsx"],
+  "exclude": ["node_modules", "dist"]
+}

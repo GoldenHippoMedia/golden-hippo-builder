@@ -1,0 +1,25 @@
+{
+  "compileOnSave": false,
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "lib": ["ES2022"],
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "baseUrl": ".",
+    "paths": {
+      "@goldenhippo/builder-cart-schemas": ["packages/builder-cart-schemas/src/index.ts"],
+      "@goldenhippo/builder-funnel-schemas": ["packages/builder-funnel-schemas/src/index.ts"],
+      "@goldenhippo/builder-ui": ["packages/builder-ui/src/index.ts"]
+    }
+  },
+  "exclude": ["node_modules", "dist"]
+}

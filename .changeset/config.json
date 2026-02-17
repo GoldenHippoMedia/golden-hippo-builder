@@ -1,0 +1,13 @@
+{
+  "$schema": "https://unpkg.com/@changesets/config@3.1.1/schema.json",
+  "changelog": ["@changesets/changelog-github", { "repo": "user/repo" }],
+  "commit": false,
+  "fixed": [],
+  "linked": [
+    ["@goldenhippo/builder-cart-schemas", "@goldenhippo/builder-funnel-schemas", "@goldenhippo/builder-types"]
+  ],
+  "access": "public",
+  "baseBranch": "main",
+  "updateInternalDependencies": "patch",
+  "ignore": ["@goldenhippo/builder-ui"]
+}

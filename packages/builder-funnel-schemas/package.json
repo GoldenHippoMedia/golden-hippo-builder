@@ -1,0 +1,95 @@
+{
+  "name": "@goldenhippo/builder-funnel-schemas",
+  "version": "0.1.0",
+  "description": "Shared TypeScript types and Builder.io model definitions for Golden Hippo funnel models",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    },
+    "./data": {
+      "import": {
+        "types": "./dist/data/index.d.ts",
+        "default": "./dist/data/index.js"
+      },
+      "require": {
+        "types": "./dist/data/index.d.cts",
+        "default": "./dist/data/index.cjs"
+      }
+    },
+    "./section": {
+      "import": {
+        "types": "./dist/section/index.d.ts",
+        "default": "./dist/section/index.js"
+      },
+      "require": {
+        "types": "./dist/section/index.d.cts",
+        "default": "./dist/section/index.cjs"
+      }
+    },
+    "./page": {
+      "import": {
+        "types": "./dist/page/index.d.ts",
+        "default": "./dist/page/index.js"
+      },
+      "require": {
+        "types": "./dist/page/index.d.cts",
+        "default": "./dist/page/index.cjs"
+      }
+    }
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "eslint src/"
+  },
+  "dependencies": {
+    "@goldenhippo/builder-types": "*"
+  },
+  "devDependencies": {
+    "tsup": "^8.5.1",
+    "vitest": "^4.0.18",
+    "@builder.io/sdk": "^6.2.0",
+    "@builder.io/app-context": "^1.0.0"
+  },
+  "peerDependencies": {
+    "typescript": ">=5.0.0"
+  },
+  "peerDependenciesMeta": {
+    "typescript": {
+      "optional": true
+    }
+  },
+  "nx": {
+    "tags": [
+      "scope:funnel",
+      "type:schema"
+    ],
+    "targets": {
+      "build": {
+        "outputs": [
+          "{projectRoot}/dist"
+        ]
+      }
+    }
+  }
+}
