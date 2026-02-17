@@ -32,8 +32,7 @@
     "directory": "packages/builder-types"
   },
   "publishConfig": {
-    "access": "public",
-    "provenance": true
+    "access": "public"
   },
   "peerDependencies": {
     "@builder.io/sdk": ">=2.0.0",
