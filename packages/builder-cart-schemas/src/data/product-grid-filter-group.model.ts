@@ -1,5 +1,9 @@
-import { BuilderResponseBaseData, ModelShape } from '@goldenhippo/builder-types';
+import { BuilderContentReference, BuilderResponseBaseData, ModelShape } from '@goldenhippo/builder-types';
 import { BuilderContent } from '@builder.io/sdk';
+import { BuilderProductCategoryContent } from './product-category.model';
+import { BuilderIngredientContent } from './product-ingredient.model';
+import { BuilderProductUseCaseContent } from './product-use-case.model';
+import { BuilderProductTagContent } from './product-tag.model';
 
 interface ProductFilterModels {
   categoryId: string;
@@ -135,22 +139,26 @@ export type BuilderProductGridFilterGroupContent = BuilderContent &
       categories: {
         category: {
           id: string;
-        } & Record<string, any>;
+          value: BuilderContentReference<BuilderProductCategoryContent>;
+        };
       }[];
       ingredients: {
         ingredient: {
           id: string;
-        } & Record<string, any>;
+          value: BuilderContentReference<BuilderIngredientContent>;
+        };
       }[];
       useCases: {
         useCase: {
           id: string;
-        } & Record<string, any>;
+          value: BuilderContentReference<BuilderProductUseCaseContent>;
+        };
       }[];
       tags: {
         tag: {
           id: string;
-        } & Record<string, any>;
+          value: BuilderContentReference<BuilderProductTagContent>;
+        };
       }[];
       filterApplicationType: FilterApplicationType;
     };

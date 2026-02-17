@@ -1,5 +1,9 @@
-import { BuilderResponseBaseData, ModelShape } from '@goldenhippo/builder-types';
+import { BuilderContentReference, BuilderResponseBaseData, ModelShape } from '@goldenhippo/builder-types';
 import { BuilderContent } from '@builder.io/sdk';
+import { BuilderProductTagContent } from './product-tag.model';
+import { BuilderProductCategoryContent } from './product-category.model';
+import { BuilderIngredientContent } from './product-ingredient.model';
+import { BuilderProductUseCaseContent } from './product-use-case.model';
 
 interface ProductModelProps {
   ingredientsModelId: string;
@@ -343,26 +347,26 @@ export type BuilderProductContent = BuilderContent &
       };
       tags?: {
         tag: {
-          name: string;
-          displayName: string;
+          id: string;
+          value: BuilderContentReference<BuilderProductTagContent>;
         };
       }[];
       categories?: {
         category: {
-          name: string;
-          displayName: string;
+          id: string;
+          value: BuilderContentReference<BuilderProductCategoryContent>;
         };
       }[];
       ingredients?: {
         ingredient: {
-          name: string;
-          displayName: string;
+          id: string;
+          value: BuilderContentReference<BuilderIngredientContent>;
         };
       }[];
       useCases?: {
         useCase: {
-          name: string;
-          displayName: string;
+          id: string;
+          value: BuilderContentReference<BuilderProductUseCaseContent>;
         };
       }[];
       gh: {

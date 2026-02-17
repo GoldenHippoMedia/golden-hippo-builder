@@ -11,6 +11,15 @@ export type BuilderResponseBaseData = {
   [key: string]: any;
 };
 
+export type BuilderContentReference<T> = {
+  id: string;
+  value: {
+    id: string;
+    //eslint-disable-next-line @typescript-eslint/no-explicit-any
+    data: T;
+  };
+};
+
 export interface ModelShape extends Omit<Model, 'id' | 'fields'> {
   name: string;
   displayName: string;

@@ -1,5 +1,6 @@
-import { BuilderResponseBaseData, ModelShape } from '@goldenhippo/builder-types';
+import { BuilderContentReference, BuilderResponseBaseData, ModelShape } from '@goldenhippo/builder-types';
 import { BuilderContent } from '@builder.io/sdk';
+import { BuilderBlogPageContent } from '../page';
 
 const BlogCommentModel: ModelShape = {
   name: 'blog-comment',
@@ -128,6 +129,7 @@ export type BuilderBlogCommentContent = BuilderContent &
       blog: {
         id: string;
         name: string;
+        value: BuilderContentReference<BuilderBlogPageContent>;
       };
     };
   }>;
