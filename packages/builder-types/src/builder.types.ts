@@ -113,6 +113,15 @@ interface BaseBuilderIOField {
         Default?: string | number | boolean;
       };
   advanced?: boolean;
+  min?: number;
+  max?: number;
+  regex?: {
+    pattern: string;
+    /** flags for the RegExp constructor, e.g. "gi"  */
+    options?: string;
+    message: string;
+  };
+  broadcast?: boolean;
 }
 
 interface FileField extends Omit<BaseBuilderIOField, 'type'> {
@@ -122,12 +131,11 @@ interface FileField extends Omit<BaseBuilderIOField, 'type'> {
   copyOnAdd?: boolean;
 }
 
-interface ReferenceField extends Omit<BaseBuilderIOField, 'type'> {
+type ReferenceField = Omit<BaseBuilderIOField, 'type'> & {
   type: 'reference';
-  modelId: string;
   copyOnAdd: boolean;
   showTemplatePicker?: boolean;
-}
+} & ({ modelId: string } | { model: string });
 
 interface ListField extends Omit<BaseBuilderIOField, 'type'> {
   type: 'list';

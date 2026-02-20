@@ -3,19 +3,11 @@ import appState, { ApplicationContext, Model } from '@builder.io/app-context';
 import HippoCMSManager from '@application/HippoCMSManager';
 import { pluginId, pluginIcon } from './constants';
 import BuilderHelper from '@core/models/builder-helper';
-import { ModelShape } from '@goldenhippo/builder-types';
-
-interface OnSaveActions {
-  updateSettings(partial: Record<string, any>): Promise<void>;
-}
-
-interface AppActions {
-  triggerSettingsDialog(pluginId: string): Promise<void>;
-}
+import { ModelShape, OnSaveActions, AppActions } from '@goldenhippo/builder-types';
 
 function getModel(name: string, models: Model[]) {
   const match = models.find((model) => model.name === name);
-  console.log(`[Hippo Commerce] Retrieved model "${name}" --->`, match?.id);
+  console.log(`[Hippo Commerce - CART] Retrieved model "${name}" --->`, match?.id);
   return match;
 }
 
@@ -32,14 +24,14 @@ async function setModel(
       id: current ? current.id : randomId,
     });
     const id = current ? current.id : randomId;
-    console.log('[Hippo Commerce] Model update complete --->', shape.name, id);
+    console.log('[Hippo Commerce - CART] Model update complete --->', shape.name, id);
     return id;
   } catch (e) {
     console.error(
-      '[Hippo Commerce] Set model error',
+      '[Hippo Commerce - CART] Set model error',
       e instanceof Error ? { message: e.message, name: e.name, stack: e.stack } : e,
     );
-    console.error('[Hippo Commerce] Failed model shape:', shape.name);
+    console.error('[Hippo Commerce - CART] Failed model shape:', shape.name);
   }
   return current ? current.id : shape.name;
 }
@@ -131,7 +123,7 @@ async function setHippoModels(currentState: ApplicationContext) {
   const defaultWebsiteSectionModel = getModel(defaultWebsiteSectionModelShape.name, models);
   await setModel(defaultWebsiteSectionModelShape, defaultWebsiteSectionModel, currentState);
 
-  console.info('[Hippo Commerce] Model setup complete');
+  console.info('[Hippo Commerce - CART] Model setup complete');
 }
 
 Builder.register('plugin', {
@@ -190,7 +182,7 @@ Builder.register('plugin', {
     });
     await setHippoModels(appState as ApplicationContext);
     // @ts-expect-error types are not complete
-    await appState.dialogs.alert('Hippo Commerce settings saved.');
+    await appState.dialogs.alert('Hippo Commerce Cart settings saved.');
   },
 });
 

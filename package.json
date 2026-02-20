@@ -8,6 +8,7 @@
   ],
   "scripts": {
     "build": "nx run-many -t build",
+    "build:builder-types": "nx run @goldenhippo/builder-types:build",
     "build:schemas": "nx run @goldenhippo/builder-cart-schemas:build",
     "build:funnel-schemas": "nx run @goldenhippo/builder-funnel-schemas:build",
     "build:plugin": "nx run @goldenhippo/builder-cart-plugin:build",
