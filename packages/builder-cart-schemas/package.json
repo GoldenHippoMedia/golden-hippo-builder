@@ -1,6 +1,7 @@
 {
   "name": "@goldenhippo/builder-cart-schemas",
   "version": "0.3.0",
+  "type": "module",
   "description": "Shared Zod schemas, TypeScript types, and utilities for Golden Hippo Builder.io models",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
