@@ -1,6 +1,6 @@
 {
   "name": "@goldenhippo/builder-funnel-schemas",
-  "version": "0.2.0",
+  "version": "0.4.0",
   "description": "Shared TypeScript types and Builder.io model definitions for Golden Hippo funnel models",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
