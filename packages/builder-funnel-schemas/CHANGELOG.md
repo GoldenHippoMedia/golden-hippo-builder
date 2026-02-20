@@ -1,5 +1,16 @@
 # @goldenhippo/builder-funnel-schemas
 
+## 0.4.0
+
+### Minor Changes
+
+- [#5](https://github.com/GoldenHippoMedia/golden-hippo-builder/pull/5) [`01c6750`](https://github.com/GoldenHippoMedia/golden-hippo-builder/commit/01c6750377a95bf63e91b52f825198b1e4be1645) Thanks [@steven-t-h](https://github.com/steven-t-h)! - fix: add "type": "module" to package.json to align tsup output filenames with exports map
+
+### Patch Changes
+
+- Updated dependencies [[`01c6750`](https://github.com/GoldenHippoMedia/golden-hippo-builder/commit/01c6750377a95bf63e91b52f825198b1e4be1645)]:
+  - @goldenhippo/builder-types@0.4.0
+
 ## 0.2.0
 
 ### Minor Changes
