@@ -25,14 +25,16 @@ Nx monorepo for Golden Hippo's Builder.io integration. Published to [npm](https:
 
 ## Documentation
 
-Full developer documentation is in the [**wiki/**](./wiki/) folder:
+Full developer documentation is available on the [**GitHub Wiki**](https://github.com/GoldenHippoMedia/golden-hippo-builder/wiki):
 
-- [Architecture](./wiki/architecture.md) — package overview, dependency flow, what gets published
-- [Development Workflow](./wiki/development-workflow.md) — branching, coding, changesets, pull requests
-- [Versioning & Publishing](./wiki/versioning-and-publishing.md) — how releases work
-- [Consuming Schemas](./wiki/consuming-schemas.md) — for frontend teams installing schema packages
-- [Consuming Plugins](./wiki/consuming-plugins.md) — for Builder.io admins loading plugins via CDN
-- [Repository Setup](./wiki/repository-setup.md) — one-time setup for repo administrators
+- [Architecture](https://github.com/GoldenHippoMedia/golden-hippo-builder/wiki/architecture) — package overview, dependency flow, what gets published
+- [Development Workflow](https://github.com/GoldenHippoMedia/golden-hippo-builder/wiki/development-workflow) — branching, coding, changesets, pull requests
+- [Versioning & Publishing](https://github.com/GoldenHippoMedia/golden-hippo-builder/wiki/versioning-and-publishing) — how releases work
+- [Consuming Schemas](https://github.com/GoldenHippoMedia/golden-hippo-builder/wiki/consuming-schemas) — for frontend teams installing schema packages
+- [Consuming Plugins](https://github.com/GoldenHippoMedia/golden-hippo-builder/wiki/consuming-plugins) — for Builder.io admins loading plugins via CDN
+- [Repository Setup](https://github.com/GoldenHippoMedia/golden-hippo-builder/wiki/repository-setup) — one-time setup for repo administrators
+
+> **Note:** Wiki pages are maintained in the [`wiki/`](./wiki/) folder and automatically synced to the GitHub Wiki on push to `main`.
 
 ## Quick Start
 
@@ -83,7 +85,7 @@ npx changeset
 # 4. CI validates → merge → automated release
 ```
 
-See [Development Workflow](./wiki/development-workflow.md) for the full process.
+See [Development Workflow](https://github.com/GoldenHippoMedia/golden-hippo-builder/wiki/development-workflow) for the full process.
 
 ## Project Structure
 
