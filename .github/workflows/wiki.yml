@@ -23,8 +23,13 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
-          # Clone the wiki repo
-          git clone "https://x-access-token:${GH_TOKEN}@github.com/GoldenHippoMedia/golden-hippo-builder.wiki.git" wiki-repo
+          WIKI_URL="https://x-access-token:${GH_TOKEN}@github.com/GoldenHippoMedia/golden-hippo-builder.wiki.git"
+
+          # Clone the wiki repo, or initialize a fresh one if it doesn't exist yet
+          if ! git clone "$WIKI_URL" wiki-repo 2>/dev/null; then
+            echo "Wiki repo not found — initializing a new one"
+            mkdir wiki-repo && cd wiki-repo && git init && git remote add origin "$WIKI_URL" && cd ..
+          fi
 
           # Clear existing wiki content (preserve .git)
           find wiki-repo -maxdepth 1 ! -name '.git' ! -name '.' -exec rm -rf {} +
