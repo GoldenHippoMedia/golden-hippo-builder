@@ -7,47 +7,49 @@ on:
     paths:
       - 'wiki/**'
 
+permissions:
+  contents: write
+
 jobs:
   sync:
     name: Publish Wiki
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
     steps:
       - uses: actions/checkout@v4
 
       - name: Sync wiki folder to GitHub Wiki
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-
-          WIKI_URL="https://x-access-token:${GH_TOKEN}@github.com/GoldenHippoMedia/golden-hippo-builder.wiki.git"
-
           # Clone the wiki repo, or initialize a fresh one if it doesn't exist yet
-          if ! git clone "$WIKI_URL" wiki-repo 2>/dev/null; then
+          if ! git clone "https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.wiki.git" wiki-repo 2>/dev/null; then
             echo "Wiki repo not found — initializing a new one"
-            mkdir wiki-repo && cd wiki-repo && git init && git remote add origin "$WIKI_URL" && cd ..
+            mkdir wiki-repo
+            cd wiki-repo
+            git init
+            git remote add origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.wiki.git"
+            cd ..
           fi
 
-          # Clear existing wiki content (preserve .git)
-          find wiki-repo -maxdepth 1 ! -name '.git' ! -name '.' -exec rm -rf {} +
+          # Remove existing files in the wiki repo (except .git)
+          find wiki-repo -maxdepth 1 -not -name '.git' -not -name 'wiki-repo' -not -path wiki-repo | xargs rm -rf
 
-          # Copy wiki/ contents into the wiki repo
-          cp -r wiki/* wiki-repo/
+          # Copy wiki/ contents to the wiki repo root
+          cp wiki/* wiki-repo/
 
           # GitHub Wiki uses Home.md instead of README.md
           if [ -f wiki-repo/README.md ]; then
             mv wiki-repo/README.md wiki-repo/Home.md
           fi
 
-          # Push if there are changes
           cd wiki-repo
-          git add -A
-          if git diff --cached --quiet; then
-            echo "No wiki changes to publish"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          if git diff --quiet && git diff --staged --quiet; then
+            echo "No wiki changes to commit."
           else
-            git commit -m "Sync wiki from main (${GITHUB_SHA::7})"
+            git add -A
+            git commit -m "docs: sync wiki from ${GITHUB_SHA::7}"
             git push
           fi
