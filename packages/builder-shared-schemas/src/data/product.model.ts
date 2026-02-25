@@ -266,6 +266,18 @@ export const createProductModel = (request: ProductModelProps): ModelShape => {
         ],
       },
       {
+        name: 'servingsPerUnit',
+        friendlyName: 'Servings Per Unit',
+        type: 'number',
+        defaultValue: undefined,
+        required: false,
+        defaultCollapsed: true,
+        localized: false,
+        helperText:
+          'Typical number of servings (or doses, days of supply) per unit. Used to auto-calculate default' +
+          ' subscription frequency for funnel offers (servingsPerUnit × quantity). Defaults to 30 if not set.',
+      },
+      {
         name: 'name',
         friendlyName: 'Name',
         type: 'text',
@@ -340,6 +352,7 @@ export type BuilderProductContent = BuilderContent &
       outOfStock?: boolean;
       cartOutOfStock?: boolean;
       upc?: string;
+      servingsPerUnit?: number;
       reviews?: {
         id: string;
         count: number;

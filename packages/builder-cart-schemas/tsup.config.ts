@@ -14,5 +14,5 @@ export default defineConfig({
   splitting: false,
   treeshake: true,
   outDir: 'dist',
-  external: ['@goldenhippo/builder-types'],
+  external: ['@goldenhippo/builder-types', '@goldenhippo/builder-shared-schemas'],
 });

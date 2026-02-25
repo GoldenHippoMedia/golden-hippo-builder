@@ -27,16 +27,18 @@ Nx caches build/typecheck/lint/test results. Build targets respect `dependsOn: [
 
 ## Architecture
 
-**Nx monorepo with npm workspaces** for Golden Hippo's Builder.io integration. Six packages across two product scopes (cart and funnel) plus shared libraries (types and UI).
+**Nx monorepo with npm workspaces** for Golden Hippo's Builder.io integration. Seven packages across two product scopes (cart and funnel) plus shared libraries (types, shared schemas, and UI).
 
 ### Dependency Flow
 
 ```
-builder-cart-plugin    → builder-cart-schemas + builder-types + builder-ui
-builder-funnel-plugin  → builder-funnel-schemas + builder-cart-schemas + builder-ui
-builder-cart-schemas   → builder-types
-builder-funnel-schemas → builder-types
-Angular apps           → builder-cart-schemas (npm install)
+builder-cart-plugin    → builder-cart-schemas + builder-ui
+builder-funnel-plugin  → builder-funnel-schemas + builder-ui
+builder-cart-schemas   → builder-shared-schemas + builder-types
+builder-funnel-schemas → builder-shared-schemas + builder-types
+builder-shared-schemas → builder-types
+Angular cart apps      → builder-cart-schemas (npm install)
+Angular funnel apps    → builder-funnel-schemas (npm install)
 ```
 
 ESLint enforces module boundaries via Nx tags:
@@ -56,11 +58,20 @@ Shared Builder.io type definitions used by both schema packages. Extracted to de
 - **1 export subpath:** `.`
 - Tags: `scope:shared`, `type:schema`
 
+### `@goldenhippo/builder-shared-schemas` (publishable to npm, shared)
+
+Shared Builder.io model definitions used by both cart and funnel schema packages. Contains the product model and its dependencies — models that both scopes need. Each model exports a **factory function** returning a `ModelShape` plus a **TypeScript content type**.
+
+- **`src/data/`** — 5 data models: product, product-category, product-tag, product-ingredient, product-use-case
+- Built with **tsup** → dual CJS/ESM + declarations
+- **2 export subpaths:** `.`, `./data`
+- Tags: `scope:shared`, `type:schema`
+
 ### `@goldenhippo/builder-cart-schemas` (publishable to npm)
 
-Builder.io model definitions and TypeScript content types for all 13 cart/commerce models. Each model exports a **factory function** (`createXxxModel(...)`) returning a `ModelShape` object (Builder.io field definitions for the API) plus an inferred **TypeScript content type** (`BuilderXxxContent`).
+Builder.io model definitions and TypeScript content types for cart/commerce-specific models. Re-exports shared product models from `builder-shared-schemas` for backward compatibility. Each model exports a **factory function** (`createXxxModel(...)`) returning a `ModelShape` object plus an inferred **TypeScript content type** (`BuilderXxxContent`).
 
-- **`src/data/`** — 10 data models: product, product-category, product-tag, product-ingredient, product-use-case, product-group, product-grid-filter-group, blog-category, blog-comment, brand-config (composed from `brand-config/sections/`: general, header, footer, feature, support, page, cookie configs)
+- **`src/data/`** — 5 cart-specific data models: product-group, product-grid-filter-group, blog-category, blog-comment, brand-config (composed from `brand-config/sections/`: general, header, footer, feature, support, page, cookie configs). Re-exports 5 shared models (product, product-category, product-tag, product-ingredient, product-use-case) from `@goldenhippo/builder-shared-schemas`.
 - **`src/section/`** — 2 component models: default-website-section, site-banner
 - **`src/page/`** — 1 page model with discriminated union types: `BuilderPageContent` (union of `BuilderGeneralPageContent`, `BuilderPdpPageContent`, `BuilderBlogPageContent`)
 - **`src/types/`** — Re-exports from `@goldenhippo/builder-types` (internal convenience for model files)
@@ -70,10 +81,12 @@ Builder.io model definitions and TypeScript content types for all 13 cart/commer
 
 ### `@goldenhippo/builder-funnel-schemas` (publishable to npm)
 
-Builder.io model definitions and TypeScript content types for funnel models. Same structure and build setup as builder-cart-schemas but scoped to funnel workflows.
+Builder.io model definitions and TypeScript content types for funnel models. Depends on `@goldenhippo/builder-shared-schemas` for product models. Re-exports product factories from shared-schemas through the root entry point.
 
-- **`src/data/`**, **`src/section/`**, **`src/page/`** — Placeholder directories (models will be added as funnel features are implemented)
-- **`src/types/`** — Re-exports from `@goldenhippo/builder-types` (internal convenience for model files)
+- **`src/data/`** — 4 data models: funnel-offer, funnel, funnel-destination, funnel-split-test
+- **`src/page/`** — 1 page model: funnel-page (kind: 'page' with editingUrlLogic for `/f/preview` paths)
+- **`src/section/`** — Placeholder (no section models yet)
+- Root `src/index.ts` re-exports shared product models + all funnel models
 - Built with **tsup** → dual CJS/ESM + declarations
 - **4 export subpaths:** `.`, `./data`, `./section`, `./page`
 - Tags: `scope:funnel`, `type:schema`
@@ -106,23 +119,34 @@ React 18 plugin running inside Builder.io's editor iframe. Manages pages, produc
 
 ### `@goldenhippo/builder-funnel-plugin` (private)
 
-React 18 plugin for funnel websites inside Builder.io. Early stage — placeholder UI with "Coming Soon" cards for funnel pages and configuration.
+React 18 plugin for funnel websites inside Builder.io. Manages offers, funnels, destinations, and split tests.
 
-- **`src/plugin.ts`** — Entry point: registers plugin settings (editUrl), appTab ("Hippo Funnels")
-- **`src/App.tsx`** — Single-file app with placeholder UI (no sub-directories yet)
+- **`src/plugin.ts`** — Entry point: registers plugin settings (editUrl, apiUrl, apiUser, apiPassword), appTab ("Hippo Funnels"), 7-phase model auto-creation on save
+- **`src/App.tsx`** — App shell with MobX state + cookie routing, loads all funnel content on mount
+- **`src/application/`** — Page components: Dashboard, Offers, Funnels (with offer filter), Destinations, Split Tests, Settings
+- **`src/core/models/`** — `FunnelBuilderHelper` singleton orchestrating all funnel + shared product model definitions
+- **`src/services/`** — `BuilderApi` (paginated Builder.io content fetching for all funnel models)
+- **`src/interfaces/`** — `ExtendedApplicationContext` extending Builder.io's `ApplicationContext` with plugin-specific types
 - **`src/styles.css`** — Imports builder-ui styles, Tailwind v4 `@source` directives
 - Built with **Webpack 5** → `plugin.system.js` (SystemJS format, port 1269). Same externals as cart plugin.
 - Tags: `scope:funnel`, `type:plugin`
 
 ## Adding a New Builder.io Model
 
-### In a schema package (e.g., builder-cart-schemas)
+### In a schema package
+
+Choose the right package based on scope:
+
+- **`builder-shared-schemas`** — Models shared across cart and funnel (product and its dependencies)
+- **`builder-cart-schemas`** — Cart/commerce-specific models
+- **`builder-funnel-schemas`** — Funnel-specific models
 
 1. Create `src/data/<model-name>.model.ts` (or `src/section/` for component models, `src/page/` for page models)
    - Export a factory function (`createXxxModel(...)`) returning a `ModelShape` object
    - Export a TypeScript content type (`BuilderXxxContent`)
 2. Re-export from the appropriate barrel: `src/data/index.ts`, `src/section/index.ts`, or `src/page/index.ts`
 3. Re-export from `src/index.ts`
+4. If adding to `builder-shared-schemas`, also add re-exports in both `builder-cart-schemas` and `builder-funnel-schemas` for consumer convenience
 
 ### In the plugin (e.g., builder-cart-plugin)
 
@@ -134,10 +158,10 @@ React 18 plugin for funnel websites inside Builder.io. Early stage — placehold
 
 Uses **Changesets** for versioning and **public npm** for distribution. All packages except `builder-ui` are published.
 
-- **Schema packages** (`builder-types`, `builder-cart-schemas`, `builder-funnel-schemas`) are installed via `npm install`
+- **Schema packages** (`builder-types`, `builder-shared-schemas`, `builder-cart-schemas`, `builder-funnel-schemas`) are installed via `npm install`
 - **Plugin packages** (`builder-cart-plugin`, `builder-funnel-plugin`) are published to npm and served via **jsdelivr CDN** for Builder.io to load:
   - `https://cdn.jsdelivr.net/npm/@goldenhippo/builder-cart-plugin@<version>/dist/plugin.system.js`
-- **Linked versions**: schema packages (`builder-types`, `builder-cart-schemas`, `builder-funnel-schemas`) share the same version number
+- **Linked versions**: schema packages (`builder-types`, `builder-shared-schemas`, `builder-cart-schemas`, `builder-funnel-schemas`) share the same version number
 - CI workflow: merge to `main` → changesets action creates "Version Packages" PR → merge that PR → publishes to npm
 - Full docs: `wiki/versioning-and-publishing.md`
 

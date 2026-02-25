@@ -69,7 +69,8 @@
     "lint": "eslint src/"
   },
   "dependencies": {
-    "@goldenhippo/builder-types": "*"
+    "@goldenhippo/builder-types": "*",
+    "@goldenhippo/builder-shared-schemas": "*"
   },
   "devDependencies": {
     "tsup": "^8.5.1",

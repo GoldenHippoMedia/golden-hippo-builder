@@ -27,6 +27,7 @@ export function StatGridCard(props: StatGridCardProps) {
       'bg-warning hover:bg-warning/70 text-warning-content shadow-warning': variant === 'warning',
       'bg-info hover:bg-info/70 text-info-content shadow-info': variant === 'neutral',
       'bg-error hover:bg-error/70 text-error-content shadow-error': variant === 'error',
+      'bg-base-200': !variant,
     },
     className,
   );

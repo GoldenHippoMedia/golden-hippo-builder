@@ -1,6 +1,6 @@
 import { BuilderContentReference, BuilderResponseBaseData, ModelShape } from '@goldenhippo/builder-types';
 import { BuilderContent } from '@builder.io/sdk';
-import { BuilderProductContent } from './product.model';
+import { BuilderProductContent } from '@goldenhippo/builder-shared-schemas';
 
 export enum ProductGroupType {
   FlavorOptionGroup = 'Flavor/Option Group',

@@ -4,7 +4,12 @@
   "commit": false,
   "fixed": [],
   "linked": [
-    ["@goldenhippo/builder-cart-schemas", "@goldenhippo/builder-funnel-schemas", "@goldenhippo/builder-types"]
+    [
+      "@goldenhippo/builder-cart-schemas",
+      "@goldenhippo/builder-funnel-schemas",
+      "@goldenhippo/builder-shared-schemas",
+      "@goldenhippo/builder-types"
+    ]
   ],
   "access": "public",
   "baseBranch": "main",

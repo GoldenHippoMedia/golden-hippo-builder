@@ -44,7 +44,7 @@ export const createFeatureConfig = (gridFilterModelId: string): BuilderIOFieldTy
             copyOnAdd: false,
           },
         ],
-        showIf: `return options.get('productGridFilterType') === 'Custom'`,
+        //showIf: `return options.get('productGridFilterType') === ('Custom' || '${ProductGridFilterType.STACKED_LIST}')`,
       },
       {
         name: 'productGridHideRestricted',

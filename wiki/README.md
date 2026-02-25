@@ -11,4 +11,5 @@ Developer documentation for the Golden Hippo Builder.io monorepo.
 | [Versioning & Publishing](./versioning-and-publishing.md) | Contributors      | How changesets work, CI/CD pipeline, manual publishing       |
 | [Consuming Schemas](./consuming-schemas.md)               | Frontend teams    | Installing and using schema packages in Angular/Express apps |
 | [Consuming Plugins](./consuming-plugins.md)               | Builder.io admins | Loading plugins in Builder.io via CDN URLs                   |
+| [Funnel Architecture](./funnel-architecture.md)           | All developers    | Funnel system design: models, plugin, workflows, integration |
 | [Repository Setup](./repository-setup.md)                 | Repo admins       | One-time setup: npm org, secrets, GitHub config              |
