@@ -727,7 +727,7 @@ const AdminPage: React.FC<AdminPageProps> = ({ data, context, onRefresh }) => {
               </div>
               <button
                 className="btn btn-ghost"
-                onClick={() => openPluginSettings().catch(() => {})}
+                onClick={() => openPluginSettings().catch(() => { /* ignore */ })}
               >
                 Open Settings
               </button>
