@@ -11,6 +11,7 @@ npm run build:schemas          # Build only builder-cart-schemas
 npm run build:funnel-schemas   # Build only builder-funnel-schemas
 npm run build:plugin           # Build only builder-cart-plugin (auto-builds deps)
 npm run build:funnel-plugin    # Build only builder-funnel-plugin (auto-builds deps)
+npm run build:funnel-angular   # Build only builder-funnel-angular (auto-builds deps)
 npm run dev:plugin             # Start cart plugin dev server (http://localhost:1268)
 npm run dev:funnel-plugin      # Start funnel plugin dev server (http://localhost:1269)
 npm run typecheck              # Type-check all packages
@@ -27,18 +28,19 @@ Nx caches build/typecheck/lint/test results. Build targets respect `dependsOn: [
 
 ## Architecture
 
-**Nx monorepo with npm workspaces** for Golden Hippo's Builder.io integration. Seven packages across two product scopes (cart and funnel) plus shared libraries (types, shared schemas, and UI).
+**Nx monorepo with npm workspaces** for Golden Hippo's Builder.io integration. Eight packages across two product scopes (cart and funnel) plus shared libraries (types, shared schemas, and UI).
 
 ### Dependency Flow
 
 ```
-builder-cart-plugin    → builder-cart-schemas + builder-ui
-builder-funnel-plugin  → builder-funnel-schemas + builder-ui
-builder-cart-schemas   → builder-shared-schemas + builder-types
-builder-funnel-schemas → builder-shared-schemas + builder-types
-builder-shared-schemas → builder-types
-Angular cart apps      → builder-cart-schemas (npm install)
-Angular funnel apps    → builder-funnel-schemas (npm install)
+builder-cart-plugin      → builder-cart-schemas + builder-ui
+builder-funnel-plugin    → builder-funnel-schemas + builder-ui
+builder-funnel-angular   → builder-funnel-schemas
+builder-cart-schemas     → builder-shared-schemas + builder-types
+builder-funnel-schemas   → builder-shared-schemas + builder-types
+builder-shared-schemas   → builder-types
+Angular cart apps        → builder-cart-schemas (npm install)
+Angular funnel apps      → builder-funnel-angular (npm install)
 ```
 
 ESLint enforces module boundaries via Nx tags:
@@ -47,6 +49,7 @@ ESLint enforces module boundaries via Nx tags:
 - `scope:funnel` can depend on `scope:funnel` + `scope:shared`
 - `scope:shared` can only depend on `scope:shared`
 - `type:plugin` can depend on `type:schema` + `type:ui`
+- `type:integration` can depend on `type:integration` + `type:schema`
 - `type:schema` and `type:ui` can only depend on their own type
 
 ### `@goldenhippo/builder-types` (publishable to npm, shared)
@@ -131,6 +134,27 @@ React 18 plugin for funnel websites inside Builder.io. Manages offers, funnels, 
 - Built with **Webpack 5** → `plugin.system.js` (SystemJS format, port 1269). Same externals as cart plugin.
 - Tags: `scope:funnel`, `type:plugin`
 
+### `@goldenhippo/builder-funnel-angular` (publishable to npm)
+
+Framework-agnostic TypeScript SDK for consuming Builder.io funnel content in Angular SSR/SSG applications. Calls the Builder.io Content API v3 directly via `fetch()` — no Angular or Builder.io SDK dependency required.
+
+- **`src/config.ts`** — `initBuilderFunnel()` singleton configuration with `apiKey`, `apiHost`, `enrich`, `cacheSeconds`, custom `fetch`
+- **`src/content/fetch.ts`** — Generic fetchers: `fetchEntries<T>`, `fetchOneEntry<T>`, `fetchAllEntries<T>` (auto-paginates past Builder.io's 100-item limit)
+- **`src/content/funnel-api.ts`** — Business utilities:
+  - Offer lookups: `getOfferById`, `getOfferBySlug`, `getDefaultOffer`
+  - Funnel lookups: `getFunnelById`, `getFunnelByIdOrGEP` (tries ID then `data.gh.slug`)
+  - Destination lookups: `getDestinationBySlug`
+  - Page lookups: `getFunnelPage` (URL-path targeting)
+  - Resolution: `getFunnelFromDestination` (split test pipeline → `ResolvedFunnel`), `getFunnelFromSplitTest`
+  - Pricing: `getPricingFromFunnel` → `ResolvedPricingTier[]` with `unitPrice`, `savingsPercent`, `subscriptionUnitPrice`
+  - Steps: `getStepsFromFunnel`, `getMostPopularTier`
+- **`src/routing/`** — `isFunnelPreviewPath`, `isBuilderEditRequest`, re-exports `resolveDestinationConfig` + `getFunnelIdFromPage` from funnel-schemas
+- Re-exports ~25 types + 5 utilities from `@goldenhippo/builder-funnel-schemas` for consumer convenience
+- Built with **tsup** → dual CJS/ESM + declarations
+- **3 export subpaths:** `.`, `./content`, `./routing`
+- Tags: `scope:funnel`, `type:integration`
+- **Note:** `tsconfig.json` overrides `paths: {}` to prevent DTS build errors from base config path aliases resolving to source files outside `rootDir`
+
 ## Adding a New Builder.io Model
 
 ### In a schema package
@@ -158,10 +182,10 @@ Choose the right package based on scope:
 
 Uses **Changesets** for versioning and **public npm** for distribution. All packages except `builder-ui` are published.
 
-- **Schema packages** (`builder-types`, `builder-shared-schemas`, `builder-cart-schemas`, `builder-funnel-schemas`) are installed via `npm install`
+- **Schema packages** (`builder-types`, `builder-shared-schemas`, `builder-cart-schemas`, `builder-funnel-schemas`) and **integration packages** (`builder-funnel-angular`) are installed via `npm install`
 - **Plugin packages** (`builder-cart-plugin`, `builder-funnel-plugin`) are published to npm and served via **jsdelivr CDN** for Builder.io to load:
   - `https://cdn.jsdelivr.net/npm/@goldenhippo/builder-cart-plugin@<version>/dist/plugin.system.js`
-- **Linked versions**: schema packages (`builder-types`, `builder-shared-schemas`, `builder-cart-schemas`, `builder-funnel-schemas`) share the same version number
+- **Linked versions**: schema packages (`builder-types`, `builder-shared-schemas`, `builder-cart-schemas`, `builder-funnel-schemas`) share the same version number. `builder-funnel-angular` is versioned independently.
 - CI workflow: merge to `main` → changesets action creates "Version Packages" PR → merge that PR → publishes to npm
 - Full docs: `wiki/versioning-and-publishing.md`
 
