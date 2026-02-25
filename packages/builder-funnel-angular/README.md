@@ -213,7 +213,12 @@ Single-entry fetchers (`fetchFunnelOffer`, `fetchFunnel`, etc.) and `fetchFunnel
 ## Routing
 
 ```typescript
-import { isFunnelPreviewPath, isBuilderEditRequest } from '@goldenhippo/builder-funnel-angular/routing';
+import {
+  isFunnelPreviewPath,
+  isBuilderEditRequest,
+  resolveDestinationConfig,
+  getFunnelIdFromPage,
+} from '@goldenhippo/builder-funnel-angular/routing';
 
 // Check if a URL is a funnel preview path
 isFunnelPreviewPath('/f/preview/my-page'); // true
@@ -223,12 +228,31 @@ isFunnelPreviewPath('/about'); // false
 isBuilderEditRequest('https://example.com/page?builder.preview=true'); // true
 ```
 
-| Function               | Description                                                            |
-| ---------------------- | ---------------------------------------------------------------------- |
-| `isFunnelPreviewPath`  | Check if a URL path starts with the funnel preview base (`/f/preview`) |
-| `isBuilderEditRequest` | Check if a URL has `builder.preview` or `builder.editing` query params |
+### Destination resolution
 
-Both functions are SSR-safe and work in browser and Node.js environments.
+Resolve which funnel a user should see for a given destination, including split test variant selection:
+
+```typescript
+import { resolveDestinationConfig, getFunnelIdFromPage } from '@goldenhippo/builder-funnel-angular/routing';
+
+// Resolve the active funnel for a destination (handles split tests)
+const config = resolveDestinationConfig(destination);
+if (config) {
+  console.log(config.offerId, config.funnelId, config.splitTestId);
+}
+
+// Extract the funnel ID from a funnel page entry
+const funnelId = getFunnelIdFromPage(page);
+```
+
+| Function                   | Description                                                            |
+| -------------------------- | ---------------------------------------------------------------------- |
+| `isFunnelPreviewPath`      | Check if a URL path starts with the funnel preview base (`/f/preview`) |
+| `isBuilderEditRequest`     | Check if a URL has `builder.preview` or `builder.editing` query params |
+| `resolveDestinationConfig` | Resolve active config for a destination (handles split test logic)     |
+| `getFunnelIdFromPage`      | Extract funnel ID from a funnel-page content entry                     |
+
+All functions are SSR-safe and work in browser and Node.js environments.
 
 ## Exports
 
