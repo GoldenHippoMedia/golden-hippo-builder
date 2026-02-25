@@ -349,7 +349,9 @@ const SplitTestDetailPage: React.FC<SplitTestDetailProps> = ({ item, data, conte
 
         <Section
           title="Variants"
-          subtitle={variantsLocked ? 'Variants are locked because the test is no longer in draft' : 'Minimum 2 required'}
+          subtitle={
+            variantsLocked ? 'Variants are locked because the test is no longer in draft' : 'Minimum 2 required'
+          }
           actions={
             !variantsLocked ? (
               <button className="btn btn-sm btn-ghost" onClick={addVariant} disabled={!destinationId}>
@@ -358,9 +360,7 @@ const SplitTestDetailPage: React.FC<SplitTestDetailProps> = ({ item, data, conte
             ) : undefined
           }
         >
-          {!destinationId && (
-            <p className="text-base-content/50">Select a destination first to add funnel variants.</p>
-          )}
+          {!destinationId && <p className="text-base-content/50">Select a destination first to add funnel variants.</p>}
 
           {destinationId && variants.length === 0 && (
             <p className="text-base-content/50">No variants yet. Add at least 2 funnel variants to split traffic.</p>

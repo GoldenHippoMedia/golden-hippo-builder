@@ -85,7 +85,11 @@ const OffersPage: React.FC<OffersPageProps> = ({ data, context, onRefresh }) => 
       />
 
       {showCreateForm && (
-        <Section title="Create New Offer" subtitle="After creation, you can configure products and pricing tiers." className="mb-6">
+        <Section
+          title="Create New Offer"
+          subtitle="After creation, you can configure products and pricing tiers."
+          className="mb-6"
+        >
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <FormField label="Internal Name" required helper="Used for identification in the CMS">
               <input

@@ -22,9 +22,7 @@ export interface DestinationConfig {
  *   for split test resolution to work; otherwise falls back to the primary funnel.
  * @returns The resolved config, or `undefined` if the destination is missing required data.
  */
-export function resolveDestinationConfig(
-  destination: BuilderFunnelDestinationContent,
-): DestinationConfig | undefined {
+export function resolveDestinationConfig(destination: BuilderFunnelDestinationContent): DestinationConfig | undefined {
   const d = destination.data;
   if (!d) return undefined;
 

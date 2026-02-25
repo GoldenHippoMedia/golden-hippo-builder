@@ -51,8 +51,8 @@ const DashboardPage: React.FC<DashboardPageProps> = ({ data, setPage }) => {
             <div>
               <p className="text-lg font-semibold">{defaultOffer.data?.displayName ?? defaultOffer.data?.name}</p>
               <p className="text-sm text-base-content/60 mt-1">
-                {defaultOffer.data?.products?.length ?? 0} product(s),{' '}
-                {defaultOffer.data?.defaultPricing?.length ?? 0} pricing tier(s)
+                {defaultOffer.data?.products?.length ?? 0} product(s), {defaultOffer.data?.defaultPricing?.length ?? 0}{' '}
+                pricing tier(s)
               </p>
             </div>
           ) : (

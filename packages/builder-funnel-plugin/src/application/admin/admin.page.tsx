@@ -100,17 +100,42 @@ const AdminPage: React.FC<AdminPageProps> = ({ data, context, onRefresh }) => {
         isDefaultOffer: true,
         products: singleProductRef,
         defaultPricing: [
-          { quantity: 1, label: '1 Bottle', standardPrice: 49.95, subscriptionPrice: 39.95, subscriptionFrequency: 'Monthly' },
-          { quantity: 3, label: '3 Bottles', standardPrice: 119.85, isMostPopular: true, subscriptionPrice: 99.85, subscriptionFrequency: 'Monthly' },
-          { quantity: 6, label: '6 Bottles', standardPrice: 199.7, subscriptionPrice: 179.7, subscriptionFrequency: 'BiMonthly' },
+          {
+            quantity: 1,
+            label: '1 Bottle',
+            standardPrice: 49.95,
+            subscriptionPrice: 39.95,
+            subscriptionFrequency: 'Monthly',
+          },
+          {
+            quantity: 3,
+            label: '3 Bottles',
+            standardPrice: 119.85,
+            isMostPopular: true,
+            subscriptionPrice: 99.85,
+            subscriptionFrequency: 'Monthly',
+          },
+          {
+            quantity: 6,
+            label: '6 Bottles',
+            standardPrice: 199.7,
+            subscriptionPrice: 179.7,
+            subscriptionFrequency: 'BiMonthly',
+          },
         ],
         gh: { slug: 'standard-offer' },
       });
       log(`Created offer "Standard Offer" (id: ${standardOffer.id})`, 'success');
 
-      const secondProductRef = data.products.length > 1
-        ? [{ product: { '@type': '@builder.io/core:Reference', model: 'product', id: data.products[1].id! }, displayName: undefined }]
-        : singleProductRef;
+      const secondProductRef =
+        data.products.length > 1
+          ? [
+              {
+                product: { '@type': '@builder.io/core:Reference', model: 'product', id: data.products[1].id! },
+                displayName: undefined,
+              },
+            ]
+          : singleProductRef;
       await api.createContent('funnel-offer', 'Sleep Support Offer', {
         name: 'Sleep Support Offer',
         offerType: 'standard',
@@ -118,8 +143,21 @@ const AdminPage: React.FC<AdminPageProps> = ({ data, context, onRefresh }) => {
         description: 'Targeted sleep support offer with subscription-friendly pricing.',
         products: secondProductRef,
         defaultPricing: [
-          { quantity: 1, label: '1 Bottle', standardPrice: 39.95, subscriptionPrice: 34.95, subscriptionFrequency: 'Monthly' },
-          { quantity: 3, label: '3 Bottles', standardPrice: 99.85, isMostPopular: true, subscriptionPrice: 89.85, subscriptionFrequency: 'Quarterly' },
+          {
+            quantity: 1,
+            label: '1 Bottle',
+            standardPrice: 39.95,
+            subscriptionPrice: 34.95,
+            subscriptionFrequency: 'Monthly',
+          },
+          {
+            quantity: 3,
+            label: '3 Bottles',
+            standardPrice: 99.85,
+            isMostPopular: true,
+            subscriptionPrice: 89.85,
+            subscriptionFrequency: 'Quarterly',
+          },
         ],
         gh: { slug: 'sleep-support' },
       });
@@ -245,7 +283,7 @@ const AdminPage: React.FC<AdminPageProps> = ({ data, context, onRefresh }) => {
       const funnelsForOffer = data.funnels.filter((f) => f.data?.offer?.id === offer.id);
       const controlFunnel = funnelsForOffer.find((f) => f.data?.isControl) ?? funnelsForOffer[0];
       if (!controlFunnel) {
-        log("No funnels found for the first offer.", 'error');
+        log('No funnels found for the first offer.', 'error');
         setRunning(null);
         return;
       }
@@ -299,7 +337,7 @@ const AdminPage: React.FC<AdminPageProps> = ({ data, context, onRefresh }) => {
 
       const variants = funnelsForOffer.slice(0, 2).map((f) => ({
         funnel: { '@type': '@builder.io/core:Reference', model: 'funnel', id: f.id! },
-        label: f.data?.isControl ? 'Control' : f.data?.name ?? 'Variant',
+        label: f.data?.isControl ? 'Control' : (f.data?.name ?? 'Variant'),
       }));
 
       await api.createContent('funnel-split-test', 'Landing Page A/B Test', {
@@ -352,17 +390,42 @@ const AdminPage: React.FC<AdminPageProps> = ({ data, context, onRefresh }) => {
         isDefaultOffer: true,
         products: singleProductRef,
         defaultPricing: [
-          { quantity: 1, label: '1 Bottle', standardPrice: 49.95, subscriptionPrice: 39.95, subscriptionFrequency: 'Monthly' },
-          { quantity: 3, label: '3 Bottles', standardPrice: 119.85, isMostPopular: true, subscriptionPrice: 99.85, subscriptionFrequency: 'Monthly' },
-          { quantity: 6, label: '6 Bottles', standardPrice: 199.7, subscriptionPrice: 179.7, subscriptionFrequency: 'BiMonthly' },
+          {
+            quantity: 1,
+            label: '1 Bottle',
+            standardPrice: 49.95,
+            subscriptionPrice: 39.95,
+            subscriptionFrequency: 'Monthly',
+          },
+          {
+            quantity: 3,
+            label: '3 Bottles',
+            standardPrice: 119.85,
+            isMostPopular: true,
+            subscriptionPrice: 99.85,
+            subscriptionFrequency: 'Monthly',
+          },
+          {
+            quantity: 6,
+            label: '6 Bottles',
+            standardPrice: 199.7,
+            subscriptionPrice: 179.7,
+            subscriptionFrequency: 'BiMonthly',
+          },
         ],
         gh: { slug: 'standard-offer' },
       });
       log('Created offer "Standard Offer"', 'success');
 
-      const secondProductRef = freshProducts.length > 1
-        ? [{ product: { '@type': '@builder.io/core:Reference', model: 'product', id: freshProducts[1].id! }, displayName: undefined }]
-        : singleProductRef;
+      const secondProductRef =
+        freshProducts.length > 1
+          ? [
+              {
+                product: { '@type': '@builder.io/core:Reference', model: 'product', id: freshProducts[1].id! },
+                displayName: undefined,
+              },
+            ]
+          : singleProductRef;
       await api.createContent('funnel-offer', 'Sleep Support Offer', {
         name: 'Sleep Support Offer',
         offerType: 'standard',
@@ -370,8 +433,21 @@ const AdminPage: React.FC<AdminPageProps> = ({ data, context, onRefresh }) => {
         description: 'Targeted sleep support offer with subscription-friendly pricing.',
         products: secondProductRef,
         defaultPricing: [
-          { quantity: 1, label: '1 Bottle', standardPrice: 39.95, subscriptionPrice: 34.95, subscriptionFrequency: 'Monthly' },
-          { quantity: 3, label: '3 Bottles', standardPrice: 99.85, isMostPopular: true, subscriptionPrice: 89.85, subscriptionFrequency: 'Quarterly' },
+          {
+            quantity: 1,
+            label: '1 Bottle',
+            standardPrice: 39.95,
+            subscriptionPrice: 34.95,
+            subscriptionFrequency: 'Monthly',
+          },
+          {
+            quantity: 3,
+            label: '3 Bottles',
+            standardPrice: 99.85,
+            isMostPopular: true,
+            subscriptionPrice: 89.85,
+            subscriptionFrequency: 'Quarterly',
+          },
         ],
         gh: { slug: 'sleep-support' },
       });
@@ -379,9 +455,28 @@ const AdminPage: React.FC<AdminPageProps> = ({ data, context, onRefresh }) => {
 
       const offerRef = { '@type': '@builder.io/core:Reference', model: 'funnel-offer', id: standardOffer.id! };
       const pricing = [
-        { quantity: 1, label: '1 Bottle', standardPrice: 49.95, subscriptionPrice: 39.95, subscriptionFrequency: 'Monthly' },
-        { quantity: 3, label: '3 Bottles', standardPrice: 119.85, isMostPopular: true, subscriptionPrice: 99.85, subscriptionFrequency: 'Monthly' },
-        { quantity: 6, label: '6 Bottles', standardPrice: 199.7, subscriptionPrice: 179.7, subscriptionFrequency: 'BiMonthly' },
+        {
+          quantity: 1,
+          label: '1 Bottle',
+          standardPrice: 49.95,
+          subscriptionPrice: 39.95,
+          subscriptionFrequency: 'Monthly',
+        },
+        {
+          quantity: 3,
+          label: '3 Bottles',
+          standardPrice: 119.85,
+          isMostPopular: true,
+          subscriptionPrice: 99.85,
+          subscriptionFrequency: 'Monthly',
+        },
+        {
+          quantity: 6,
+          label: '6 Bottles',
+          standardPrice: 199.7,
+          subscriptionPrice: 179.7,
+          subscriptionFrequency: 'BiMonthly',
+        },
       ];
 
       const controlFunnel = await api.createContent('funnel', 'Control Funnel', {
@@ -438,7 +533,10 @@ const AdminPage: React.FC<AdminPageProps> = ({ data, context, onRefresh }) => {
         destination: { '@type': '@builder.io/core:Reference', model: 'funnel-destination', id: mainDest.id! },
         status: 'draft',
         variants: [
-          { funnel: { '@type': '@builder.io/core:Reference', model: 'funnel', id: controlFunnel.id! }, label: 'Control' },
+          {
+            funnel: { '@type': '@builder.io/core:Reference', model: 'funnel', id: controlFunnel.id! },
+            label: 'Control',
+          },
           { funnel: { '@type': '@builder.io/core:Reference', model: 'funnel', id: variantA.id! }, label: 'Variant A' },
         ],
       });
@@ -707,14 +805,11 @@ const AdminPage: React.FC<AdminPageProps> = ({ data, context, onRefresh }) => {
               <div>
                 <p className="font-medium">Sync Models</p>
                 <p className="text-sm text-base-content/50 mt-0.5">
-                  Push the latest model schemas (fields, types, references) to Builder.io. Creates any missing models and updates existing ones.
+                  Push the latest model schemas (fields, types, references) to Builder.io. Creates any missing models
+                  and updates existing ones.
                 </p>
               </div>
-              <button
-                className="btn btn-primary"
-                onClick={handleSyncModels}
-                disabled={!!running}
-              >
+              <button className="btn btn-primary" onClick={handleSyncModels} disabled={!!running}>
                 {running === 'sync-models' ? 'Syncing...' : 'Sync Models'}
               </button>
             </div>
@@ -727,7 +822,11 @@ const AdminPage: React.FC<AdminPageProps> = ({ data, context, onRefresh }) => {
               </div>
               <button
                 className="btn btn-ghost"
-                onClick={() => openPluginSettings().catch(() => { /* ignore */ })}
+                onClick={() =>
+                  openPluginSettings().catch(() => {
+                    /* ignore */
+                  })
+                }
               >
                 Open Settings
               </button>
@@ -736,7 +835,10 @@ const AdminPage: React.FC<AdminPageProps> = ({ data, context, onRefresh }) => {
         </Section>
 
         {cartApiKey && (
-          <Section title="Product Sync" subtitle="Sync product data from the cart Builder.io space into this funnel space.">
+          <Section
+            title="Product Sync"
+            subtitle="Sync product data from the cart Builder.io space into this funnel space."
+          >
             <div className="flex items-center justify-between">
               <div>
                 <p className="font-medium">Sync Products from Cart Space</p>
@@ -744,11 +846,7 @@ const AdminPage: React.FC<AdminPageProps> = ({ data, context, onRefresh }) => {
                   Fetches all products from the cart space and creates or updates them here. Matches by GH slug.
                 </p>
               </div>
-              <button
-                className="btn btn-primary"
-                onClick={handleSyncProducts}
-                disabled={!!running}
-              >
+              <button className="btn btn-primary" onClick={handleSyncProducts} disabled={!!running}>
                 {running === 'sync-products' ? 'Syncing...' : 'Sync Products'}
               </button>
             </div>
@@ -810,13 +908,15 @@ const AdminPage: React.FC<AdminPageProps> = ({ data, context, onRefresh }) => {
             Select model(s) to delete all their entries. Deletions are permanent and run in dependency order.
           </p>
           <div className="space-y-2 mb-4">
-            {([
-              { key: 'products', label: 'Products', count: counts.products },
-              { key: 'offers', label: 'Offers', count: counts.offers },
-              { key: 'funnels', label: 'Funnels', count: counts.funnels },
-              { key: 'destinations', label: 'Destinations', count: counts.destinations },
-              { key: 'splitTests', label: 'Split Tests', count: counts.splitTests },
-            ] as const).map(({ key, label, count }) => (
+            {(
+              [
+                { key: 'products', label: 'Products', count: counts.products },
+                { key: 'offers', label: 'Offers', count: counts.offers },
+                { key: 'funnels', label: 'Funnels', count: counts.funnels },
+                { key: 'destinations', label: 'Destinations', count: counts.destinations },
+                { key: 'splitTests', label: 'Split Tests', count: counts.splitTests },
+              ] as const
+            ).map(({ key, label, count }) => (
               <label
                 key={key}
                 className={`flex items-center gap-3 p-3 rounded-xl border-2 transition-colors ${

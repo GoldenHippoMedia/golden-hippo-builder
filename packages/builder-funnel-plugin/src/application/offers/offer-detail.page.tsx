@@ -83,10 +83,7 @@ const OfferDetailPage: React.FC<OfferDetailProps> = ({ item, data, context, onBa
     () => data.funnels.filter((f) => f.data?.offer?.id === item.id),
     [data.funnels, item.id],
   );
-  const currentControlId = useMemo(
-    () => offerFunnels.find((f) => f.data?.isControl)?.id ?? '',
-    [offerFunnels],
-  );
+  const currentControlId = useMemo(() => offerFunnels.find((f) => f.data?.isControl)?.id ?? '', [offerFunnels]);
   const [controlFunnelId, setControlFunnelId] = useState<string>(currentControlId);
 
   const addedProductIds = useMemo(() => new Set(products.map((p) => p.productId)), [products]);
@@ -182,7 +179,26 @@ const OfferDetailPage: React.FC<OfferDetailProps> = ({ item, data, context, onBa
     } finally {
       setSaving(false);
     }
-  }, [item, d, context, offerType, isStandard, name, displayName, description, featuredImage, selectionLabel, isDefaultOffer, ghSlug, products, pricing, controlFunnelId, currentControlId, offerFunnels, onRefresh]);
+  }, [
+    item,
+    d,
+    context,
+    offerType,
+    isStandard,
+    name,
+    displayName,
+    description,
+    featuredImage,
+    selectionLabel,
+    isDefaultOffer,
+    ghSlug,
+    products,
+    pricing,
+    controlFunnelId,
+    currentControlId,
+    offerFunnels,
+    onRefresh,
+  ]);
 
   const handleDelete = useCallback(async () => {
     const funnelCount = data.funnels.filter((f) => f.data?.offer?.id === item.id).length;
@@ -231,32 +247,76 @@ const OfferDetailPage: React.FC<OfferDetailProps> = ({ item, data, context, onBa
         <Section title="Basic Info">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <FormField label="Internal Name" required helper="Used for identification in the CMS">
-              <input type="text" className="input input-bordered w-full" value={name} onChange={(e) => setName(e.target.value)} />
+              <input
+                type="text"
+                className="input input-bordered w-full"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+              />
             </FormField>
             <FormField label="Display Name" required helper="Customer-facing offer name">
-              <input type="text" className="input input-bordered w-full" value={displayName} onChange={(e) => setDisplayName(e.target.value)} />
+              <input
+                type="text"
+                className="input input-bordered w-full"
+                value={displayName}
+                onChange={(e) => setDisplayName(e.target.value)}
+              />
             </FormField>
             <FormField label="Description" className="md:col-span-2">
-              <textarea className="textarea textarea-bordered w-full" rows={3} value={description} onChange={(e) => setDescription(e.target.value)} />
+              <textarea
+                className="textarea textarea-bordered w-full"
+                rows={3}
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+              />
             </FormField>
             <FormField label="Featured Image URL">
-              <input type="text" className="input input-bordered w-full" placeholder="https://..." value={featuredImage} onChange={(e) => setFeaturedImage(e.target.value)} />
+              <input
+                type="text"
+                className="input input-bordered w-full"
+                placeholder="https://..."
+                value={featuredImage}
+                onChange={(e) => setFeaturedImage(e.target.value)}
+              />
             </FormField>
             {!isStandard && products.length > 1 && (
-              <FormField label="Selection Label" helper="Label for the product chooser when multiple products are available">
-                <input type="text" className="input input-bordered w-full" placeholder='e.g., "Choose your flavor"' value={selectionLabel} onChange={(e) => setSelectionLabel(e.target.value)} />
+              <FormField
+                label="Selection Label"
+                helper="Label for the product chooser when multiple products are available"
+              >
+                <input
+                  type="text"
+                  className="input input-bordered w-full"
+                  placeholder='e.g., "Choose your flavor"'
+                  value={selectionLabel}
+                  onChange={(e) => setSelectionLabel(e.target.value)}
+                />
               </FormField>
             )}
             <FormField label="Generic End Point" required helper={`Accessible at /o/${ghSlug.trim() || '...'}`}>
-              <input type="text" className="input input-bordered w-full" placeholder="e.g., standard-offer" value={ghSlug} onChange={(e) => setGhSlug(e.target.value)} />
+              <input
+                type="text"
+                className="input input-bordered w-full"
+                placeholder="e.g., standard-offer"
+                value={ghSlug}
+                onChange={(e) => setGhSlug(e.target.value)}
+              />
             </FormField>
             <FormField label="Default Offer">
               <label className="flex items-center gap-3 cursor-pointer mt-1">
-                <input type="checkbox" className="checkbox" checked={isDefaultOffer} onChange={(e) => setIsDefaultOffer(e.target.checked)} />
+                <input
+                  type="checkbox"
+                  className="checkbox"
+                  checked={isDefaultOffer}
+                  onChange={(e) => setIsDefaultOffer(e.target.checked)}
+                />
                 <span className="text-sm">Global fallback when no matching offer is found</span>
               </label>
             </FormField>
-            <FormField label="Control Funnel" helper={offerFunnels.length === 0 ? 'No funnels linked to this offer yet' : undefined}>
+            <FormField
+              label="Control Funnel"
+              helper={offerFunnels.length === 0 ? 'No funnels linked to this offer yet' : undefined}
+            >
               <select
                 className="select select-bordered w-full"
                 value={controlFunnelId}
@@ -333,7 +393,9 @@ const OfferDetailPage: React.FC<OfferDetailProps> = ({ item, data, context, onBa
               </FormField>
             </div>
           ) : products.length === 0 ? (
-            <p className="text-base-content/50">No products added. Use the dropdown above to add products to this offer.</p>
+            <p className="text-base-content/50">
+              No products added. Use the dropdown above to add products to this offer.
+            </p>
           ) : (
             <div className="overflow-x-auto">
               <table className="table">
@@ -390,7 +452,9 @@ const OfferDetailPage: React.FC<OfferDetailProps> = ({ item, data, context, onBa
           }
         >
           {pricing.length === 0 ? (
-            <p className="text-base-content/50">No pricing tiers. Add tiers that will be copied to new funnels for this offer.</p>
+            <p className="text-base-content/50">
+              No pricing tiers. Add tiers that will be copied to new funnels for this offer.
+            </p>
           ) : (
             <div className="space-y-3">
               {pricing.map((tier, i) => (
@@ -401,9 +465,13 @@ const OfferDetailPage: React.FC<OfferDetailProps> = ({ item, data, context, onBa
                   >
                     <div className="flex items-center gap-3">
                       <span className="font-medium">
-                        {tier.label || `Tier ${i + 1}`} &mdash; Qty {tier.quantity} &mdash; ${tier.standardPrice.toFixed(2)}
+                        {tier.label || `Tier ${i + 1}`} &mdash; Qty {tier.quantity} &mdash; $
+                        {tier.standardPrice.toFixed(2)}
                         {tier.subscriptionAvailable && (
-                          <span className="text-base-content/50 font-normal"> / ${tier.subscriptionPrice.toFixed(2)} sub</span>
+                          <span className="text-base-content/50 font-normal">
+                            {' '}
+                            / ${tier.subscriptionPrice.toFixed(2)} sub
+                          </span>
                         )}
                       </span>
                       {tier.isMostPopular && <span className="badge badge-accent badge-sm">Most Popular</span>}
@@ -425,13 +493,31 @@ const OfferDetailPage: React.FC<OfferDetailProps> = ({ item, data, context, onBa
                     <div className="p-4 border-t border-base-300 space-y-4">
                       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                         <FormField label="Quantity">
-                          <input type="number" className="input input-bordered input-sm w-full" min={1} value={tier.quantity} onChange={(e) => updatePricingTier(i, 'quantity', parseInt(e.target.value) || 1)} />
+                          <input
+                            type="number"
+                            className="input input-bordered input-sm w-full"
+                            min={1}
+                            value={tier.quantity}
+                            onChange={(e) => updatePricingTier(i, 'quantity', parseInt(e.target.value) || 1)}
+                          />
                         </FormField>
                         <FormField label="Label">
-                          <input type="text" className="input input-bordered input-sm w-full" value={tier.label} onChange={(e) => updatePricingTier(i, 'label', e.target.value)} />
+                          <input
+                            type="text"
+                            className="input input-bordered input-sm w-full"
+                            value={tier.label}
+                            onChange={(e) => updatePricingTier(i, 'label', e.target.value)}
+                          />
                         </FormField>
                         <FormField label="Standard Price">
-                          <input type="number" className="input input-bordered input-sm w-full" step="0.01" min={0} value={tier.standardPrice} onChange={(e) => updatePricingTier(i, 'standardPrice', parseFloat(e.target.value) || 0)} />
+                          <input
+                            type="number"
+                            className="input input-bordered input-sm w-full"
+                            step="0.01"
+                            min={0}
+                            value={tier.standardPrice}
+                            onChange={(e) => updatePricingTier(i, 'standardPrice', parseFloat(e.target.value) || 0)}
+                          />
                         </FormField>
                         <FormField label="Subscription">
                           <label className="flex items-center gap-2 cursor-pointer mt-1">
@@ -447,7 +533,16 @@ const OfferDetailPage: React.FC<OfferDetailProps> = ({ item, data, context, onBa
                         {tier.subscriptionAvailable && (
                           <>
                             <FormField label="Subscription Price">
-                              <input type="number" className="input input-bordered input-sm w-full" step="0.01" min={0} value={tier.subscriptionPrice} onChange={(e) => updatePricingTier(i, 'subscriptionPrice', parseFloat(e.target.value) || 0)} />
+                              <input
+                                type="number"
+                                className="input input-bordered input-sm w-full"
+                                step="0.01"
+                                min={0}
+                                value={tier.subscriptionPrice}
+                                onChange={(e) =>
+                                  updatePricingTier(i, 'subscriptionPrice', parseFloat(e.target.value) || 0)
+                                }
+                              />
                             </FormField>
                             <FormField label="Subscription Frequency">
                               <select
@@ -466,7 +561,12 @@ const OfferDetailPage: React.FC<OfferDetailProps> = ({ item, data, context, onBa
                         )}
                         <FormField label="Most Popular">
                           <label className="flex items-center gap-2 cursor-pointer mt-1">
-                            <input type="checkbox" className="checkbox checkbox-sm" checked={tier.isMostPopular} onChange={(e) => updatePricingTier(i, 'isMostPopular', e.target.checked)} />
+                            <input
+                              type="checkbox"
+                              className="checkbox checkbox-sm"
+                              checked={tier.isMostPopular}
+                              onChange={(e) => updatePricingTier(i, 'isMostPopular', e.target.checked)}
+                            />
                             <span className="text-sm">Highlight this tier</span>
                           </label>
                         </FormField>

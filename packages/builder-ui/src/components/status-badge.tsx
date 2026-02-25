@@ -21,9 +21,5 @@ export interface StatusBadgeProps {
 
 export function StatusBadge({ status, className }: StatusBadgeProps) {
   const badgeClass = STATUS_VARIANT[status] ?? 'badge-ghost';
-  return (
-    <span className={clsx('badge badge-sm font-medium', badgeClass, className)}>
-      {status}
-    </span>
-  );
+  return <span className={clsx('badge badge-sm font-medium', badgeClass, className)}>{status}</span>;
 }

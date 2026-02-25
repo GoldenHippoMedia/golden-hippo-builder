@@ -110,7 +110,7 @@ const FunnelsPage: React.FC<FunnelsPageProps> = ({ data, context, onRefresh }) =
     setVariantOfferId(offerId);
     const funnelsForOffer = data.funnels.filter((f) => f.data?.offer?.id === offerId);
     const control = funnelsForOffer.find((f) => f.data?.isControl);
-    setVariantSourceId(control?.id ?? (funnelsForOffer[0]?.id ?? ''));
+    setVariantSourceId(control?.id ?? funnelsForOffer[0]?.id ?? '');
     setVariantName('');
   };
 
@@ -180,14 +180,19 @@ const FunnelsPage: React.FC<FunnelsPageProps> = ({ data, context, onRefresh }) =
               : `${variantName.trim()} - Step ${userStepIndex} - ${funnelId}`;
             const pageType = pd?.pageType ?? step.stepType;
             const pageUrl = buildPageUrl(overallStepNum, pageType, '', funnelId);
-            const newPage = await api.createContent('funnel-page', pageName, {
-              title: pageName,
-              pageType,
-              funnel: funnelRef,
-              seo: pd?.seo,
-              robotsMeta: pd?.robotsMeta,
-              blocks: (pd as any)?.blocks,
-            }, pageUrl);
+            const newPage = await api.createContent(
+              'funnel-page',
+              pageName,
+              {
+                title: pageName,
+                pageType,
+                funnel: funnelRef,
+                seo: pd?.seo,
+                robotsMeta: pd?.robotsMeta,
+                blocks: (pd as any)?.blocks,
+              },
+              pageUrl,
+            );
             newPageId = newPage.id ?? '';
           }
         }
@@ -202,11 +207,16 @@ const FunnelsPage: React.FC<FunnelsPageProps> = ({ data, context, onRefresh }) =
         overallStepNum++;
         const osPageName = `${variantName.trim()} - OS - ${funnelId}`;
         const osUrl = buildPageUrl(overallStepNum, 'offer-selector', '', funnelId);
-        const osPage = await api.createContent('funnel-page', osPageName, {
-          title: osPageName,
-          pageType: 'offer-selector',
-          funnel: funnelRef,
-        }, osUrl);
+        const osPage = await api.createContent(
+          'funnel-page',
+          osPageName,
+          {
+            title: osPageName,
+            pageType: 'offer-selector',
+            funnel: funnelRef,
+          },
+          osUrl,
+        );
         copiedSteps.push({
           stepType: 'offer-selector',
           page: { '@type': '@builder.io/core:Reference', model: 'funnel-page', id: osPage.id },
@@ -252,11 +262,16 @@ const FunnelsPage: React.FC<FunnelsPageProps> = ({ data, context, onRefresh }) =
       // Step 2: Create the required offer-selector page with funnel reference + naming + URL
       const osPageName = `${scratchName.trim()} - OS - ${funnelId}`;
       const osUrl = buildPageUrl(1, 'offer-selector', '', funnelId);
-      const osPage = await api.createContent('funnel-page', osPageName, {
-        title: osPageName,
-        pageType: 'offer-selector',
-        funnel: funnelRef,
-      }, osUrl);
+      const osPage = await api.createContent(
+        'funnel-page',
+        osPageName,
+        {
+          title: osPageName,
+          pageType: 'offer-selector',
+          funnel: funnelRef,
+        },
+        osUrl,
+      );
 
       // Step 3: Update funnel with step references
       await api.updateContent('funnel', funnelId, {
@@ -361,14 +376,24 @@ const FunnelsPage: React.FC<FunnelsPageProps> = ({ data, context, onRefresh }) =
                         ))}
                       </select>
                     </FormField>
-                    <FormField label="Copy From" required helper={sourceFunnel?.data?.isControl ? 'Control funnel (recommended)' : undefined}>
+                    <FormField
+                      label="Copy From"
+                      required
+                      helper={sourceFunnel?.data?.isControl ? 'Control funnel (recommended)' : undefined}
+                    >
                       <select
                         className="select select-bordered w-full"
                         value={variantSourceId}
                         onChange={(e) => handleVariantSourceChange(e.target.value)}
                         disabled={!variantOfferId}
                       >
-                        <option value="">{variantOfferId ? (variantFunnels.length === 0 ? 'No funnels for this offer' : 'Select a funnel...') : 'Select an offer first'}</option>
+                        <option value="">
+                          {variantOfferId
+                            ? variantFunnels.length === 0
+                              ? 'No funnels for this offer'
+                              : 'Select a funnel...'
+                            : 'Select an offer first'}
+                        </option>
                         {variantFunnels.map((funnel) => (
                           <option key={funnel.id} value={funnel.id}>
                             {funnel.data?.name ?? 'Untitled'}
@@ -389,18 +414,18 @@ const FunnelsPage: React.FC<FunnelsPageProps> = ({ data, context, onRefresh }) =
                   </div>
                   {sourceFunnel && (
                     <div className="mt-4 text-xs text-base-content/50">
-                      Copies {sourceFunnel.data?.pricing?.length ?? 0} pricing tier(s) and {sourceFunnel.data?.steps?.length ?? 0} step(s) with pages from &quot;{sourceFunnel.data?.name}&quot;
+                      Copies {sourceFunnel.data?.pricing?.length ?? 0} pricing tier(s) and{' '}
+                      {sourceFunnel.data?.steps?.length ?? 0} step(s) with pages from &quot;{sourceFunnel.data?.name}
+                      &quot;
                     </div>
                   )}
                 </>
               )}
               <div className="flex justify-end gap-3 mt-6">
-                <button className="btn btn-ghost" onClick={resetForm}>Cancel</button>
-                <button
-                  className="btn btn-primary"
-                  disabled={!variantValid || creating}
-                  onClick={handleCreateVariant}
-                >
+                <button className="btn btn-ghost" onClick={resetForm}>
+                  Cancel
+                </button>
+                <button className="btn btn-primary" disabled={!variantValid || creating} onClick={handleCreateVariant}>
                   {creating ? 'Creating...' : 'Create Variant'}
                 </button>
               </div>
@@ -436,12 +461,10 @@ const FunnelsPage: React.FC<FunnelsPageProps> = ({ data, context, onRefresh }) =
                 </FormField>
               </div>
               <div className="flex justify-end gap-3 mt-6">
-                <button className="btn btn-ghost" onClick={resetForm}>Cancel</button>
-                <button
-                  className="btn btn-primary"
-                  disabled={!scratchValid || creating}
-                  onClick={handleCreateScratch}
-                >
+                <button className="btn btn-ghost" onClick={resetForm}>
+                  Cancel
+                </button>
+                <button className="btn btn-primary" disabled={!scratchValid || creating} onClick={handleCreateScratch}>
                   {creating ? 'Creating...' : 'Create'}
                 </button>
               </div>
@@ -529,9 +552,7 @@ class ErrorBoundary extends React.Component<
       return (
         <div className="max-w-2xl mx-auto py-12 text-center">
           <h2 className="text-xl font-bold text-error mb-2">Failed to load funnel</h2>
-          <p className="text-base-content/60 mb-1 text-sm">
-            {this.state.error.message}
-          </p>
+          <p className="text-base-content/60 mb-1 text-sm">{this.state.error.message}</p>
           <pre className="text-xs text-base-content/40 mb-4 max-h-32 overflow-auto bg-base-300 rounded p-3 text-left">
             {this.state.error.stack}
           </pre>

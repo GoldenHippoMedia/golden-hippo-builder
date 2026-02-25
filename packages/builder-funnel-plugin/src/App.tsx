@@ -109,11 +109,7 @@ const App: React.FC = () => {
 
     if (store.loading) {
       return (
-        <div
-          id="hippo-app"
-          className="min-h-screen bg-base-100 flex items-center justify-center"
-          data-theme={theme}
-        >
+        <div id="hippo-app" className="min-h-screen bg-base-100 flex items-center justify-center" data-theme={theme}>
           <LoadingSection message="Loading Hippo Funnels..." size="lg" />
         </div>
       );
@@ -121,11 +117,7 @@ const App: React.FC = () => {
 
     if (store.error) {
       return (
-        <div
-          id="hippo-app"
-          className="min-h-screen bg-base-100 flex items-center justify-center"
-          data-theme={theme}
-        >
+        <div id="hippo-app" className="min-h-screen bg-base-100 flex items-center justify-center" data-theme={theme}>
           <div className="card bg-error/10 max-w-lg">
             <div className="card-body text-center">
               <h2 className="card-title text-error justify-center">Error</h2>
@@ -203,7 +195,11 @@ const App: React.FC = () => {
             </button>
           </div>
           <div className="navbar-end gap-2">
-            <button className="btn btn-sm btn-ghost" onClick={toggleTheme} title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}>
+            <button
+              className="btn btn-sm btn-ghost"
+              onClick={toggleTheme}
+              title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+            >
               {isDark ? (
                 <svg className="h-4 w-4 fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                   <path d="M21.64,13a1,1,0,0,0-1.05-.14,8.05,8.05,0,0,1-3.37.73A8.15,8.15,0,0,1,9.08,5.49a8.59,8.59,0,0,1,.25-2A1,1,0,0,0,8,2.36,10.14,10.14,0,1,0,22,14.05,1,1,0,0,0,21.64,13ZM18,22A10.11,10.11,0,0,1,4.46,10.28,8.11,8.11,0,0,0,17.09,4.73a10.16,10.16,0,0,1,2.28,8.71A10,10,0,0,1,18,22Z" />

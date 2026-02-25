@@ -1,4 +1,4 @@
-import {BuilderContent} from '@builder.io/sdk';
+import { BuilderContent } from '@builder.io/sdk';
 import {
   BuilderFunnelContent,
   BuilderFunnelDestinationContent,
@@ -7,8 +7,8 @@ import {
   BuilderFunnelSplitTestContent,
   BuilderProductContent,
 } from '@goldenhippo/builder-funnel-schemas';
-import {ExtendedApplicationContext} from '../interfaces/application-context.interface';
-import {pluginId} from '../constants';
+import { ExtendedApplicationContext } from '../interfaces/application-context.interface';
+import { pluginId } from '../constants';
 
 interface FetchContentRequest {
   modelName: string;
@@ -74,7 +74,7 @@ class BuilderApi {
     return await this.context.createContent(modelName, {
       name: entryName,
       published: 'draft',
-      ...(url ? {query: [{property: 'urlPath', operator: 'is', value: url}]} : {}),
+      ...(url ? { query: [{ property: 'urlPath', operator: 'is', value: url }] } : {}),
       data,
     } as Partial<BuilderContent>);
   }
@@ -113,7 +113,11 @@ class BuilderApi {
     }
   }
 
-  async getFullContent<T extends BuilderContent = BuilderContent>(modelName: string, id: string, enrich = true): Promise<T | null> {
+  async getFullContent<T extends BuilderContent = BuilderContent>(
+    modelName: string,
+    id: string,
+    enrich = true,
+  ): Promise<T | null> {
     const url = `https://cdn.builder.io/api/v3/content/${modelName}?apiKey=${this.apiKey}&enrich=${enrich}&includeUnpublished=true&query.id=${id}&limit=1&cachebust=true&enrichOptions.model.funnel-page.omit=data.blocks,data.funnel`;
     const resp = await fetch(url, { headers: this.authHeaders });
     if (!resp.ok) return null;

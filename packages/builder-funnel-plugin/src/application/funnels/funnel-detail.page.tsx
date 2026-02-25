@@ -146,17 +146,24 @@ const FunnelDetailPage: React.FC<FunnelDetailProps> = ({ item, data, context, on
       const stepNumber = userSteps.length + 1;
       const pageName = buildPageName(stepNumber, name, ghSlug, item.id ?? '');
       const pageUrl = buildPageUrl(stepNumber, 'landing', ghSlug, item.id ?? '');
-      const newPage = await api.createContent('funnel-page', pageName, {
-        title: pageName,
-        pageType: 'landing',
-        funnel: { '@type': '@builder.io/core:Reference', model: 'funnel', id: item.id },
-      }, pageUrl);
+      const newPage = await api.createContent(
+        'funnel-page',
+        pageName,
+        {
+          title: pageName,
+          pageType: 'landing',
+          funnel: { '@type': '@builder.io/core:Reference', model: 'funnel', id: item.id },
+        },
+        pageUrl,
+      );
       // Update offer-selector page URL (its step number shifted)
       if (offerSelectorPageId) {
         const osUrl = buildPageUrl(stepNumber + 1, 'offer-selector', ghSlug, item.id ?? '');
-        api.patchContent('funnel-page', offerSelectorPageId, {
-          query: buildUrlQuery(osUrl),
-        }).catch((err) => console.error('[Hippo Funnels] Error updating OS page URL', err));
+        api
+          .patchContent('funnel-page', offerSelectorPageId, {
+            query: buildUrlQuery(osUrl),
+          })
+          .catch((err) => console.error('[Hippo Funnels] Error updating OS page URL', err));
       }
       await onRefresh();
       setUserSteps((prev) => [...prev, { stepType: 'landing' as FunnelStepType, pageId: newPage.id ?? '' }]);
@@ -206,15 +213,15 @@ const FunnelDetailPage: React.FC<FunnelDetailProps> = ({ item, data, context, on
         if (remaining[i].pageId) {
           const newName = buildPageName(i + 1, name, ghSlug, item.id ?? '');
           const newUrl = buildPageUrl(i + 1, remaining[i].stepType, ghSlug, item.id ?? '');
-          renamePromises.push(api.patchContent('funnel-page', remaining[i].pageId, { name: newName, query: buildUrlQuery(newUrl) }));
+          renamePromises.push(
+            api.patchContent('funnel-page', remaining[i].pageId, { name: newName, query: buildUrlQuery(newUrl) }),
+          );
         }
       }
       // Update offer-selector page URL (its step number shifted)
       if (offerSelectorPageId) {
         const osUrl = buildPageUrl(remaining.length + 1, 'offer-selector', ghSlug, item.id ?? '');
-        renamePromises.push(
-          api.patchContent('funnel-page', offerSelectorPageId, { query: buildUrlQuery(osUrl) }),
-        );
+        renamePromises.push(api.patchContent('funnel-page', offerSelectorPageId, { query: buildUrlQuery(osUrl) }));
       }
       if (renamePromises.length > 0) {
         await Promise.all(renamePromises);
@@ -235,11 +242,18 @@ const FunnelDetailPage: React.FC<FunnelDetailProps> = ({ item, data, context, on
       if (step?.pageId) {
         const api = new BuilderApi(context);
         const newUrl = buildPageUrl(index + 1, value as string, ghSlug, item.id ?? '');
-        api.mergeContentData('funnel-page', step.pageId, {
-          pageType: value,
-        }, { query: buildUrlQuery(newUrl) }).catch((err) => {
-          console.error('[Hippo Funnels] Error syncing pageType to page', err);
-        });
+        api
+          .mergeContentData(
+            'funnel-page',
+            step.pageId,
+            {
+              pageType: value,
+            },
+            { query: buildUrlQuery(newUrl) },
+          )
+          .catch((err) => {
+            console.error('[Hippo Funnels] Error syncing pageType to page', err);
+          });
       }
     }
   };
@@ -385,11 +399,15 @@ const FunnelDetailPage: React.FC<FunnelDetailProps> = ({ item, data, context, on
           steps: [
             ...userSteps.map((s) => ({
               stepType: s.stepType,
-              page: s.pageId ? { '@type': '@builder.io/core:Reference', model: 'funnel-page', id: s.pageId } : undefined,
+              page: s.pageId
+                ? { '@type': '@builder.io/core:Reference', model: 'funnel-page', id: s.pageId }
+                : undefined,
             })),
             {
               stepType: 'offer-selector',
-              page: offerSelectorPageId ? { '@type': '@builder.io/core:Reference', model: 'funnel-page', id: offerSelectorPageId } : undefined,
+              page: offerSelectorPageId
+                ? { '@type': '@builder.io/core:Reference', model: 'funnel-page', id: offerSelectorPageId }
+                : undefined,
             },
           ],
           pricing: serializePricing(pricing),
@@ -400,9 +418,7 @@ const FunnelDetailPage: React.FC<FunnelDetailProps> = ({ item, data, context, on
       const publishedMap: Record<string, string> = { active: 'published', draft: 'draft', archived: 'archived' };
       const published = publishedMap[status];
       if (published) {
-        const publishPromises: Promise<void>[] = [
-          api.patchContent('funnel', item.id!, { published }),
-        ];
+        const publishPromises: Promise<void>[] = [api.patchContent('funnel', item.id!, { published })];
         for (const s of userSteps) {
           if (s.pageId) publishPromises.push(api.patchContent('funnel-page', s.pageId, { published }));
         }
@@ -453,7 +469,13 @@ const FunnelDetailPage: React.FC<FunnelDetailProps> = ({ item, data, context, on
           ...(d?.isControl ? [{ label: 'Control' as const, variant: 'primary' as const }] : []),
           {
             label: d?.status ?? 'draft',
-            variant: (d?.status === 'active' ? 'success' : d?.status === 'paused' ? 'warning' : d?.status === 'archived' ? 'error' : 'ghost') as any,
+            variant: (d?.status === 'active'
+              ? 'success'
+              : d?.status === 'paused'
+                ? 'warning'
+                : d?.status === 'archived'
+                  ? 'error'
+                  : 'ghost') as any,
           },
         ]}
         actions={
@@ -477,14 +499,23 @@ const FunnelDetailPage: React.FC<FunnelDetailProps> = ({ item, data, context, on
               <span className="badge badge-warning shrink-0 mt-0.5">Locked</span>
               <div className="text-sm text-base-content/60">
                 <p>
-                  This funnel is locked because it is the primary funnel on {activeDestinations.length === 1 ? 'an active destination' : `${activeDestinations.length} active destinations`}:
+                  This funnel is locked because it is the primary funnel on{' '}
+                  {activeDestinations.length === 1
+                    ? 'an active destination'
+                    : `${activeDestinations.length} active destinations`}
+                  :
                 </p>
                 <ul className="list-disc list-inside mt-1 text-base-content/70">
                   {activeDestinations.map((dest) => (
-                    <li key={dest.id}>{dest.data?.name ?? 'Untitled'} (/d/{dest.data?.slug})</li>
+                    <li key={dest.id}>
+                      {dest.data?.name ?? 'Untitled'} (/d/{dest.data?.slug})
+                    </li>
                   ))}
                 </ul>
-                <p className="mt-1">To edit this funnel, deactivate or repoint the destination(s) above, then set this funnel back to draft.</p>
+                <p className="mt-1">
+                  To edit this funnel, deactivate or repoint the destination(s) above, then set this funnel back to
+                  draft.
+                </p>
               </div>
             </div>
           </Section>
@@ -493,7 +524,8 @@ const FunnelDetailPage: React.FC<FunnelDetailProps> = ({ item, data, context, on
         {!isDraft && !isLocked && (
           <Section>
             <p className="text-sm text-base-content/60">
-              This funnel is no longer in draft. Only the status can be changed. Set it back to draft to edit other fields.
+              This funnel is no longer in draft. Only the status can be changed. Set it back to draft to edit other
+              fields.
             </p>
           </Section>
         )}
@@ -501,10 +533,21 @@ const FunnelDetailPage: React.FC<FunnelDetailProps> = ({ item, data, context, on
         <Section title="Basic Info">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <FormField label="Funnel Name" required>
-              <input type="text" className="input input-bordered w-full" value={name} onChange={(e) => setName(e.target.value)} disabled={!isDraft} />
+              <input
+                type="text"
+                className="input input-bordered w-full"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                disabled={!isDraft}
+              />
             </FormField>
             <FormField label="Offer" required>
-              <select className="select select-bordered w-full" value={offerId} onChange={(e) => setOfferId(e.target.value)} disabled={!isDraft}>
+              <select
+                className="select select-bordered w-full"
+                value={offerId}
+                onChange={(e) => setOfferId(e.target.value)}
+                disabled={!isDraft}
+              >
                 <option value="">Select an offer...</option>
                 {data.offers.map((offer) => (
                   <option key={offer.id} value={offer.id}>
@@ -514,7 +557,12 @@ const FunnelDetailPage: React.FC<FunnelDetailProps> = ({ item, data, context, on
               </select>
             </FormField>
             <FormField label="Status">
-              <select className="select select-bordered w-full" value={status} onChange={(e) => setStatus(e.target.value)} disabled={isLocked}>
+              <select
+                className="select select-bordered w-full"
+                value={status}
+                onChange={(e) => setStatus(e.target.value)}
+                disabled={isLocked}
+              >
                 <option value="draft">Draft</option>
                 <option value="active">Active</option>
                 <option value="paused">Paused</option>
@@ -523,9 +571,18 @@ const FunnelDetailPage: React.FC<FunnelDetailProps> = ({ item, data, context, on
             </FormField>
             <FormField
               label="Generic End Point"
-              helper={ghSlug.trim() ? `Also accessible at /fp/${ghSlug.trim()}` : `Accessible at /fp/${item.id ?? '...'}`}
+              helper={
+                ghSlug.trim() ? `Also accessible at /fp/${ghSlug.trim()}` : `Accessible at /fp/${item.id ?? '...'}`
+              }
             >
-              <input type="text" className="input input-bordered w-full" placeholder="Optional — e.g., control" value={ghSlug} onChange={(e) => setGhSlug(e.target.value)} disabled={!isDraft} />
+              <input
+                type="text"
+                className="input input-bordered w-full"
+                placeholder="Optional — e.g., control"
+                value={ghSlug}
+                onChange={(e) => setGhSlug(e.target.value)}
+                disabled={!isDraft}
+              />
             </FormField>
             {isControl && (
               <div className="flex items-center mt-2">
@@ -546,7 +603,8 @@ const FunnelDetailPage: React.FC<FunnelDetailProps> = ({ item, data, context, on
           }
         >
           <p className="text-xs text-base-content/50 mb-3">
-            Steps run in order, ending with the required Offer Selector. Each step auto-creates a page you can design in Builder.io.
+            Steps run in order, ending with the required Offer Selector. Each step auto-creates a page you can design in
+            Builder.io.
           </p>
           <div className="space-y-2">
             {userSteps.map((step, i) => {
@@ -556,25 +614,53 @@ const FunnelDetailPage: React.FC<FunnelDetailProps> = ({ item, data, context, on
                   <span className="text-sm font-mono text-base-content/50 w-6 text-center shrink-0">{i + 1}</span>
                   {isDraft && (
                     <div className="flex gap-1 shrink-0">
-                      <button className={`btn btn-sm btn-ghost ${i === 0 || stepBusy ? 'opacity-20' : ''}`} onClick={() => moveStep(i, -1)} disabled={i === 0 || stepBusy}>&uarr;</button>
-                      <button className={`btn btn-sm btn-ghost ${i === userSteps.length - 1 || stepBusy ? 'opacity-20' : ''}`} onClick={() => moveStep(i, 1)} disabled={i === userSteps.length - 1 || stepBusy}>&darr;</button>
+                      <button
+                        className={`btn btn-sm btn-ghost ${i === 0 || stepBusy ? 'opacity-20' : ''}`}
+                        onClick={() => moveStep(i, -1)}
+                        disabled={i === 0 || stepBusy}
+                      >
+                        &uarr;
+                      </button>
+                      <button
+                        className={`btn btn-sm btn-ghost ${i === userSteps.length - 1 || stepBusy ? 'opacity-20' : ''}`}
+                        onClick={() => moveStep(i, 1)}
+                        disabled={i === userSteps.length - 1 || stepBusy}
+                      >
+                        &darr;
+                      </button>
                     </div>
                   )}
-                  <select className="select select-ghost select-sm text-sm w-32 shrink-0" value={step.stepType} onChange={(e) => updateStep(i, 'stepType', e.target.value)} disabled={!isDraft}>
+                  <select
+                    className="select select-ghost select-sm text-sm w-32 shrink-0"
+                    value={step.stepType}
+                    onChange={(e) => updateStep(i, 'stepType', e.target.value)}
+                    disabled={!isDraft}
+                  >
                     {STEP_TYPES.map((t) => (
-                      <option key={t} value={t}>{t}</option>
+                      <option key={t} value={t}>
+                        {t}
+                      </option>
                     ))}
                   </select>
                   <span className="text-xs text-base-content/50 truncate flex-1">
                     {linkedPage ? (linkedPage.name ?? linkedPage.data?.title ?? 'Untitled') : 'No page'}
                   </span>
                   {step.pageId && (
-                    <a href={`https://builder.io/content/${step.pageId}`} target="_blank" rel="noopener noreferrer" className="btn btn-sm btn-ghost shrink-0">
+                    <a
+                      href={`https://builder.io/content/${step.pageId}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="btn btn-sm btn-ghost shrink-0"
+                    >
                       Edit Page
                     </a>
                   )}
                   {isDraft && (
-                    <button className="text-xs text-error/70 hover:text-error shrink-0" onClick={() => removeStep(i)} disabled={stepBusy}>
+                    <button
+                      className="text-xs text-error/70 hover:text-error shrink-0"
+                      onClick={() => removeStep(i)}
+                      disabled={stepBusy}
+                    >
                       Remove
                     </button>
                   )}
@@ -587,7 +673,9 @@ const FunnelDetailPage: React.FC<FunnelDetailProps> = ({ item, data, context, on
               const osPage = offerSelectorPageId ? data.funnelPages.find((p) => p.id === offerSelectorPageId) : null;
               return (
                 <div className="flex items-center gap-3 rounded-lg bg-base-200/50 px-3 py-2">
-                  <span className="text-sm font-mono text-base-content/50 w-6 text-center shrink-0">{userSteps.length + 1}</span>
+                  <span className="text-sm font-mono text-base-content/50 w-6 text-center shrink-0">
+                    {userSteps.length + 1}
+                  </span>
                   {isDraft && <div className="w-[68px] shrink-0" />}
                   <div className="flex items-center gap-2 w-32 shrink-0">
                     <span className="text-sm font-medium">offer-selector</span>
@@ -597,7 +685,12 @@ const FunnelDetailPage: React.FC<FunnelDetailProps> = ({ item, data, context, on
                     {osPage ? (osPage.name ?? osPage.data?.title ?? 'Untitled') : 'No page'}
                   </span>
                   {offerSelectorPageId && (
-                    <a href={`https://builder.io/content/${offerSelectorPageId}`} target="_blank" rel="noopener noreferrer" className="btn btn-sm btn-ghost shrink-0">
+                    <a
+                      href={`https://builder.io/content/${offerSelectorPageId}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="btn btn-sm btn-ghost shrink-0"
+                    >
                       Edit Page
                     </a>
                   )}
@@ -613,7 +706,11 @@ const FunnelDetailPage: React.FC<FunnelDetailProps> = ({ item, data, context, on
             isDraft ? (
               <div className="flex gap-2">
                 {offerId && (
-                  <button className="btn btn-sm btn-ghost" onClick={copyPricingFromOffer} title="Copy default pricing from offer">
+                  <button
+                    className="btn btn-sm btn-ghost"
+                    onClick={copyPricingFromOffer}
+                    title="Copy default pricing from offer"
+                  >
                     Copy from Offer{offerName ? ` (${offerName})` : ''}
                   </button>
                 )}
@@ -638,9 +735,13 @@ const FunnelDetailPage: React.FC<FunnelDetailProps> = ({ item, data, context, on
                   >
                     <div className="flex items-center gap-3">
                       <span className="font-medium">
-                        {tier.label || `Tier ${i + 1}`} &mdash; Qty {tier.quantity} &mdash; ${tier.standardPrice.toFixed(2)}
+                        {tier.label || `Tier ${i + 1}`} &mdash; Qty {tier.quantity} &mdash; $
+                        {tier.standardPrice.toFixed(2)}
                         {tier.subscriptionAvailable && (
-                          <span className="text-base-content/50 font-normal"> / ${tier.subscriptionPrice.toFixed(2)} sub</span>
+                          <span className="text-base-content/50 font-normal">
+                            {' '}
+                            / ${tier.subscriptionPrice.toFixed(2)} sub
+                          </span>
                         )}
                       </span>
                       {tier.isMostPopular && <span className="badge badge-accent badge-sm">Most Popular</span>}
@@ -664,13 +765,34 @@ const FunnelDetailPage: React.FC<FunnelDetailProps> = ({ item, data, context, on
                     <div className="p-4 border-t border-base-300 space-y-4">
                       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                         <FormField label="Quantity">
-                          <input type="number" className="input input-bordered input-sm w-full" min={1} value={tier.quantity} onChange={(e) => updatePricingField(i, 'quantity', parseInt(e.target.value) || 1)} disabled={!isDraft} />
+                          <input
+                            type="number"
+                            className="input input-bordered input-sm w-full"
+                            min={1}
+                            value={tier.quantity}
+                            onChange={(e) => updatePricingField(i, 'quantity', parseInt(e.target.value) || 1)}
+                            disabled={!isDraft}
+                          />
                         </FormField>
                         <FormField label="Label">
-                          <input type="text" className="input input-bordered input-sm w-full" value={tier.label} onChange={(e) => updatePricingField(i, 'label', e.target.value)} disabled={!isDraft} />
+                          <input
+                            type="text"
+                            className="input input-bordered input-sm w-full"
+                            value={tier.label}
+                            onChange={(e) => updatePricingField(i, 'label', e.target.value)}
+                            disabled={!isDraft}
+                          />
                         </FormField>
                         <FormField label="Standard Price">
-                          <input type="number" className="input input-bordered input-sm w-full" step="0.01" min={0} value={tier.standardPrice} onChange={(e) => updatePricingField(i, 'standardPrice', parseFloat(e.target.value) || 0)} disabled={!isDraft} />
+                          <input
+                            type="number"
+                            className="input input-bordered input-sm w-full"
+                            step="0.01"
+                            min={0}
+                            value={tier.standardPrice}
+                            onChange={(e) => updatePricingField(i, 'standardPrice', parseFloat(e.target.value) || 0)}
+                            disabled={!isDraft}
+                          />
                         </FormField>
                         <FormField label="Subscription">
                           <label className="flex items-center gap-2 cursor-pointer mt-1">
@@ -687,7 +809,17 @@ const FunnelDetailPage: React.FC<FunnelDetailProps> = ({ item, data, context, on
                         {tier.subscriptionAvailable && (
                           <>
                             <FormField label="Subscription Price">
-                              <input type="number" className="input input-bordered input-sm w-full" step="0.01" min={0} value={tier.subscriptionPrice} onChange={(e) => updatePricingField(i, 'subscriptionPrice', parseFloat(e.target.value) || 0)} disabled={!isDraft} />
+                              <input
+                                type="number"
+                                className="input input-bordered input-sm w-full"
+                                step="0.01"
+                                min={0}
+                                value={tier.subscriptionPrice}
+                                onChange={(e) =>
+                                  updatePricingField(i, 'subscriptionPrice', parseFloat(e.target.value) || 0)
+                                }
+                                disabled={!isDraft}
+                              />
                             </FormField>
                             <FormField label="Subscription Frequency">
                               <select
@@ -707,7 +839,13 @@ const FunnelDetailPage: React.FC<FunnelDetailProps> = ({ item, data, context, on
                         )}
                         <FormField label="Most Popular">
                           <label className="flex items-center gap-2 cursor-pointer mt-1">
-                            <input type="checkbox" className="checkbox checkbox-sm" checked={tier.isMostPopular} onChange={(e) => updatePricingField(i, 'isMostPopular', e.target.checked)} disabled={!isDraft} />
+                            <input
+                              type="checkbox"
+                              className="checkbox checkbox-sm"
+                              checked={tier.isMostPopular}
+                              onChange={(e) => updatePricingField(i, 'isMostPopular', e.target.checked)}
+                              disabled={!isDraft}
+                            />
                             <span className="text-sm">Highlight this tier</span>
                           </label>
                         </FormField>

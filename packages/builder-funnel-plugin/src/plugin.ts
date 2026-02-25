@@ -44,14 +44,16 @@ Builder.register('plugin', {
       type: 'password',
       name: 'privateApiKey',
       friendlyName: 'Builder Private API Key',
-      helperText: 'Private API key with write access. Found in Builder.io → Account → Space Settings → Developer → API Keys.',
+      helperText:
+        'Private API key with write access. Found in Builder.io → Account → Space Settings → Developer → API Keys.',
       required: true,
     },
     {
       type: 'text',
       name: 'builderCartPublicApiKey',
       friendlyName: 'Cart Space Public API Key',
-      helperText: 'Public API key from the Builder.io cart/commerce space. Used to sync product data into this funnel space.',
+      helperText:
+        'Public API key from the Builder.io cart/commerce space. Used to sync product data into this funnel space.',
       advanced: true,
     },
   ],

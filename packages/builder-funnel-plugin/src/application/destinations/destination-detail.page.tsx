@@ -33,7 +33,10 @@ const DestinationDetailPage: React.FC<DestinationDetailProps> = ({ item, data, c
   }, [data.funnels, offerId]);
 
   const validateSlug = (value: string) => {
-    if (!value) { setSlugError(''); return; }
+    if (!value) {
+      setSlugError('');
+      return;
+    }
     if (!slugPattern.test(value)) {
       setSlugError('Slug must be lowercase letters, numbers, and hyphens only');
       return;
@@ -148,9 +151,7 @@ const DestinationDetailPage: React.FC<DestinationDetailProps> = ({ item, data, c
             <div className="flex items-center gap-3">
               <span className="font-medium">{activeTest.data?.name ?? 'Untitled'}</span>
               <StatusBadge status="active" />
-              <span className="text-sm text-base-content/50">
-                {activeTest.data?.variants?.length ?? 0} variant(s)
-              </span>
+              <span className="text-sm text-base-content/50">{activeTest.data?.variants?.length ?? 0} variant(s)</span>
             </div>
             <p className="text-sm text-base-content/50">Manage from the Split Tests section</p>
           </div>
@@ -160,7 +161,12 @@ const DestinationDetailPage: React.FC<DestinationDetailProps> = ({ item, data, c
       <Section>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <FormField label="Destination Name" required>
-            <input type="text" className="input input-bordered w-full" value={name} onChange={(e) => setName(e.target.value)} />
+            <input
+              type="text"
+              className="input input-bordered w-full"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            />
           </FormField>
           <FormField label="URL Slug" required error={slugError}>
             <div className="join w-full">
@@ -174,7 +180,11 @@ const DestinationDetailPage: React.FC<DestinationDetailProps> = ({ item, data, c
             </div>
           </FormField>
           <FormField label="Offer" required>
-            <select className="select select-bordered w-full" value={offerId} onChange={(e) => handleOfferChange(e.target.value)}>
+            <select
+              className="select select-bordered w-full"
+              value={offerId}
+              onChange={(e) => handleOfferChange(e.target.value)}
+            >
               <option value="">Select an offer...</option>
               {data.offers.map((offer) => (
                 <option key={offer.id} value={offer.id}>
@@ -184,7 +194,12 @@ const DestinationDetailPage: React.FC<DestinationDetailProps> = ({ item, data, c
             </select>
           </FormField>
           <FormField label="Primary Funnel" required>
-            <select className="select select-bordered w-full" value={primaryFunnelId} onChange={(e) => setPrimaryFunnelId(e.target.value)} disabled={!offerId}>
+            <select
+              className="select select-bordered w-full"
+              value={primaryFunnelId}
+              onChange={(e) => setPrimaryFunnelId(e.target.value)}
+              disabled={!offerId}
+            >
               <option value="">{offerId ? 'Select a funnel...' : 'Select an offer first'}</option>
               {availableFunnels.map((funnel) => (
                 <option key={funnel.id} value={funnel.id}>
@@ -195,7 +210,11 @@ const DestinationDetailPage: React.FC<DestinationDetailProps> = ({ item, data, c
             </select>
           </FormField>
           <FormField label="Status">
-            <select className="select select-bordered w-full" value={status} onChange={(e) => setStatus(e.target.value)}>
+            <select
+              className="select select-bordered w-full"
+              value={status}
+              onChange={(e) => setStatus(e.target.value)}
+            >
               <option value="active">Active</option>
               <option value="inactive">Inactive</option>
             </select>

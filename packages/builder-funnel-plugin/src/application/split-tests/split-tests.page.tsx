@@ -74,9 +74,7 @@ const SplitTestsPage: React.FC<SplitTestsPageProps> = ({ data, context, onRefres
   const toggleVariant = (funnelId: string) => {
     // Can't toggle the primary funnel
     if (funnelId === primaryFunnelId) return;
-    setFormVariantIds((prev) =>
-      prev.includes(funnelId) ? prev.filter((id) => id !== funnelId) : [...prev, funnelId],
-    );
+    setFormVariantIds((prev) => (prev.includes(funnelId) ? prev.filter((id) => id !== funnelId) : [...prev, funnelId]));
   };
 
   const handleDestinationChange = (destId: string) => {
@@ -94,7 +92,7 @@ const SplitTestsPage: React.FC<SplitTestsPageProps> = ({ data, context, onRefres
         const isPrimary = funnelId === primaryFunnelId;
         return {
           funnel: { '@type': '@builder.io/core:Reference', model: 'funnel', id: funnelId },
-          label: isPrimary ? 'Primary' : funnel?.data?.isControl ? 'Control' : funnel?.data?.name ?? 'Variant',
+          label: isPrimary ? 'Primary' : funnel?.data?.isControl ? 'Control' : (funnel?.data?.name ?? 'Variant'),
         };
       });
       const newContent = await api.createContent('funnel-split-test', formName.trim(), {
@@ -206,7 +204,9 @@ const SplitTestsPage: React.FC<SplitTestsPageProps> = ({ data, context, onRefres
                       />
                       <span className="font-medium">{funnel.data?.name ?? 'Untitled'}</span>
                       {isPrimary && <span className="badge badge-primary badge-xs">Primary</span>}
-                      {!isPrimary && funnel.data?.isControl && <span className="badge badge-primary badge-xs">Control</span>}
+                      {!isPrimary && funnel.data?.isControl && (
+                        <span className="badge badge-primary badge-xs">Control</span>
+                      )}
                       <StatusBadge status={funnel.data?.status ?? 'draft'} className="ml-auto" />
                     </label>
                   );
@@ -256,7 +256,9 @@ const SplitTestsPage: React.FC<SplitTestsPageProps> = ({ data, context, onRefres
               ? 'No split tests yet. Create a split test to A/B test funnel variants on a destination.'
               : 'Create a destination first, then set up split tests.'
           }
-          action={canCreate ? { label: '+ Create First Split Test', onClick: () => setShowCreateForm(true) } : undefined}
+          action={
+            canCreate ? { label: '+ Create First Split Test', onClick: () => setShowCreateForm(true) } : undefined
+          }
         />
       ) : !showCreateForm ? (
         <Section>
@@ -282,9 +284,7 @@ const SplitTestsPage: React.FC<SplitTestsPageProps> = ({ data, context, onRefres
                       <div className="flex items-center gap-2">
                         <span className="text-base-content/70">{getDestinationName(test)}</span>
                         {getDestinationSlug(test) && (
-                          <code className="text-xs bg-base-300 px-2 py-1 rounded">
-                            /fst/{getDestinationSlug(test)}
-                          </code>
+                          <code className="text-xs bg-base-300 px-2 py-1 rounded">/fst/{getDestinationSlug(test)}</code>
                         )}
                       </div>
                     </td>

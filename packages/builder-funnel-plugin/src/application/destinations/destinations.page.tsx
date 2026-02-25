@@ -265,7 +265,9 @@ const DestinationsPage: React.FC<DestinationsPageProps> = ({ data, context, onRe
             </button>
             <button
               className="btn btn-primary"
-              disabled={!formName.trim() || !formSlug.trim() || !formOfferId || !formFunnelId || !!slugError || creating}
+              disabled={
+                !formName.trim() || !formSlug.trim() || !formOfferId || !formFunnelId || !!slugError || creating
+              }
               onClick={handleCreateDestination}
             >
               {creating ? 'Creating...' : 'Create'}
@@ -283,7 +285,9 @@ const DestinationsPage: React.FC<DestinationsPageProps> = ({ data, context, onRe
               ? 'No destinations yet. Create your first destination to give visitors a URL entry point.'
               : 'Create an offer and funnel first, then add destinations.'
           }
-          action={canCreate ? { label: '+ Create First Destination', onClick: () => setShowCreateForm(true) } : undefined}
+          action={
+            canCreate ? { label: '+ Create First Destination', onClick: () => setShowCreateForm(true) } : undefined
+          }
         />
       ) : !showCreateForm ? (
         <Section>

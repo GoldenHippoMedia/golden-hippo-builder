@@ -243,7 +243,8 @@ export const createFunnelModel = (offerModelId: string, funnelPageModelId: strin
             required: false,
             localized: false,
             defaultCollapsed: true,
-            helperText: 'Optional URL path segment (accessible at /fp/[slug]). All funnels are also accessible at /fp/[id].',
+            helperText:
+              'Optional URL path segment (accessible at /fp/[slug]). All funnels are also accessible at /fp/[id].',
           },
         ],
       },

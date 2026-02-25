@@ -150,7 +150,11 @@ export async function syncFunnelModels(
 
   // Phase 8: Back-fill destination with activeSplitTest reference (first sync only)
   if (!existingSplitTestModel && splitTestModelId) {
-    const fullDestShape = FunnelBuilderHelper.funnelDestinationModel(funnelOfferModelId, funnelModelId, splitTestModelId);
+    const fullDestShape = FunnelBuilderHelper.funnelDestinationModel(
+      funnelOfferModelId,
+      funnelModelId,
+      splitTestModelId,
+    );
     await setModel(fullDestShape, destinationModel, context);
     report('Destination (activeSplitTest ref)');
   }
