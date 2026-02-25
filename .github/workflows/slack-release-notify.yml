@@ -22,11 +22,8 @@ jobs:
           TAG="${{ github.event.release.tag_name || inputs.release_tag }}"
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
 
-          if [ -n "${{ github.event.release.body }}" ]; then
-            echo "${{ github.event.release.body }}" > /tmp/body.md
-          else
-            gh release view "$TAG" --repo "${{ github.repository }}" --json body -q '.body' > /tmp/body.md
-          fi
+          # Always fetch via API to avoid shell interpolation issues with the body
+          gh release view "$TAG" --repo "${{ github.repository }}" --json body -q '.body' > /tmp/body.md
 
       - name: Send to Slack
         env:
@@ -35,17 +32,27 @@ jobs:
           TAG="${{ steps.release.outputs.tag }}"
           RELEASE_URL="https://github.com/${{ github.repository }}/releases/tag/${TAG}"
 
-          # Convert markdown release body to Slack mrkdwn
-          BODY=$(cat /tmp/body.md \
-            | sed 's/### \(.*\)/*\1*/g' \
-            | sed 's/\[#\([0-9]*\)\](\([^)]*\))/<\2|#\1>/g' \
-            | sed 's/\[\(`[^`]*`\)\](\([^)]*\))/<\2|\1>/g' \
-            | sed 's/\[@\([^]]*\)\](\([^)]*\))/<\2|@\1>/g' \
-            | head -40)
-
-          # Build notes: bold tag header + body
           NOTES_FILE=$(mktemp)
-          printf '*%s*\n%s' "$TAG" "$BODY" > "$NOTES_FILE"
+
+          # Convert GitHub markdown release body → Slack mrkdwn
+          cat /tmp/body.md \
+            | sed '/^### Patch Changes/,$d' \
+            | sed 's/^### \(.*\)/*\1*/' \
+            | sed 's/\*\*\([^*]*\)\*\*/*\1*/g' \
+            | sed 's/\\\[/[/g; s/\\\]/]/g' \
+            | sed -E 's/\[#([0-9]+)\]\(([^)]+)\)/<\2|#\1>/g' \
+            | sed -E 's/\[`([^`]+)`\]\(([^)]+)\)/<\2|\1>/g' \
+            | sed -E 's/\[@([^]]+)\]\(([^)]+)\)/<\2|@\1>/g' \
+            | sed -E 's/^( *)-   /\1- /g' \
+            | sed -E 's/Thanks <[^>]+>! - //' \
+            | sed '/^[[:space:]]*$/N;/^\n*$/d' \
+            > "$NOTES_FILE"
+
+          # Prepend bold tag header
+          HEADER_FILE=$(mktemp)
+          printf '*%s*\n' "$TAG" > "$HEADER_FILE"
+          cat "$NOTES_FILE" >> "$HEADER_FILE"
+          mv "$HEADER_FILE" "$NOTES_FILE"
 
           curl -sf "$SLACK_WEBHOOK_URL" \
             -H 'Content-Type: application/json' \
