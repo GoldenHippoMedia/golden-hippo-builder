@@ -45,7 +45,6 @@ This transitively installs `@goldenhippo/builder-funnel-schemas`, `@goldenhippo/
 ```typescript
 import {
   initBuilderFunnel,
-  getOfferById,
   getDestinationBySlug,
   getFunnelFromDestination,
   getPricingFromFunnel,
