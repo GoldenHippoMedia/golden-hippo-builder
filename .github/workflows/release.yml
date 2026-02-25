@@ -44,3 +44,40 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_CONFIG_PROVENANCE: true
+
+      - name: Notify Slack of release
+        if: steps.changesets.outputs.published == 'true'
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          PUBLISHED_PACKAGES: ${{ steps.changesets.outputs.publishedPackages }}
+        run: |
+          # Build package list
+          PACKAGES=$(echo "$PUBLISHED_PACKAGES" | jq -r '.[] | "• \(.name)@\(.version)"' | head -20)
+          COUNT=$(echo "$PUBLISHED_PACKAGES" | jq length)
+          COMMIT_URL="https://github.com/${{ github.repository }}/commit/${{ github.sha }}"
+
+          # Send Slack message
+          curl -sf "$SLACK_WEBHOOK_URL" \
+            -H 'Content-Type: application/json' \
+            -d "$(jq -n \
+              --arg packages "$PACKAGES" \
+              --arg count "$COUNT" \
+              --arg url "$COMMIT_URL" \
+              --arg repo "${{ github.repository }}" \
+              '{
+                blocks: [
+                  {
+                    type: "header",
+                    text: { type: "plain_text", text: ("📦 " + $repo + " — " + $count + " package(s) released"), emoji: true }
+                  },
+                  {
+                    type: "section",
+                    text: { type: "mrkdwn", text: $packages }
+                  },
+                  {
+                    type: "context",
+                    elements: [{ type: "mrkdwn", text: ("<" + $url + "|View commit>") }]
+                  }
+                ]
+              }'
+            )"
