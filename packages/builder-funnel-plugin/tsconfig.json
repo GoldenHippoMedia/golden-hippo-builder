@@ -9,6 +9,8 @@
     "allowSyntheticDefaultImports": true,
     "baseUrl": "./src",
     "paths": {
+      "@goldenhippo/builder-types": ["../../packages/builder-types/src/index.ts"],
+      "@goldenhippo/builder-shared-schemas": ["../../packages/builder-shared-schemas/src/index.ts"],
       "@goldenhippo/builder-funnel-schemas": ["../../packages/builder-funnel-schemas/src/index.ts"],
       "@goldenhippo/builder-ui": ["../../packages/builder-ui/src/index.ts"]
     },

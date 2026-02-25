@@ -1,9 +1,11 @@
 import { BuilderContentReference, BuilderResponseBaseData, ModelShape } from '@goldenhippo/builder-types';
 import { BuilderContent } from '@builder.io/sdk';
-import { BuilderProductCategoryContent } from './product-category.model';
-import { BuilderIngredientContent } from './product-ingredient.model';
-import { BuilderProductUseCaseContent } from './product-use-case.model';
-import { BuilderProductTagContent } from './product-tag.model';
+import {
+  BuilderProductCategoryContent,
+  BuilderIngredientContent,
+  BuilderProductUseCaseContent,
+  BuilderProductTagContent,
+} from '@goldenhippo/builder-shared-schemas';
 
 interface ProductFilterModels {
   categoryId: string;

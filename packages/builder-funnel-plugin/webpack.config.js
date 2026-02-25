@@ -24,6 +24,8 @@ module.exports = {
   resolve: {
     extensions: ['.ts', '.tsx', '.js', '.jsx'],
     alias: {
+      '@goldenhippo/builder-types': path.resolve(__dirname, '../builder-types/src/index.ts'),
+      '@goldenhippo/builder-shared-schemas': path.resolve(__dirname, '../builder-shared-schemas/src/index.ts'),
       '@goldenhippo/builder-funnel-schemas': path.resolve(__dirname, '../builder-funnel-schemas/src/index.ts'),
       '@goldenhippo/builder-ui': path.resolve(__dirname, '../builder-ui/src/index.ts'),
     },

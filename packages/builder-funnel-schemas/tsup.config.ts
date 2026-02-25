@@ -6,6 +6,7 @@ export default defineConfig({
     'data/index': 'src/data/index.ts',
     'section/index': 'src/section/index.ts',
     'page/index': 'src/page/index.ts',
+    'utils/index': 'src/utils/index.ts',
   },
   format: ['cjs', 'esm'],
   dts: true,
@@ -14,5 +15,5 @@ export default defineConfig({
   splitting: false,
   treeshake: true,
   outDir: 'dist',
-  external: ['@goldenhippo/builder-types'],
+  external: ['@goldenhippo/builder-types', '@goldenhippo/builder-shared-schemas'],
 });

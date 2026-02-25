@@ -23,7 +23,8 @@
   },
   "dependencies": {
     "@builder.io/app-context": "^1.0.0",
-    "@goldenhippo/builder-cart-schemas": "*",
+    "@goldenhippo/builder-funnel-schemas": "*",
+    "@goldenhippo/builder-types": "*",
     "@goldenhippo/builder-ui": "*",
     "@tailwindcss/postcss": "^4.1.13",
     "clsx": "^2.1.1",

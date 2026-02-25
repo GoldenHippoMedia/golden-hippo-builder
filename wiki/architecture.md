@@ -2,12 +2,13 @@
 
 ## Package Overview
 
-This is an Nx monorepo with npm workspaces containing six packages:
+This is an Nx monorepo with npm workspaces containing seven packages:
 
 | Package                               | Published to npm | Purpose                                                                        |
 | ------------------------------------- | ---------------- | ------------------------------------------------------------------------------ |
 | `@goldenhippo/builder-types`          | Yes              | Shared Builder.io type definitions (`ModelShape`, `BuilderIOFieldTypes`, etc.) |
-| `@goldenhippo/builder-cart-schemas`   | Yes              | Model definitions and TS content types for 13 cart/commerce models             |
+| `@goldenhippo/builder-shared-schemas` | Yes              | Shared model definitions (product + dependencies) used by both cart and funnel |
+| `@goldenhippo/builder-cart-schemas`   | Yes              | Model definitions and TS content types for cart/commerce models                |
 | `@goldenhippo/builder-funnel-schemas` | Yes              | Model definitions and TS content types for funnel models                       |
 | `@goldenhippo/builder-cart-plugin`    | Yes              | Builder.io editor plugin for commerce sites                                    |
 | `@goldenhippo/builder-funnel-plugin`  | Yes              | Builder.io editor plugin for funnel sites                                      |
@@ -16,30 +17,34 @@ This is an Nx monorepo with npm workspaces containing six packages:
 ## Dependency Flow
 
 ```
-builder-cart-plugin    --> builder-cart-schemas + builder-types + builder-ui
-builder-funnel-plugin  --> builder-funnel-schemas + builder-cart-schemas + builder-ui
-builder-cart-schemas   --> builder-types
-builder-funnel-schemas --> builder-types
+builder-cart-plugin    --> builder-cart-schemas + builder-ui
+builder-funnel-plugin  --> builder-funnel-schemas + builder-ui
+builder-cart-schemas   --> builder-shared-schemas + builder-types
+builder-funnel-schemas --> builder-shared-schemas + builder-types
+builder-shared-schemas --> builder-types
 builder-ui             --> (no internal deps)
 builder-types          --> (no internal deps)
 ```
+
+Both `builder-cart-schemas` and `builder-funnel-schemas` re-export shared model factories for consumer convenience. Plugins import from their respective schema package and get shared models transitively.
 
 ## Build Order
 
 Nx automatically resolves the build order based on dependencies:
 
 ```
-1. builder-types      (no deps)
-2. builder-ui         (no deps)
-3. builder-cart-schemas   (depends on builder-types)
-   builder-funnel-schemas (depends on builder-types)
-4. builder-cart-plugin    (depends on schemas + ui)
-   builder-funnel-plugin  (depends on schemas + ui)
+1. builder-types          (no deps)
+   builder-ui             (no deps)
+2. builder-shared-schemas (depends on builder-types)
+3. builder-cart-schemas   (depends on builder-shared-schemas + builder-types)
+   builder-funnel-schemas (depends on builder-shared-schemas + builder-types)
+4. builder-cart-plugin    (depends on cart-schemas + ui)
+   builder-funnel-plugin  (depends on funnel-schemas + ui)
 ```
 
 ## What Gets Published
 
-### Schema packages (`builder-types`, `builder-cart-schemas`, `builder-funnel-schemas`)
+### Schema packages (`builder-types`, `builder-shared-schemas`, `builder-cart-schemas`, `builder-funnel-schemas`)
 
 These are standard npm packages consumed via `npm install`. They publish:
 

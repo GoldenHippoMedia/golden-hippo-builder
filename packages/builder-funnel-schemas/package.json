@@ -45,6 +45,16 @@
         "types": "./dist/page/index.d.cts",
         "default": "./dist/page/index.cjs"
       }
+    },
+    "./utils": {
+      "import": {
+        "types": "./dist/utils/index.d.ts",
+        "default": "./dist/utils/index.js"
+      },
+      "require": {
+        "types": "./dist/utils/index.d.cts",
+        "default": "./dist/utils/index.cjs"
+      }
     }
   },
   "repository": {
@@ -68,7 +78,8 @@
     "lint": "eslint src/"
   },
   "dependencies": {
-    "@goldenhippo/builder-types": "*"
+    "@goldenhippo/builder-types": "*",
+    "@goldenhippo/builder-shared-schemas": "*"
   },
   "devDependencies": {
     "tsup": "^8.5.1",
