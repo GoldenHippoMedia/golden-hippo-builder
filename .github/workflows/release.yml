@@ -51,28 +51,47 @@ jobs:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
           PUBLISHED_PACKAGES: ${{ steps.changesets.outputs.publishedPackages }}
         run: |
-          # Build package list
-          PACKAGES=$(echo "$PUBLISHED_PACKAGES" | jq -r '.[] | "• \(.name)@\(.version)"' | head -20)
-          COUNT=$(echo "$PUBLISHED_PACKAGES" | jq length)
           COMMIT_URL="https://github.com/${{ github.repository }}/commit/${{ github.sha }}"
+
+          # Extract release notes from each published package's CHANGELOG.md
+          NOTES=""
+          for row in $(echo "$PUBLISHED_PACKAGES" | jq -r '.[] | @base64'); do
+            NAME=$(echo "$row" | base64 -d | jq -r '.name')
+            VERSION=$(echo "$row" | base64 -d | jq -r '.version')
+
+            # Find the package directory from its name
+            PKG_DIR=$(find packages -name "package.json" -maxdepth 2 | xargs grep -l "\"name\": \"$NAME\"" | head -1 | xargs dirname)
+            CHANGELOG="$PKG_DIR/CHANGELOG.md"
+
+            if [ -f "$CHANGELOG" ]; then
+              # Extract the section for this version (between ## X.Y.Z and next ## or EOF)
+              SECTION=$(sed -n "/^## ${VERSION}$/,/^## /{ /^## ${VERSION}$/d; /^## /d; p; }" "$CHANGELOG" | sed '/^$/N;/^\n$/d')
+              if [ -n "$SECTION" ]; then
+                NOTES="${NOTES}*${NAME}@${VERSION}*\n${SECTION}\n\n"
+              else
+                NOTES="${NOTES}*${NAME}@${VERSION}*\n\n"
+              fi
+            else
+              NOTES="${NOTES}*${NAME}@${VERSION}*\n\n"
+            fi
+          done
 
           # Send Slack message
           curl -sf "$SLACK_WEBHOOK_URL" \
             -H 'Content-Type: application/json' \
             -d "$(jq -n \
-              --arg packages "$PACKAGES" \
-              --arg count "$COUNT" \
+              --arg notes "$NOTES" \
               --arg url "$COMMIT_URL" \
               --arg repo "${{ github.repository }}" \
               '{
                 blocks: [
                   {
                     type: "header",
-                    text: { type: "plain_text", text: ("📦 " + $repo + " — " + $count + " package(s) released"), emoji: true }
+                    text: { type: "plain_text", text: ("📦 " + $repo + " — New Release"), emoji: true }
                   },
                   {
                     type: "section",
-                    text: { type: "mrkdwn", text: $packages }
+                    text: { type: "mrkdwn", text: $notes }
                   },
                   {
                     type: "context",
