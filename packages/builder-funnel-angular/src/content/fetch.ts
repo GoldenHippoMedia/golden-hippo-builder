@@ -1,5 +1,5 @@
 import { getBuilderFunnelConfig, type BuilderFunnelConfig } from '../config';
-import type { BuilderContentEntry, BuilderContentResponse, ContentQueryOptions } from './types';
+import type { ContentQueryOptions } from './types';
 
 const DEFAULT_API_HOST = 'https://cdn.builder.io';
 const MAX_PER_PAGE = 100;
@@ -46,15 +46,16 @@ function buildUrl(model: string, options: ContentQueryOptions, config: BuilderFu
 
 /**
  * Fetch content entries from the Builder.io Content API.
+ * For typed funnel content, use the business utilities (getOfferById, getFunnelByIdOrGEP, etc.).
  *
  * @param model - Builder.io model name (e.g., 'funnel-offer')
  * @param options - Query options (filters, pagination, sorting)
- * @returns Array of typed content entries
+ * @returns Array of content entries typed as T
  */
-export async function fetchContent<T>(
+export async function fetchEntries<T = Record<string, any>>(
   model: string,
   options: ContentQueryOptions = {},
-): Promise<BuilderContentEntry<T>[]> {
+): Promise<T[]> {
   const config = getBuilderFunnelConfig();
   const fetchFn = options.fetch ?? config.fetch ?? globalThis.fetch;
   const url = buildUrl(model, options, config);
@@ -64,7 +65,7 @@ export async function fetchContent<T>(
     throw new Error(`Builder.io API error: ${response.status} ${response.statusText} (model: ${model})`);
   }
 
-  const data = (await response.json()) as BuilderContentResponse<T>;
+  const data = (await response.json()) as { results: T[] };
   return data.results;
 }
 
@@ -73,33 +74,34 @@ export async function fetchContent<T>(
  *
  * @param model - Builder.io model name
  * @param options - Query options (filters, targeting)
- * @returns A single typed content entry, or null
+ * @returns A single content entry typed as T, or null
  */
-export async function fetchOneContent<T>(
+export async function fetchOneEntry<T = Record<string, any>>(
   model: string,
   options: ContentQueryOptions = {},
-): Promise<BuilderContentEntry<T> | null> {
-  const results = await fetchContent<T>(model, { ...options, limit: 1 });
+): Promise<T | null> {
+  const results = await fetchEntries<T>(model, { ...options, limit: 1 });
   return results[0] ?? null;
 }
 
 /**
  * Fetch all content entries, automatically paginating through results.
- * Use for data models where you need the complete dataset (products, offers, etc.).
+ * Builder.io limits responses to 100 items — this function issues sequential
+ * requests until all matching content is retrieved.
  *
  * @param model - Builder.io model name
  * @param options - Query options (filters, sorting — limit/offset handled internally)
- * @returns All matching typed content entries
+ * @returns All matching content entries typed as T
  */
-export async function fetchAllContent<T>(
+export async function fetchAllEntries<T = Record<string, any>>(
   model: string,
   options: Omit<ContentQueryOptions, 'limit' | 'offset'> = {},
-): Promise<BuilderContentEntry<T>[]> {
-  const all: BuilderContentEntry<T>[] = [];
+): Promise<T[]> {
+  const all: T[] = [];
   let offset = 0;
 
   while (true) {
-    const batch = await fetchContent<T>(model, { ...options, limit: MAX_PER_PAGE, offset });
+    const batch = await fetchEntries<T>(model, { ...options, limit: MAX_PER_PAGE, offset });
     all.push(...batch);
 
     if (batch.length < MAX_PER_PAGE) break;

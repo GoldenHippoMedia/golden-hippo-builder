@@ -1,16 +1,19 @@
-export type { BuilderContentEntry, BuilderContentResponse, ContentQueryOptions } from './types';
-export { fetchContent, fetchOneContent, fetchAllContent } from './fetch';
+export type { ContentQueryOptions } from './types';
+export { fetchEntries, fetchOneEntry, fetchAllEntries } from './fetch';
 export {
   FUNNEL_MODELS,
-  fetchFunnelOffers,
-  fetchFunnelOffer,
-  fetchFunnels,
-  fetchFunnel,
-  fetchFunnelDestinations,
-  fetchFunnelDestination,
-  fetchFunnelSplitTests,
-  fetchFunnelSplitTest,
-  fetchFunnelPages,
-  fetchFunnelPage,
-  fetchProducts,
+  type ResolvedFunnel,
+  type ResolvedPricingTier,
+  getOfferById,
+  getOfferBySlug,
+  getDefaultOffer,
+  getFunnelById,
+  getFunnelByIdOrGEP,
+  getDestinationBySlug,
+  getFunnelPage,
+  getFunnelFromDestination,
+  getFunnelFromSplitTest,
+  getPricingFromFunnel,
+  getMostPopularTier,
+  getStepsFromFunnel,
 } from './funnel-api';

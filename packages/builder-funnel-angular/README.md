@@ -1,6 +1,6 @@
 # @goldenhippo/builder-funnel-angular
 
-Angular integration SDK for Golden Hippo's Builder.io funnel system. Provides typed content fetching against the Builder.io Content API, routing helpers, and re-exported types from `@goldenhippo/builder-funnel-schemas` for single-import convenience.
+Angular integration SDK for Golden Hippo's Builder.io funnel system. Provides typed business utilities for looking up offers, resolving funnels (including split test logic), extracting pricing, and routing — plus re-exported types from `@goldenhippo/builder-funnel-schemas` for single-import convenience.
 
 ## Table of Contents
 
@@ -9,23 +9,26 @@ Angular integration SDK for Golden Hippo's Builder.io funnel system. Provides ty
 - [Configuration](#configuration)
   - [BuilderFunnelConfig](#builderfunnelconfig)
   - [SSR configuration](#ssr-configuration)
-- [Content Fetching](#content-fetching)
-  - [Funnel-specific fetchers](#funnel-specific-fetchers)
-  - [Fetching a funnel page by URL](#fetching-a-funnel-page-by-url)
-  - [Filtering and sorting](#filtering-and-sorting)
-  - [Generic fetchers](#generic-fetchers)
-  - [Auto-pagination](#auto-pagination)
+- [Offer Lookups](#offer-lookups)
+- [Funnel Lookups](#funnel-lookups)
+- [Destination Lookups](#destination-lookups)
+- [Funnel Resolution](#funnel-resolution)
+  - [From a destination](#from-a-destination)
+  - [From a split test](#from-a-split-test)
+- [Pricing Utilities](#pricing-utilities)
+- [Step Utilities](#step-utilities)
+- [Page Lookups](#page-lookups)
 - [Routing](#routing)
+- [Generic Fetchers](#generic-fetchers)
 - [Exports](#exports)
   - [Entry points](#entry-points)
-  - [Content fetchers](#content-fetchers)
+  - [Business utilities](#business-utilities)
   - [Types](#types)
   - [Re-exported utilities](#re-exported-utilities)
   - [Model name constants](#model-name-constants)
 - [Angular Integration Patterns](#angular-integration-patterns)
   - [App initialization](#app-initialization)
-  - [Content service](#content-service)
-  - [Route resolver](#route-resolver)
+  - [Destination route flow](#destination-route-flow)
   - [Using with Builder.io SDK Angular](#using-with-builderio-sdk-angular)
 - [Development](#development)
 
@@ -40,22 +43,28 @@ This transitively installs `@goldenhippo/builder-funnel-schemas`, `@goldenhippo/
 ## Quick Start
 
 ```typescript
-import { initBuilderFunnel, fetchFunnelOffers, fetchFunnelPage } from '@goldenhippo/builder-funnel-angular';
+import {
+  initBuilderFunnel,
+  getOfferById,
+  getDestinationBySlug,
+  getFunnelFromDestination,
+  getPricingFromFunnel,
+} from '@goldenhippo/builder-funnel-angular';
 
 // 1. Initialize once at app startup
 initBuilderFunnel({ apiKey: 'YOUR_BUILDER_PUBLIC_API_KEY' });
 
-// 2. Fetch typed content
-const offers = await fetchFunnelOffers();
-offers.forEach((entry) => {
-  console.log(entry.name, entry.data.offerName, entry.data.status);
-});
+// 2. Look up a destination by its URL slug
+const destination = await getDestinationBySlug('summer-sale-2026');
 
-// 3. Fetch a page by URL path
-const page = await fetchFunnelPage('/f/preview/weight-loss-offer');
-if (page) {
-  console.log(page.data.title, page.data.pageType);
-}
+// 3. Resolve which funnel to serve (handles split test logic)
+const result = await getFunnelFromDestination(destination!);
+
+// 4. Extract enriched pricing tiers
+const pricing = getPricingFromFunnel(result!.funnel);
+pricing.forEach((tier) => {
+  console.log(`${tier.quantity}x — $${tier.unitPrice}/unit (save ${tier.savingsPercent}%)`);
+});
 ```
 
 ## Configuration
@@ -87,9 +96,6 @@ initBuilderFunnel({
 On the server, inject a custom `fetch` to support Angular's transfer state or request-scoped context:
 
 ```typescript
-import { initBuilderFunnel } from '@goldenhippo/builder-funnel-angular';
-
-// In server.ts or an SSR-specific provider
 initBuilderFunnel({
   apiKey: environment.builderApiKey,
   enrich: true,
@@ -97,118 +103,164 @@ initBuilderFunnel({
 });
 ```
 
-The SDK uses the standard `fetch` API internally, so it works in both browser and Node.js/Edge runtimes without any additional polyfills (Node 18+).
+The SDK uses the standard `fetch` API internally — works in both browser and Node.js/Edge runtimes (Node 18+).
 
-## Content Fetching
+## Offer Lookups
 
-All fetch functions return `BuilderContentEntry<T>` objects with strongly-typed `data` fields. They call the Builder.io Content API v3 directly via `fetch()`.
+```typescript
+import { getOfferById, getOfferBySlug, getDefaultOffer } from '@goldenhippo/builder-funnel-angular';
 
-### Funnel-specific fetchers
+// By Builder entry ID
+const offer = await getOfferById('abc123');
 
-Each funnel model has a pair of fetchers — one for multiple entries and one for a single entry:
+// By GEP slug (data.gh.slug) — for /o/[slug] routes
+const offer = await getOfferBySlug('weight-loss-starter');
+
+// The global default offer (isDefaultOffer: true)
+const fallback = await getDefaultOffer();
+
+// All return BuilderFunnelOfferContent | null
+offer?.data?.displayName;
+offer?.data?.products;
+offer?.data?.defaultPricing;
+```
+
+## Funnel Lookups
+
+```typescript
+import { getFunnelById, getFunnelByIdOrGEP } from '@goldenhippo/builder-funnel-angular';
+
+// By Builder entry ID
+const funnel = await getFunnelById('abc123');
+
+// By ID or GEP slug — for /fp/[idOrSlug] routes
+// Tries ID first, falls back to data.gh.slug
+const funnel = await getFunnelByIdOrGEP('pricing-test-v2');
+
+// Returns BuilderFunnelContent | null
+funnel?.data?.pricing;
+funnel?.data?.steps;
+funnel?.data?.status;
+```
+
+## Destination Lookups
+
+```typescript
+import { getDestinationBySlug } from '@goldenhippo/builder-funnel-angular';
+
+// By URL slug (data.slug) — for /d/[slug] routes
+const destination = await getDestinationBySlug('summer-sale-2026');
+
+// Returns BuilderFunnelDestinationContent | null
+destination?.data?.offer;
+destination?.data?.primaryFunnel;
+destination?.data?.activeSplitTest;
+```
+
+## Funnel Resolution
+
+The core value of this SDK — resolving which funnel to serve based on destinations and split tests.
+
+### From a destination
+
+`getFunnelFromDestination` implements the full resolution pipeline:
+
+1. Checks for an active split test with enriched variants
+2. If found, picks a random variant (even distribution)
+3. Otherwise falls back to the primary funnel
+4. Fetches the resolved funnel by ID (enriched)
 
 ```typescript
 import {
-  fetchFunnelOffers,
-  fetchFunnelOffer,
-  fetchFunnels,
-  fetchFunnel,
-  fetchFunnelDestinations,
-  fetchFunnelDestination,
-  fetchFunnelSplitTests,
-  fetchFunnelSplitTest,
-  fetchFunnelPages,
-  fetchFunnelPage,
-  fetchProducts,
+  getDestinationBySlug,
+  getFunnelFromDestination,
+  type ResolvedFunnel,
 } from '@goldenhippo/builder-funnel-angular';
 
-// Fetch all offers (auto-paginates past Builder.io's 100-item limit)
-const offers = await fetchFunnelOffers();
+const destination = await getDestinationBySlug('summer-sale-2026');
+if (!destination) throw new Error('Destination not found');
 
-// Fetch a single offer by query
-const offer = await fetchFunnelOffer({
-  query: { 'data.offerName': 'Summer Sale' },
-});
-```
-
-### Fetching a funnel page by URL
-
-`fetchFunnelPage()` uses Builder.io's `userAttributes.urlPath` targeting to match pages:
-
-```typescript
-import { fetchFunnelPage } from '@goldenhippo/builder-funnel-angular';
-
-const page = await fetchFunnelPage('/f/preview/weight-loss-step-1');
-if (page) {
-  console.log(page.data.title);
-  console.log(page.data.pageType);
+const result: ResolvedFunnel | null = await getFunnelFromDestination(destination);
+if (result) {
+  console.log(result.funnel); // BuilderFunnelContent
+  console.log(result.offerId); // for order context
+  console.log(result.funnelId); // for cookie persistence
+  console.log(result.splitTestId); // set if resolved via split test
 }
 ```
 
-### Filtering and sorting
+**Cookie persistence:** The caller is responsible for persisting the resolved variant (e.g., in a cookie keyed by `${destinationSlug}:${splitTestId}`) so the same user sees the same funnel within a session. On subsequent requests, use `getFunnelById(persistedFunnelId)` to skip re-randomization.
 
-All fetchers accept `ContentQueryOptions` for filtering, sorting, pagination, and field selection:
+### From a split test
+
+Same randomization logic, starting from a split test ID:
 
 ```typescript
-import { fetchFunnelOffers } from '@goldenhippo/builder-funnel-angular';
+import { getFunnelFromSplitTest } from '@goldenhippo/builder-funnel-angular';
 
-const activeOffers = await fetchFunnelOffers({
-  query: { 'data.status': 'active' },
-  sort: { 'data.offerName': 1 },
-  fields: 'data,name,id',
-  cacheSeconds: 600,
+// Fetches the split test (enriched), picks a random variant, fetches the funnel
+const funnel = await getFunnelFromSplitTest('split-test-entry-id');
+funnel?.data?.pricing;
+```
+
+## Pricing Utilities
+
+`getPricingFromFunnel` extracts pricing tiers and computes per-unit prices and savings:
+
+```typescript
+import {
+  getPricingFromFunnel,
+  getMostPopularTier,
+  type ResolvedPricingTier,
+} from '@goldenhippo/builder-funnel-angular';
+
+const tiers: ResolvedPricingTier[] = getPricingFromFunnel(funnel);
+
+tiers.forEach((tier) => {
+  console.log(`${tier.quantity}x`);
+  console.log(`  Total: $${tier.standardPrice}`);
+  console.log(`  Per unit: $${tier.unitPrice}`);
+  console.log(`  Save: ${tier.savingsPercent}%`);
+  if (tier.subscriptionUnitPrice) {
+    console.log(`  Sub/unit: $${tier.subscriptionUnitPrice}`);
+  }
+});
+
+// Find the "Most Popular" tier
+const popular = getMostPopularTier(tiers);
+```
+
+### ResolvedPricingTier
+
+Extends `FunnelPricingTier` with computed fields:
+
+| Field                                 | Type                  | Description                                                                         |
+| ------------------------------------- | --------------------- | ----------------------------------------------------------------------------------- |
+| `unitPrice`                           | `number`              | `standardPrice / quantity`                                                          |
+| `savingsPercent`                      | `number`              | Percentage saved vs the single-unit tier (0 for base)                               |
+| `subscriptionUnitPrice`               | `number \| undefined` | `subscriptionPrice / quantity` (if subscription available)                          |
+| _(plus all FunnelPricingTier fields)_ |                       | `quantity`, `label`, `standardPrice`, `subscriptionPrice`, `checkoutFeatures`, etc. |
+
+## Step Utilities
+
+```typescript
+import { getStepsFromFunnel } from '@goldenhippo/builder-funnel-angular';
+
+const steps = getStepsFromFunnel(funnel);
+steps.forEach((step) => {
+  console.log(step.stepType, step.label, step.page?.id);
 });
 ```
 
-#### ContentQueryOptions
-
-| Option               | Type                      | Description                                                |
-| -------------------- | ------------------------- | ---------------------------------------------------------- |
-| `query`              | `Record<string, any>`     | MongoDB-style filter (e.g., `{ 'data.status': 'active' }`) |
-| `limit`              | `number`                  | Max entries to return (Builder.io max: 100)                |
-| `offset`             | `number`                  | Pagination offset                                          |
-| `fields`             | `string`                  | Comma-separated fields to include (e.g., `'data,name,id'`) |
-| `omit`               | `string`                  | Comma-separated fields to exclude                          |
-| `sort`               | `Record<string, 1 \| -1>` | Sort order (e.g., `{ 'data.name': 1 }` for ascending)      |
-| `enrich`             | `boolean`                 | Override config-level enrich setting                       |
-| `locale`             | `string`                  | Locale for localized content                               |
-| `cacheSeconds`       | `number`                  | Override config-level cache duration                       |
-| `includeUnpublished` | `boolean`                 | Include draft/unpublished content                          |
-| `userAttributes`     | `Record<string, string>`  | Targeting attributes (e.g., `{ urlPath: '/some/path' }`)   |
-| `fetch`              | `Function`                | Override fetch implementation for this request             |
-
-### Generic fetchers
-
-For custom models or advanced use cases, use the generic fetchers directly:
+## Page Lookups
 
 ```typescript
-import { fetchContent, fetchOneContent, fetchAllContent } from '@goldenhippo/builder-funnel-angular';
-import type { BuilderContentEntry } from '@goldenhippo/builder-funnel-angular';
+import { getFunnelPage } from '@goldenhippo/builder-funnel-angular';
 
-// Fetch with explicit model name and type
-interface MyCustomContent {
-  data: { title: string; slug: string };
-}
-
-const entries = await fetchContent<MyCustomContent>('my-custom-model', {
-  limit: 10,
-  sort: { 'data.title': 1 },
-});
-
-// Fetch all entries (auto-paginates)
-const allEntries = await fetchAllContent<MyCustomContent>('my-custom-model');
+// Fetch by URL path (uses Builder.io userAttributes.urlPath targeting)
+const page = await getFunnelPage('/f/preview/weight-loss-step-1');
+page?.data?.title;
 ```
-
-### Auto-pagination
-
-`fetchAllContent()` and the multi-entry funnel fetchers (`fetchFunnelOffers`, `fetchFunnels`, etc.) automatically paginate through all results. Builder.io limits responses to 100 items per request — these functions issue sequential requests until all content is retrieved.
-
-```typescript
-// This fetches ALL offers, even if there are 250+
-const allOffers = await fetchFunnelOffers();
-```
-
-Single-entry fetchers (`fetchFunnelOffer`, `fetchFunnel`, etc.) and `fetchFunnelPages` do **not** auto-paginate, giving you control over limit/offset.
 
 ## Routing
 
@@ -226,102 +278,102 @@ isFunnelPreviewPath('/about'); // false
 
 // Check if a request is from the Builder.io visual editor
 isBuilderEditRequest('https://example.com/page?builder.preview=true'); // true
-```
 
-### Destination resolution
+// Low-level resolution (returns IDs only, no fetching)
+const config = resolveDestinationConfig(enrichedDestination);
+// { offerId, funnelId, splitTestId? }
 
-Resolve which funnel a user should see for a given destination, including split test variant selection:
-
-```typescript
-import { resolveDestinationConfig, getFunnelIdFromPage } from '@goldenhippo/builder-funnel-angular/routing';
-
-// Resolve the active funnel for a destination (handles split tests)
-const config = resolveDestinationConfig(destination);
-if (config) {
-  console.log(config.offerId, config.funnelId, config.splitTestId);
-}
-
-// Extract the funnel ID from a funnel page entry
+// Extract funnel ID from a funnel-page entry
 const funnelId = getFunnelIdFromPage(page);
 ```
 
-| Function                   | Description                                                            |
-| -------------------------- | ---------------------------------------------------------------------- |
-| `isFunnelPreviewPath`      | Check if a URL path starts with the funnel preview base (`/f/preview`) |
-| `isBuilderEditRequest`     | Check if a URL has `builder.preview` or `builder.editing` query params |
-| `resolveDestinationConfig` | Resolve active config for a destination (handles split test logic)     |
-| `getFunnelIdFromPage`      | Extract funnel ID from a funnel-page content entry                     |
+All routing functions are SSR-safe and work in both browser and Node.js.
 
-All functions are SSR-safe and work in browser and Node.js environments.
+## Generic Fetchers
+
+For custom models or one-off queries, use the generic fetchers directly:
+
+```typescript
+import { fetchEntries, fetchOneEntry, fetchAllEntries } from '@goldenhippo/builder-funnel-angular';
+
+// Fetch with explicit model name and type parameter
+const entries = await fetchEntries<MyCustomType>('my-custom-model', {
+  limit: 10,
+  sort: { 'data.title': 1 },
+});
+
+// Fetch all (auto-paginates past Builder.io's 100-item limit)
+const all = await fetchAllEntries<MyCustomType>('my-custom-model');
+
+// Fetch one
+const single = await fetchOneEntry<MyCustomType>('my-custom-model', {
+  query: { 'data.slug': 'foo' },
+});
+```
 
 ## Exports
 
 ### Entry points
 
-| Entry Point                                   | Description                                             |
-| --------------------------------------------- | ------------------------------------------------------- |
-| `@goldenhippo/builder-funnel-angular`         | Everything: config, fetchers, routing, types, utilities |
-| `@goldenhippo/builder-funnel-angular/content` | Content fetchers, model constants, and query types      |
-| `@goldenhippo/builder-funnel-angular/routing` | Routing helper functions                                |
+| Entry Point                                   | Description                                   |
+| --------------------------------------------- | --------------------------------------------- |
+| `@goldenhippo/builder-funnel-angular`         | Everything: config, utilities, routing, types |
+| `@goldenhippo/builder-funnel-angular/content` | Content utilities, fetchers, model constants  |
+| `@goldenhippo/builder-funnel-angular/routing` | Routing helpers and low-level resolution      |
 
-### Content fetchers
+### Business utilities
 
-| Function                   | Returns                                                        | Pagination |
-| -------------------------- | -------------------------------------------------------------- | ---------- |
-| `fetchFunnelOffers`        | `BuilderContentEntry<BuilderFunnelOfferContent>[]`             | Auto       |
-| `fetchFunnelOffer`         | `BuilderContentEntry<BuilderFunnelOfferContent> \| null`       | Single     |
-| `fetchFunnels`             | `BuilderContentEntry<BuilderFunnelContent>[]`                  | Auto       |
-| `fetchFunnel`              | `BuilderContentEntry<BuilderFunnelContent> \| null`            | Single     |
-| `fetchFunnelDestinations`  | `BuilderContentEntry<BuilderFunnelDestinationContent>[]`       | Auto       |
-| `fetchFunnelDestination`   | `BuilderContentEntry<BuilderFunnelDestinationContent> \| null` | Single     |
-| `fetchFunnelSplitTests`    | `BuilderContentEntry<BuilderFunnelSplitTestContent>[]`         | Auto       |
-| `fetchFunnelSplitTest`     | `BuilderContentEntry<BuilderFunnelSplitTestContent> \| null`   | Single     |
-| `fetchFunnelPages`         | `BuilderContentEntry<BuilderFunnelPageContent>[]`              | Manual     |
-| `fetchFunnelPage(urlPath)` | `BuilderContentEntry<BuilderFunnelPageContent> \| null`        | Single     |
-| `fetchProducts`            | `BuilderContentEntry<BuilderProductContent>[]`                 | Auto       |
-| `fetchContent<T>`          | `BuilderContentEntry<T>[]`                                     | Manual     |
-| `fetchOneContent<T>`       | `BuilderContentEntry<T> \| null`                               | Single     |
-| `fetchAllContent<T>`       | `BuilderContentEntry<T>[]`                                     | Auto       |
+| Function                   | Returns                                   | Description                                      |
+| -------------------------- | ----------------------------------------- | ------------------------------------------------ |
+| `getOfferById`             | `BuilderFunnelOfferContent \| null`       | Look up offer by Builder entry ID                |
+| `getOfferBySlug`           | `BuilderFunnelOfferContent \| null`       | Look up offer by GEP slug (`data.gh.slug`)       |
+| `getDefaultOffer`          | `BuilderFunnelOfferContent \| null`       | Fetch the global default offer                   |
+| `getFunnelById`            | `BuilderFunnelContent \| null`            | Look up funnel by Builder entry ID               |
+| `getFunnelByIdOrGEP`       | `BuilderFunnelContent \| null`            | Look up funnel by ID or GEP slug                 |
+| `getDestinationBySlug`     | `BuilderFunnelDestinationContent \| null` | Look up destination by URL slug                  |
+| `getFunnelPage`            | `BuilderFunnelPageContent \| null`        | Fetch funnel page by URL path                    |
+| `getFunnelFromDestination` | `ResolvedFunnel \| null`                  | Resolve destination → funnel (split test aware)  |
+| `getFunnelFromSplitTest`   | `BuilderFunnelContent \| null`            | Resolve split test → funnel variant              |
+| `getPricingFromFunnel`     | `ResolvedPricingTier[]`                   | Extract pricing with per-unit prices and savings |
+| `getMostPopularTier`       | `FunnelPricingTier \| undefined`          | Find the tier marked as most popular             |
+| `getStepsFromFunnel`       | `FunnelStep[]`                            | Extract ordered step sequence                    |
 
 ### Types
 
 Re-exported from `@goldenhippo/builder-funnel-schemas` for single-import convenience:
 
-| Type                               | Source Package           |
-| ---------------------------------- | ------------------------ |
-| `BuilderFunnelOfferContent`        | `builder-funnel-schemas` |
-| `BuilderFunnelContent`             | `builder-funnel-schemas` |
-| `BuilderFunnelDestinationContent`  | `builder-funnel-schemas` |
-| `BuilderFunnelSplitTestContent`    | `builder-funnel-schemas` |
-| `BuilderFunnelPageContent`         | `builder-funnel-schemas` |
-| `BuilderProductContent`            | `builder-shared-schemas` |
-| `BuilderProductCategoryContent`    | `builder-shared-schemas` |
-| `BuilderProductTagContent`         | `builder-shared-schemas` |
-| `BuilderIngredientContent`         | `builder-shared-schemas` |
-| `BuilderProductUseCaseContent`     | `builder-shared-schemas` |
-| `BuilderContentEntry<T>`           | This package             |
-| `BuilderContentResponse<T>`        | This package             |
-| `ContentQueryOptions`              | This package             |
-| `BuilderFunnelConfig`              | This package             |
-| `DestinationConfig`                | `builder-funnel-schemas` |
-| `SubscriptionFrequency`            | `builder-funnel-schemas` |
-| `FunnelStep`, `FunnelStatus`, etc. | `builder-funnel-schemas` |
+| Type                              | Source Package           |
+| --------------------------------- | ------------------------ |
+| `BuilderFunnelOfferContent`       | `builder-funnel-schemas` |
+| `BuilderFunnelContent`            | `builder-funnel-schemas` |
+| `BuilderFunnelDestinationContent` | `builder-funnel-schemas` |
+| `BuilderFunnelSplitTestContent`   | `builder-funnel-schemas` |
+| `BuilderFunnelPageContent`        | `builder-funnel-schemas` |
+| `BuilderProductContent`           | `builder-shared-schemas` |
+| `FunnelPricingTier`               | `builder-funnel-schemas` |
+| `FunnelStep`, `FunnelStepType`    | `builder-funnel-schemas` |
+| `FunnelStatus`                    | `builder-funnel-schemas` |
+| `DestinationConfig`               | `builder-funnel-schemas` |
+| `ResolvedFunnel`                  | This package             |
+| `ResolvedPricingTier`             | This package             |
+| `ContentQueryOptions`             | This package             |
+| `BuilderFunnelConfig`             | This package             |
 
 ### Re-exported utilities
 
-These are re-exported from `@goldenhippo/builder-funnel-schemas`:
+From `@goldenhippo/builder-funnel-schemas`:
 
-| Utility                          | Description                                                        |
-| -------------------------------- | ------------------------------------------------------------------ |
-| `resolveDestinationConfig`       | Resolve active config for a destination (handles split test logic) |
-| `getFunnelIdFromPage`            | Extract funnel ID from a funnel-page content entry                 |
-| `calculateSubscriptionFrequency` | Calculate subscription frequency from product data                 |
-| `SUBSCRIPTION_FREQUENCIES`       | Available subscription frequency values                            |
-| `FREQUENCY_LABELS`               | Human-readable labels for subscription frequencies                 |
+| Utility                          | Description                                                 |
+| -------------------------------- | ----------------------------------------------------------- |
+| `resolveDestinationConfig`       | Low-level destination resolution (returns IDs, no fetching) |
+| `getFunnelIdFromPage`            | Extract funnel ID from a funnel-page content entry          |
+| `calculateSubscriptionFrequency` | Calculate subscription frequency from product data          |
+| `SUBSCRIPTION_FREQUENCIES`       | Available subscription frequency values                     |
+| `FREQUENCY_LABELS`               | Human-readable labels for subscription frequencies          |
 
 ### Model name constants
 
-`FUNNEL_MODELS` provides the Builder.io model name strings used internally by the fetchers:
+`FUNNEL_MODELS` provides the Builder.io model name strings:
 
 ```typescript
 import { FUNNEL_MODELS } from '@goldenhippo/builder-funnel-angular';
@@ -332,15 +384,9 @@ FUNNEL_MODELS.DESTINATION; // 'funnel-destination'
 FUNNEL_MODELS.SPLIT_TEST; // 'funnel-split-test'
 FUNNEL_MODELS.FUNNEL_PAGE; // 'funnel-page'
 FUNNEL_MODELS.PRODUCT; // 'product'
-FUNNEL_MODELS.PRODUCT_CATEGORY; // 'product-category'
-FUNNEL_MODELS.PRODUCT_TAG; // 'product-tag'
-FUNNEL_MODELS.PRODUCT_INGREDIENT; // 'product-ingredient'
-FUNNEL_MODELS.PRODUCT_USE_CASE; // 'product-use-case'
 ```
 
 ## Angular Integration Patterns
-
-This package provides framework-agnostic functions. Below are recommended patterns for integrating with Angular.
 
 ### App initialization
 
@@ -360,89 +406,66 @@ function initBuilder() {
 }
 
 export const appConfig: ApplicationConfig = {
-  providers: [
-    { provide: APP_INITIALIZER, useFactory: initBuilder, multi: true },
-    // ...other providers
-  ],
+  providers: [{ provide: APP_INITIALIZER, useFactory: initBuilder, multi: true }],
 };
 ```
 
-### Content service
+### Destination route flow
 
-Wrap the fetchers in an Angular service for dependency injection and caching:
-
-```typescript
-// funnel-content.service.ts
-import { Injectable } from '@angular/core';
-import {
-  fetchFunnelOffers,
-  fetchFunnels,
-  fetchFunnelDestinations,
-  fetchFunnelPage,
-  type BuilderContentEntry,
-  type BuilderFunnelOfferContent,
-  type BuilderFunnelContent,
-  type BuilderFunnelDestinationContent,
-  type BuilderFunnelPageContent,
-} from '@goldenhippo/builder-funnel-angular';
-
-@Injectable({ providedIn: 'root' })
-export class FunnelContentService {
-  private offersCache: BuilderContentEntry<BuilderFunnelOfferContent>[] | null = null;
-
-  async getOffers(): Promise<BuilderContentEntry<BuilderFunnelOfferContent>[]> {
-    if (!this.offersCache) {
-      this.offersCache = await fetchFunnelOffers();
-    }
-    return this.offersCache;
-  }
-
-  async getFunnels(): Promise<BuilderContentEntry<BuilderFunnelContent>[]> {
-    return fetchFunnels();
-  }
-
-  async getDestinations(): Promise<BuilderContentEntry<BuilderFunnelDestinationContent>[]> {
-    return fetchFunnelDestinations();
-  }
-
-  async getPageByUrl(urlPath: string): Promise<BuilderContentEntry<BuilderFunnelPageContent> | null> {
-    return fetchFunnelPage(urlPath);
-  }
-}
-```
-
-### Route resolver
-
-Use with Angular's functional route resolvers for SSR/SSG:
+The full `/d/[slug]` resolution in an Angular resolver:
 
 ```typescript
-// funnel-page.resolver.ts
-import { inject } from '@angular/core';
+// destination.resolver.ts
 import { ResolveFn } from '@angular/router';
 import {
-  fetchFunnelPage,
-  type BuilderContentEntry,
-  type BuilderFunnelPageContent,
+  getDestinationBySlug,
+  getFunnelFromDestination,
+  getFunnelById,
+  getPricingFromFunnel,
+  type ResolvedFunnel,
+  type ResolvedPricingTier,
 } from '@goldenhippo/builder-funnel-angular';
 
-export const funnelPageResolver: ResolveFn<BuilderContentEntry<BuilderFunnelPageContent> | null> = (route) => {
-  const urlPath = '/' + route.url.map((s) => s.path).join('/');
-  return fetchFunnelPage(urlPath);
-};
+interface DestinationRouteData {
+  result: ResolvedFunnel;
+  pricing: ResolvedPricingTier[];
+}
 
-// In your route config:
-// { path: 'f/preview/:slug', component: FunnelPageComponent, resolve: { page: funnelPageResolver } }
+export const destinationResolver: ResolveFn<DestinationRouteData | null> = async (route) => {
+  const slug = route.paramMap.get('slug');
+  if (!slug) return null;
+
+  const destination = await getDestinationBySlug(slug);
+  if (!destination) return null;
+
+  // Check for a persisted funnel ID from a previous split test resolution
+  const cookieKey = `funnel:${slug}:${destination.data?.activeSplitTest?.id ?? 'primary'}`;
+  const persistedFunnelId = getCookie(cookieKey); // your cookie utility
+
+  let result: ResolvedFunnel | null;
+  if (persistedFunnelId) {
+    const funnel = await getFunnelById(persistedFunnelId);
+    result = funnel ? { funnel, offerId: destination.data!.offer!.id!, funnelId: persistedFunnelId } : null;
+  } else {
+    result = await getFunnelFromDestination(destination);
+    if (result) {
+      setCookie(cookieKey, result.funnelId); // persist for session
+    }
+  }
+
+  if (!result) return null;
+  return { result, pricing: getPricingFromFunnel(result.funnel) };
+};
 ```
 
 ### Using with Builder.io SDK Angular
 
-The `BuilderContentEntry` returned by this SDK is compatible with Builder.io's `Content` component. Pass the entry directly as the `content` input:
+The content entries returned by this SDK are compatible with Builder.io's `Content` component:
 
 ```typescript
 import { Component, Input, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { Content } from '@builder.io/sdk-angular';
-import type { BuilderContentEntry, BuilderFunnelPageContent } from '@goldenhippo/builder-funnel-angular';
-import { environment } from '../environments/environment';
+import { getFunnelPage, type BuilderFunnelPageContent } from '@goldenhippo/builder-funnel-angular';
 
 @Component({
   selector: 'app-funnel-page',
@@ -451,17 +474,15 @@ import { environment } from '../environments/environment';
   imports: [Content],
   template: `
     @if (page) {
-      <builder-content [model]="'funnel-page'" [content]="page" [apiKey]="apiKey" [customComponents]="customComponents">
-      </builder-content>
+      <builder-content [model]="'funnel-page'" [content]="page" [apiKey]="apiKey"> </builder-content>
     } @else {
       <app-not-found />
     }
   `,
 })
 export class FunnelPageComponent {
-  @Input() page: BuilderContentEntry<BuilderFunnelPageContent> | null = null;
+  @Input() page: BuilderFunnelPageContent | null = null;
   apiKey = environment.builderApiKey;
-  customComponents = []; // Register your custom components here
 }
 ```
 

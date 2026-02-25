@@ -1,25 +1,27 @@
 // Configuration
 export { initBuilderFunnel, getBuilderFunnelConfig, type BuilderFunnelConfig } from './config';
 
-// Content fetching — generic
-export { fetchContent, fetchOneContent, fetchAllContent } from './content';
-export type { BuilderContentEntry, BuilderContentResponse, ContentQueryOptions } from './content';
+// Generic content fetching
+export { fetchEntries, fetchOneEntry, fetchAllEntries } from './content';
+export type { ContentQueryOptions } from './content';
 
-// Content fetching — funnel-specific
+// Business utilities — lookups
 export {
   FUNNEL_MODELS,
-  fetchFunnelOffers,
-  fetchFunnelOffer,
-  fetchFunnels,
-  fetchFunnel,
-  fetchFunnelDestinations,
-  fetchFunnelDestination,
-  fetchFunnelSplitTests,
-  fetchFunnelSplitTest,
-  fetchFunnelPages,
-  fetchFunnelPage,
-  fetchProducts,
+  getOfferById,
+  getOfferBySlug,
+  getDefaultOffer,
+  getFunnelById,
+  getFunnelByIdOrGEP,
+  getDestinationBySlug,
+  getFunnelPage,
 } from './content';
+
+// Business utilities — resolution
+export { getFunnelFromDestination, getFunnelFromSplitTest, type ResolvedFunnel } from './content';
+
+// Business utilities — pricing & steps
+export { getPricingFromFunnel, getMostPopularTier, getStepsFromFunnel, type ResolvedPricingTier } from './content';
 
 // Routing
 export { isFunnelPreviewPath, isBuilderEditRequest } from './routing';

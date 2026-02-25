@@ -1,24 +1,3 @@
-/** A Builder.io content entry with strongly-typed data */
-export interface BuilderContentEntry<T = Record<string, any>> {
-  id: string;
-  name: string;
-  published: 'published' | 'draft' | 'archived';
-  data: T;
-  modelId: string;
-  createdDate: number;
-  lastUpdated: number;
-  rev?: string;
-  meta?: Record<string, any>;
-  variations?: Record<string, { data: Partial<T>; [key: string]: any }>;
-  testRatio?: number;
-  query?: Array<{ property: string; operator: string; value: any }>;
-}
-
-/** Raw API response from Builder.io Content API */
-export interface BuilderContentResponse<T = Record<string, any>> {
-  results: BuilderContentEntry<T>[];
-}
-
 /** Options for querying Builder.io content */
 export interface ContentQueryOptions {
   /** MongoDB-style query filter (e.g., { 'data.status': 'active' }) */
