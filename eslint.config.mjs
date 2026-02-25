@@ -20,6 +20,7 @@ export default [
             { sourceTag: 'scope:shared', onlyDependOnLibsWithTags: ['scope:shared'] },
             { sourceTag: 'type:plugin', onlyDependOnLibsWithTags: ['type:plugin', 'type:schema', 'type:ui'] },
             { sourceTag: 'type:schema', onlyDependOnLibsWithTags: ['type:schema'] },
+            { sourceTag: 'type:integration', onlyDependOnLibsWithTags: ['type:integration', 'type:schema'] },
             { sourceTag: 'type:ui', onlyDependOnLibsWithTags: ['type:ui'] },
           ],
         },

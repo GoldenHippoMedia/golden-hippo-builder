@@ -18,6 +18,7 @@
     "paths": {
       "@goldenhippo/builder-cart-schemas": ["packages/builder-cart-schemas/src/index.ts"],
       "@goldenhippo/builder-funnel-schemas": ["packages/builder-funnel-schemas/src/index.ts"],
+      "@goldenhippo/builder-funnel-angular": ["packages/builder-funnel-angular/src/index.ts"],
       "@goldenhippo/builder-ui": ["packages/builder-ui/src/index.ts"]
     }
   },
