@@ -1,5 +1,11 @@
 # @goldenhippo/builder-cart-schemas
 
+## 0.6.0
+
+### Minor Changes
+
+- [#10](https://github.com/GoldenHippoMedia/golden-hippo-builder/pull/10) [`3165fb3`](https://github.com/GoldenHippoMedia/golden-hippo-builder/commit/3165fb32e49ef7bbcf898ca00ace61498b6d6a1b) - Add `cartDrawerEnabled` feature flag to brand-config schema — [@steven-t-h](https://github.com/steven-t-h)
+
 ## 0.5.0
 
 ### Minor Changes
