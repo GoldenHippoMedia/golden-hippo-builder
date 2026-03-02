@@ -90,6 +90,14 @@ export const createFeatureConfig = (gridFilterModelId: string): BuilderIOFieldTy
         localized: false,
         defaultCollapsed: true,
       },
+      {
+        name: 'cartDrawerEnabled',
+        friendlyName: 'Enable Cart Drawer',
+        helperText: 'Enable or disable the cart drawer experience for the brand',
+        type: 'boolean',
+        localized: false,
+        defaultCollapsed: true,
+      },
     ],
   };
 };
