@@ -224,6 +224,7 @@ export type BuilderBrandConfigContent = BuilderContent &
         subscriptionAddOnsEnabled: boolean;
         shippingThresholdNotificationEnabled: boolean;
         bundlingEnabled: boolean;
+        cartDrawerEnabled: boolean;
       };
       support: {
         email: string;
