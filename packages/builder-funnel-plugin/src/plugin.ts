@@ -87,7 +87,7 @@ Builder.register('app.onLoad', async ({ triggerSettingsDialog }: AppActions) => 
   const apiUrl = pluginSettings?.get('apiUrl');
   const editUrl = pluginSettings?.get('editUrl');
   const privateApiKey = pluginSettings?.get('privateApiKey');
-  if (!hasConnected || !apiUser || !apiPassword || !apiUrl || !editUrl || !privateApiKey) {
+  if (!hasConnected || !apiUser || !apiPassword || !apiUrl || editUrl || !privateApiKey) {
     await triggerSettingsDialog(pluginId);
   }
 });

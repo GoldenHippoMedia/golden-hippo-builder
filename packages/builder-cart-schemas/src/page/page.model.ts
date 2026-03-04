@@ -1,5 +1,8 @@
-import { BuilderResponseBaseData, ModelShape } from '@goldenhippo/builder-types';
+import { BuilderContentReference, BuilderResponseBaseData, ModelShape } from '@goldenhippo/builder-types';
 import { BuilderContent } from '@builder.io/sdk';
+import { BuilderProductCategoryContent, BuilderProductContent } from '@goldenhippo/builder-shared-schemas';
+import { BuilderBlogCategoryContent, BuilderProductGroupContent } from '../data';
+import { BuilderSiteBannerModelContent } from '../section';
 
 interface PageModelInputProps {
   productModelId: string;
@@ -10,34 +13,34 @@ interface PageModelInputProps {
   editUrl: string;
 }
 
-enum PageTypes {
+export enum PageTypes {
   GENERAL = 'General',
   PRODUCT = 'Product',
   BLOG = 'Blog',
 }
 
-enum PdpTypes {
+export enum PdpTypes {
   PRODUCT = 'Product',
   PRODUCT_GROUP = 'Product Group',
 }
 
-enum OfferSelectorTypes {
+export enum OfferSelectorTypes {
   VERTICAL = 'Vertical',
   VERTICAL__FLAVOR_DROPDOWN__TYPE_TOGGLE = 'Vertical - Flavor Dropdown - Type Toggle',
   STACKED__FLAVOR_BUTTONS__QUANTITY_TOGGLE = 'Stacked - Flavor Buttons - Quantity Toggle',
 }
 
-enum OfferSelectorSliderTypes {
+export enum OfferSelectorSliderTypes {
   SLIDER_A = 'Slider A',
   SLIDER_B = 'Slider B',
 }
 
-enum OfferSelectorDefaultPurchaseType {
+export enum OfferSelectorDefaultPurchaseType {
   ONE_TIME = 'One-Time Purchase',
   SUBSCRIPTION = 'Subscription',
 }
 
-enum OfferSelectorSavingsType {
+export enum OfferSelectorSavingsType {
   PERCENT = 'percentage',
   DOLLAR = 'dollar',
 }
@@ -759,7 +762,7 @@ type BasePageData = {
     content?: string;
   };
   banners?: {
-    banner: string;
+    banner: BuilderContentReference<BuilderSiteBannerModelContent['data']>;
   }[];
   disableStickyHeader?: boolean;
   showBundleDrawer?: boolean;
@@ -779,14 +782,8 @@ export type BuilderPdpPageContent = BuilderContent &
         type: PdpTypes.PRODUCT;
         pdp?: {
           type: PdpTypes;
-          product?: {
-            id: string;
-            name: string;
-          };
-          productGroup?: {
-            id: string;
-            name: string;
-          };
+          product?: BuilderContentReference<BuilderProductContent['data']>;
+          productGroup?: BuilderContentReference<BuilderProductGroupContent['data']>;
           slides?: {
             image: string;
           }[];
@@ -825,10 +822,7 @@ export type BuilderPdpPageContent = BuilderContent &
               signupOfferPriceCustomCssProps?: Record<string, string>;
             };
           };
-          category?: {
-            id: string;
-            name: string;
-          };
+          category?: BuilderContentReference<BuilderProductCategoryContent['data']>;
         };
       };
   }>;
@@ -845,10 +839,7 @@ export type BuilderBlogPageContent = BuilderContent &
           author?: string;
           thumbnail?: string;
           categories?: {
-            category: {
-              id: string;
-              name: string;
-            };
+            category: BuilderContentReference<BuilderBlogCategoryContent['data']>;
           }[];
         };
       };

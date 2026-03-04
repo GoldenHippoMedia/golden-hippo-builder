@@ -1,5 +1,98 @@
-import { IBrandSettings, IProduct } from './types';
 import { HippoUser } from '@services/user-management';
+
+interface IBrandSettings {
+  name: string;
+  address: {
+    street: string;
+    city: string;
+    state: string;
+    zip: string;
+    country: string;
+  };
+  contact: {
+    firstName: string;
+    lastName: string;
+    phone: string | null;
+  };
+  support: {
+    returnsAddress: string | null;
+    phone: string | null;
+    email: string | null;
+    website: string;
+    moneyBackGuarantee: number;
+  };
+  sites: {
+    funnel: string;
+    affiliate: string | null;
+    cart: string;
+  };
+  logo: string | null;
+  loyalty: {
+    active: boolean;
+    pointsPerDollar: number;
+    pointValue: number;
+    pointsExpiration: number;
+    pendingWindow: number;
+    signUp: {
+      points: number;
+      lookBackWindow: number;
+    };
+    birthday: {
+      initialPoints: number;
+      annualPoints: number;
+    };
+  };
+  shipping: {
+    exclusionRule: string;
+    threshold: number;
+    cost: {
+      domestic: {
+        oneTime: number;
+        subscription: number;
+        myAccountOneTime: number;
+        myAccountSubscription: number;
+      };
+      international: {
+        oneTime: number;
+        subscription: number;
+        myAccountOneTime: number;
+        myAccountSubscription: number;
+      };
+    };
+  };
+  availableCountries: Array<{
+    name: string;
+    code: string;
+    currencyCode: string;
+    defaultConversionRate: number;
+    regions: Array<{
+      name: string;
+      code: string;
+    }>;
+  }>;
+  availableLocales: Array<{
+    name: string;
+    code: string;
+    currencyCode: string;
+    availableLanguages: string[];
+    defaultLanguage: string;
+  }>;
+  pet: {
+    dogBreeds: Array<{ value: string; label: string }>;
+    catBreeds: Array<{ value: string; label: string }>;
+    healthConditions: Array<{ label: string; value: string }>;
+  };
+  search: any | null;
+  subscriptionFrequencies: string[];
+  sampleConfigurations: any[];
+  bundleTiers: Array<{
+    itemCount: number;
+    discountPercent: number;
+    uniqueProducts: boolean;
+    subscriptionOnly: boolean;
+    loggedInOnly: boolean;
+  }>;
+}
 
 class CommerceApi {
   private readonly brandName: string;
@@ -28,19 +121,6 @@ class CommerceApi {
       statusText: setting.statusText,
     });
     throw new Error(`Failed to retrieve brand settings for ${this.brandName}. Check your plugin settings!`);
-  }
-
-  async getProductFeed(): Promise<IProduct[]> {
-    const url = this.buildRequestUrl('product/feed');
-    console.info(`Getting products for ${url}`);
-    const products = await fetch(url, {
-      headers: this.headers,
-      credentials: 'include',
-    });
-    if (products.ok) {
-      return products.json();
-    }
-    throw new Error(`Failed to retrieve products for ${this.brandName}. Check your plugin settings!`);
   }
 
   private buildHeaders(user: string, password: string): Headers {

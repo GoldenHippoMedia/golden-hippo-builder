@@ -51,7 +51,7 @@ interface BaseBuilderIOField {
   /**
    * Provide a name to present in the UI.
    */
-  friendlyName: string;
+  friendlyName?: string;
   /**
    * Indicate if this field is required.
    *

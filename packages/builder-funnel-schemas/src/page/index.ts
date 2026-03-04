@@ -1,2 +1,2 @@
 // Funnel page model exports
-export { createFunnelPageModel, type BuilderFunnelPageContent, type FunnelPageType } from './funnel-page.model';
+export { createFunnelPageModel, type BuilderFunnelPageContent } from './funnel-page.model';

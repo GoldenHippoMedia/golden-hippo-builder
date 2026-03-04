@@ -162,10 +162,7 @@ export type BuilderProductGroupContent = BuilderContent &
       gridTagline?: string;
       shortDescription?: string;
       products: {
-        product: {
-          id: string;
-          value: BuilderContentReference<BuilderProductContent>;
-        };
+        product: BuilderContentReference<BuilderProductContent['data']>;
         displayName?: string;
         isTrialSize?: boolean;
       }[];

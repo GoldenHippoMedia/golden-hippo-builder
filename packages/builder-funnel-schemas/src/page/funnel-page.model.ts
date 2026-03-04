@@ -1,10 +1,8 @@
 import { BuilderContentReference, BuilderResponseBaseData, ModelShape } from '@goldenhippo/builder-types';
 import { BuilderContent } from '@builder.io/sdk';
-import { BuilderFunnelContent } from '../data/funnel.model';
+import { BuilderFunnelContent } from '../data';
 
-export type FunnelPageType = 'landing' | 'survey' | 'vsl' | 'coupon' | 'offer-selector';
-
-export const createFunnelPageModel = (editUrl: string, funnelModelId?: string): ModelShape => {
+export const createFunnelPageModel = (editUrl: string, funnelModelId: string): ModelShape => {
   const fields: ModelShape['fields'] = [
     {
       name: 'title',
@@ -16,18 +14,6 @@ export const createFunnelPageModel = (editUrl: string, funnelModelId?: string): 
       helperText: 'Page title',
     },
     {
-      name: 'pageType',
-      friendlyName: 'Page Type',
-      type: 'select',
-      required: true,
-      defaultCollapsed: true,
-      enum: ['landing', 'survey', 'vsl', 'coupon', 'offer-selector'],
-      helperText: 'The type of funnel page',
-    },
-  ];
-
-  if (funnelModelId) {
-    fields.push({
       name: 'funnel',
       friendlyName: 'Funnel',
       type: 'reference',
@@ -36,14 +22,14 @@ export const createFunnelPageModel = (editUrl: string, funnelModelId?: string): 
       copyOnAdd: false,
       defaultCollapsed: true,
       helperText: 'The funnel this page belongs to',
-    });
-  }
+    },
+  ];
 
   return {
     name: 'funnel-page',
     displayName: 'Funnel Page',
     kind: 'page',
-    helperText: 'A visual page within a funnel (survey, VSL, coupon, offer selector, etc.)',
+    helperText: 'A visual page within a funnel',
     contentTitleField: undefined,
     fields: [
       ...fields,
@@ -118,8 +104,7 @@ export type BuilderFunnelPageContent = BuilderContent &
   Partial<{
     data: {
       title: string;
-      pageType: FunnelPageType;
-      funnel?: BuilderContentReference<BuilderFunnelContent>;
+      funnel?: BuilderContentReference<BuilderFunnelContent['data']>;
       seo?: {
         heading?: string;
         description?: string;

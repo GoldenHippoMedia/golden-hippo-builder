@@ -2,9 +2,7 @@ import { BuilderContent } from '@builder.io/sdk';
 import {
   BuilderFunnelContent,
   BuilderFunnelDestinationContent,
-  BuilderFunnelOfferContent,
   BuilderFunnelPageContent,
-  BuilderFunnelSplitTestContent,
   BuilderProductContent,
 } from '@goldenhippo/builder-funnel-schemas';
 import { ExtendedApplicationContext } from '../interfaces/application-context.interface';
@@ -29,7 +27,7 @@ class BuilderApi {
     this.apiKey = context.user.apiKey;
     this.context = context;
 
-    // Read private API key from plugin settings (MobX observable map)
+    // Read the private API key from plugin settings (MobX observable map)
     // @ts-expect-error incomplete types — organization is a MobX observable, plugins is a Map
     const pluginSettings = context.user.organization?.value?.settings?.plugins?.get(pluginId);
     this.privateApiKey = (pluginSettings?.get('privateApiKey') as string) ?? '';
@@ -94,61 +92,23 @@ class BuilderApi {
     }
   }
 
+  async publishContent(modelName: string, entryId: string): Promise<void> {
+    const resp = await fetch(`https://builder.io/api/v1/write/${modelName}/${entryId}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${this.privateApiKey}`,
+      },
+      body: JSON.stringify({ published: 'published' }),
+    });
+    if (!resp.ok) {
+      const body = await resp.text();
+      throw new Error(`Failed to publish ${modelName}/${entryId}: ${resp.status} ${body}`);
+    }
+  }
+
   async removeContent(content: BuilderContent): Promise<void> {
     await this.context.content.remove(content);
-  }
-
-  async patchContent(modelName: string, entryId: string, patch: Record<string, any>): Promise<void> {
-    const resp = await fetch(`https://builder.io/api/v1/write/${modelName}/${entryId}`, {
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${this.privateApiKey}`,
-      },
-      body: JSON.stringify(patch),
-    });
-    if (!resp.ok) {
-      const body = await resp.text();
-      throw new Error(`Failed to patch ${modelName}/${entryId}: ${resp.status} ${body}`);
-    }
-  }
-
-  async getFullContent<T extends BuilderContent = BuilderContent>(
-    modelName: string,
-    id: string,
-    enrich = true,
-  ): Promise<T | null> {
-    const url = `https://cdn.builder.io/api/v3/content/${modelName}?apiKey=${this.apiKey}&enrich=${enrich}&includeUnpublished=true&query.id=${id}&limit=1&cachebust=true&enrichOptions.model.funnel-page.omit=data.blocks,data.funnel`;
-    const resp = await fetch(url, { headers: this.authHeaders });
-    if (!resp.ok) return null;
-    const json = await resp.json();
-    const results: T[] = Array.isArray(json) ? json : (json?.results ?? []);
-    return results[0] ?? null;
-  }
-
-  async mergeContentData(
-    modelName: string,
-    entryId: string,
-    dataFields: Record<string, any>,
-    topLevelFields?: Record<string, any>,
-  ): Promise<void> {
-    const existing = await this.getFullContent(modelName, entryId, false);
-    if (!existing) throw new Error(`Cannot merge data: ${modelName}/${entryId} not found`);
-    const resp = await fetch(`https://builder.io/api/v1/write/${modelName}/${entryId}`, {
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${this.privateApiKey}`,
-      },
-      body: JSON.stringify({
-        ...topLevelFields,
-        data: { ...(existing.data ?? {}), ...dataFields },
-      }),
-    });
-    if (!resp.ok) {
-      const body = await resp.text();
-      throw new Error(`Failed to merge ${modelName}/${entryId}: ${resp.status} ${body}`);
-    }
   }
 
   async getProducts(bustCache?: boolean): Promise<BuilderProductContent[]> {
@@ -156,14 +116,6 @@ class BuilderApi {
       modelName: 'product',
       bustCache: !!bustCache,
       limit: 5000,
-    });
-  }
-
-  async getOffers(bustCache?: boolean): Promise<BuilderFunnelOfferContent[]> {
-    return this.fetchContent<BuilderFunnelOfferContent>({
-      modelName: 'funnel-offer',
-      bustCache: !!bustCache,
-      limit: 1000,
     });
   }
 
@@ -186,14 +138,6 @@ class BuilderApi {
   async getDestinations(bustCache?: boolean): Promise<BuilderFunnelDestinationContent[]> {
     return this.fetchContent<BuilderFunnelDestinationContent>({
       modelName: 'funnel-destination',
-      bustCache: !!bustCache,
-      limit: 1000,
-    });
-  }
-
-  async getSplitTests(bustCache?: boolean): Promise<BuilderFunnelSplitTestContent[]> {
-    return this.fetchContent<BuilderFunnelSplitTestContent>({
-      modelName: 'funnel-split-test',
       bustCache: !!bustCache,
       limit: 1000,
     });

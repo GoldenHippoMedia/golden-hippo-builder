@@ -5,4 +5,12 @@ export type {
   BuilderGeneralPageContent,
 } from './page.model';
 
-export { createPageModel } from './page.model';
+export {
+  createPageModel,
+  PageTypes,
+  PdpTypes,
+  OfferSelectorSliderTypes,
+  OfferSelectorSavingsType,
+  OfferSelectorDefaultPurchaseType,
+  OfferSelectorTypes,
+} from './page.model';
