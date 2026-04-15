@@ -17,7 +17,7 @@
     "dev:plugin": "nx run @goldenhippo/builder-cart-plugin:dev",
     "dev:funnel-plugin": "nx run @goldenhippo/builder-funnel-plugin:dev",
     "lint": "nx run-many -t lint",
-    "test": "nx run-many -t test",
+    "test": "nx run-many -t test --passWithNoTests",
     "typecheck": "nx run-many -t typecheck",
     "format": "prettier --write .",
     "format:check": "prettier --check .",

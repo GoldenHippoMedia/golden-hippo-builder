@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useCallback } from 'react';
 import { useLocalStore, useObserver } from 'mobx-react';
 import { useCookies } from 'react-cookie';
 import { ExtendedApplicationContext } from '../interfaces/application-context.interface';
@@ -55,15 +55,15 @@ const AppCore: React.FC<AppCoreProps> = ({ context }) => {
         const builderApi = new BuilderApi(context.user.authHeaders as Record<string, string>, context.user.apiKey);
         const commerceApi = new CommerceApi(user);
 
-        const [pages, blogComments, products] = await Promise.all([
+        const [pages, blogComments] = await Promise.all([
           builderApi.getPages(true),
           builderApi.getBlogComments(),
-          commerceApi.getProductFeed().catch(() => [] as IProduct[]),
+          // commerceApi.getProductFeed().catch(() => [] as IProduct[]),
         ]);
 
         store.pages = pages;
         store.blogComments = blogComments;
-        store.products = products;
+        // store.products = products;
       } catch (err: any) {
         console.error('[Hippo Commerce] Error loading data', err);
         store.error = err.message ?? 'An error occurred loading data.';
