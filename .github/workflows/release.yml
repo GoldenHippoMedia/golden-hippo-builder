@@ -26,6 +26,11 @@ jobs:
           cache: npm
           registry-url: https://registry.npmjs.org
 
+      - name: Upgrade npm (required for trusted publishing)
+        run: |
+          npm pack npm@latest --pack-destination /tmp
+          npm install -g /tmp/npm-*.tgz
+
       - run: npm install
 
       - run: npm run build
