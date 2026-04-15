@@ -16,6 +16,7 @@ export const createFeatureConfig = (gridFilterModelId: string): BuilderIOFieldTy
     friendlyName: 'Features',
     type: 'object',
     defaultCollapsed: true,
+    helperText: 'Enable or disable site-wide features and behaviors',
     subFields: [
       {
         name: 'productGridFilterType',
@@ -100,13 +101,16 @@ export const createFeatureConfig = (gridFilterModelId: string): BuilderIOFieldTy
       },
       {
         name: 'subscriptionExperience',
+        friendlyName: 'Subscription Experience',
         type: 'select',
         enum: ['Classic', 'Version 2'],
         defaultValue: 'Classic',
         defaultCollapsed: false,
+        helperText: 'Select the subscription management experience for customers',
       },
       {
         name: 'useDefaultFrequencies',
+        friendlyName: 'Use Default Frequencies',
         type: 'boolean',
         helperText:
           'When enabled, the selected frequency on an Offer Selector is calculated based on the product and quantity selected.',

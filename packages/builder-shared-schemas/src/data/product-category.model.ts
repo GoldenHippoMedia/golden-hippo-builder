@@ -15,6 +15,7 @@ export const createCategoryModel = (): ModelShape => ({
       required: true,
       defaultCollapsed: true,
       localized: true,
+      helperText: 'The name of this category as it appears on the website',
     },
     {
       name: 'description',
@@ -23,6 +24,7 @@ export const createCategoryModel = (): ModelShape => ({
       required: false,
       defaultCollapsed: true,
       localized: true,
+      helperText: 'A description of this category, used in components that display category details',
     },
     {
       name: 'desktopImage',
@@ -31,6 +33,7 @@ export const createCategoryModel = (): ModelShape => ({
       defaultCollapsed: true,
       showTemplatePicker: true,
       allowedFileTypes: ['jpeg', 'png', 'svg', 'webp'],
+      helperText: 'Image displayed for this category on desktop screens',
     },
     {
       name: 'mobileImage',
@@ -39,6 +42,7 @@ export const createCategoryModel = (): ModelShape => ({
       type: 'file',
       showTemplatePicker: true,
       allowedFileTypes: ['jpeg', 'png', 'svg', 'webp'],
+      helperText: 'Image displayed for this category on mobile screens',
     },
     {
       name: 'hidden',

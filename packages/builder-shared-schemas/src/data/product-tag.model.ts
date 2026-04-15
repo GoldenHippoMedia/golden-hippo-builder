@@ -16,6 +16,7 @@ export const createProductTagModel = (): ModelShape => ({
       defaultCollapsed: true,
       localized: true,
       makeEntryTitle: true,
+      helperText: 'The display name of this tag (e.g. "Favorites", "New", "Best Seller")',
     },
     {
       name: 'tagColor',
@@ -25,6 +26,7 @@ export const createProductTagModel = (): ModelShape => ({
       defaultCollapsed: true,
       localized: false,
       defaultValue: 'gba(255, 233, 214, 1)',
+      helperText: 'The background color shown behind the tag label on product cards',
     },
     {
       name: 'hidden',

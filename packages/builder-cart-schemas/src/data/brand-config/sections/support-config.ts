@@ -7,6 +7,7 @@ export const createSupportConfig = (): BuilderIOFieldTypes => {
     type: 'object',
     defaultCollapsed: true,
     localized: false,
+    helperText: 'Contact information displayed to customers on the website',
     subFields: [
       {
         name: 'email',

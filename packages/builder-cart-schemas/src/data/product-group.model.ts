@@ -75,6 +75,7 @@ export const createProductGroupModel = (productModelId: string, sectionModelId: 
             defaultCollapsed: false,
             modelId: productModelId,
             copyOnAdd: false,
+            helperText: 'Select a product to include in this group',
           },
           {
             name: 'displayName',
@@ -116,6 +117,7 @@ export const createProductGroupModel = (productModelId: string, sectionModelId: 
         friendlyName: 'Golden Hippo',
         type: 'object',
         defaultCollapsed: true,
+        helperText: 'Integration data for Golden Hippo. Do not modify these values.',
         subFields: [
           {
             name: 'productionId',
@@ -152,11 +154,13 @@ export const createProductGroupModel = (productModelId: string, sectionModelId: 
       },
       {
         name: 'informationCallout',
+        friendlyName: 'Information Callout',
         type: 'reference',
         required: false,
         modelId: sectionModelId,
         copyOnAdd: true,
         defaultCollapsed: false,
+        helperText: 'Optional content section displayed alongside this product group',
       },
     ],
   };

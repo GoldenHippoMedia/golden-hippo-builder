@@ -39,19 +39,25 @@ export const createBrandConfigModel = (gridFilterModelId: string, bannerModelId:
       createCookieConfig(),
       {
         name: 'seo',
+        friendlyName: 'SEO',
         type: 'object',
         defaultCollapsed: true,
         localized: false,
+        helperText: 'Search engine optimization settings for the brand',
         subFields: [
           {
             name: 'description',
+            friendlyName: 'Site Description',
             type: 'longText',
             defaultCollapsed: false,
+            helperText: 'Default meta description for the website, used when pages do not provide their own',
           },
           {
             name: 'knowsAbout',
+            friendlyName: 'Topics',
             type: 'Tags',
             defaultCollapsed: false,
+            helperText: 'Topics the brand is knowledgeable about, used in structured data for search engines',
           },
         ],
       },

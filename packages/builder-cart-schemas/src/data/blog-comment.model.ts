@@ -44,6 +44,7 @@ const BlogCommentModel: ModelShape = {
       friendlyName: 'Email',
       required: false,
       defaultCollapsed: false,
+      helperText: 'Email address of the commenter',
     },
     {
       type: 'html',

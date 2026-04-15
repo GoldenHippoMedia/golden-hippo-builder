@@ -93,11 +93,11 @@ export const createPageModel = (props: PageModelInputProps): ModelShape => {
         subFields: [
           {
             name: 'type',
-            friendlyName: 'Type',
+            friendlyName: 'Product Page Type',
             type: 'select',
             defaultValue: PdpTypes.PRODUCT,
             required: true,
-            helperText: '',
+            helperText: 'Choose whether this is a single product, product group, or multi-group page',
             enum: [PdpTypes.PRODUCT, PdpTypes.PRODUCT_GROUP, PdpTypes.MULTI_GROUP],
             defaultCollapsed: false,
           },
@@ -117,7 +117,7 @@ export const createPageModel = (props: PageModelInputProps): ModelShape => {
             friendlyName: 'Product Group',
             type: 'reference',
             required: false,
-            helperText: '',
+            helperText: 'Select the product group to display',
             modelId: productGroupModelId,
             copyOnAdd: true,
             showIf: "return options.get('type') === 'Product Group'",
@@ -135,6 +135,7 @@ export const createPageModel = (props: PageModelInputProps): ModelShape => {
           },
           {
             name: 'pdpDescription',
+            friendlyName: 'Description',
             type: 'html',
             localized: true,
             required: false,
@@ -144,48 +145,60 @@ export const createPageModel = (props: PageModelInputProps): ModelShape => {
           },
           {
             name: 'multiProductGroup',
+            friendlyName: 'Product Groups',
             type: 'list',
             required: false,
             localized: false,
+            helperText: 'Add the product groups to include in this multi-group page',
             showIf: `return options.get('type') === 'Multi-Group'`,
             defaultCollapsed: false,
             subFields: [
               {
                 name: 'group',
+                friendlyName: 'Product Group',
                 type: 'reference',
                 required: true,
+                helperText: 'Select a product group to include',
                 modelId: productGroupModelId,
                 copyOnAdd: true,
                 defaultCollapsed: false,
               },
               {
                 name: 'optionsOverrides',
+                friendlyName: 'Offer Options',
                 type: 'list',
                 localized: true,
                 required: false,
                 copyOnAdd: false,
                 defaultCollapsed: false,
+                helperText: 'Override the default offer options for this product group',
                 subFields: [
                   {
                     name: 'quantity',
+                    friendlyName: 'Quantity',
                     type: 'number',
                     required: false,
                     defaultValue: undefined,
                     defaultCollapsed: false,
+                    helperText: 'The quantity for this offer option',
                   },
                   {
                     name: 'description',
+                    friendlyName: 'Description',
                     type: 'html',
                     localized: true,
                     required: false,
                     defaultCollapsed: false,
+                    helperText: 'Description displayed for this offer option',
                   },
                   {
                     name: 'pillLabel',
+                    friendlyName: 'Pill Label',
                     type: 'text',
                     localized: true,
                     required: false,
                     defaultCollapsed: false,
+                    helperText: 'Text shown in the pill badge for this option (e.g. "Most Popular")',
                   },
                   {
                     name: 'pillColor',
@@ -193,6 +206,7 @@ export const createPageModel = (props: PageModelInputProps): ModelShape => {
                     type: 'color',
                     required: false,
                     defaultCollapsed: false,
+                    helperText: 'Background color of the pill badge',
                   },
                 ],
               },
@@ -218,7 +232,7 @@ export const createPageModel = (props: PageModelInputProps): ModelShape => {
                 friendlyName: 'Image',
                 type: 'file',
                 required: true,
-                helperText: '',
+                helperText: 'Upload a product slide image',
                 allowedFileTypes: ['jpeg', 'png', 'svg', 'webp'],
                 copyOnAdd: true,
                 defaultCollapsed: false,
@@ -240,7 +254,7 @@ export const createPageModel = (props: PageModelInputProps): ModelShape => {
                 friendlyName: 'Image',
                 type: 'file',
                 required: true,
-                helperText: '',
+                helperText: 'Upload a thumbnail image',
                 allowedFileTypes: ['jpeg', 'png', 'svg', 'webp'],
                 copyOnAdd: true,
                 defaultCollapsed: false,
@@ -301,6 +315,7 @@ export const createPageModel = (props: PageModelInputProps): ModelShape => {
                 friendlyName: 'Features',
                 type: 'object',
                 required: false,
+                helperText: 'Configure behavior and defaults for the offer selector',
                 subFields: [
                   {
                     name: 'defaultPurchaseType',
@@ -331,7 +346,7 @@ export const createPageModel = (props: PageModelInputProps): ModelShape => {
                       Default: true,
                     },
                     required: false,
-                    helperText: '',
+                    helperText: 'Display the savings amount on each offer option',
                     defaultCollapsed: false,
                   },
                   {
@@ -352,7 +367,7 @@ export const createPageModel = (props: PageModelInputProps): ModelShape => {
                       Default: true,
                     },
                     required: false,
-                    helperText: '',
+                    helperText: 'Show the member price message below the offer selector',
                     defaultCollapsed: false,
                   },
                   {
@@ -363,7 +378,7 @@ export const createPageModel = (props: PageModelInputProps): ModelShape => {
                       Default: true,
                     },
                     required: false,
-                    helperText: '',
+                    helperText: 'Show the subscription price message below the offer selector',
                     defaultCollapsed: false,
                   },
                   {
@@ -389,7 +404,6 @@ export const createPageModel = (props: PageModelInputProps): ModelShape => {
                     advanced: true,
                   },
                 ],
-                helperText: '',
                 defaultCollapsed: false,
               },
               {
@@ -438,7 +452,7 @@ export const createPageModel = (props: PageModelInputProps): ModelShape => {
                       Default: 'ADD TO CART',
                     },
                     required: false,
-                    helperText: '',
+                    helperText: 'Text on the main call-to-action button (e.g. "ADD TO CART")',
                     defaultCollapsed: false,
                   },
                   {
@@ -460,7 +474,7 @@ export const createPageModel = (props: PageModelInputProps): ModelShape => {
                       Default: 'Or pay member price of',
                     },
                     required: false,
-                    helperText: '',
+                    helperText: 'Message shown for member pricing (e.g. "Or pay member price of")',
                     defaultCollapsed: false,
                   },
                   {
@@ -498,7 +512,7 @@ export const createPageModel = (props: PageModelInputProps): ModelShape => {
                   },
                   {
                     name: 'outOfStockFormSuccess',
-                    friendlyName: 'OOS Form Success Message',
+                    friendlyName: 'Out of Stock Form Success Message',
                     type: 'html',
                     defaultValue: {
                       Default: '<p class="text-center">We will notify you as soon as this item is back in stock.</p>',
@@ -516,7 +530,7 @@ export const createPageModel = (props: PageModelInputProps): ModelShape => {
                       Default: '<span class="material-icons">keyboard_arrow_up</span> Back to top',
                     },
                     required: false,
-                    helperText: '',
+                    helperText: 'Content displayed in the scroll-to-top button',
                     defaultCollapsed: false,
                   },
                   {
@@ -527,7 +541,7 @@ export const createPageModel = (props: PageModelInputProps): ModelShape => {
                       Default: 'Choose a flavor',
                     },
                     required: false,
-                    helperText: '',
+                    helperText: 'Label for the flavor/option dropdown (e.g. "Choose a flavor")',
                     defaultCollapsed: false,
                   },
                   {
@@ -572,13 +586,14 @@ export const createPageModel = (props: PageModelInputProps): ModelShape => {
                 type: 'object',
                 defaultValue: {},
                 required: false,
+                helperText: 'Advanced CSS customizations for the offer selector',
                 subFields: [
                   {
                     name: 'signupOfferCustomCssProps',
                     friendlyName: 'Signup Offer CSS',
                     type: 'map',
                     required: false,
-                    helperText: '',
+                    helperText: 'Custom CSS properties for the signup offer section',
                     defaultCollapsed: false,
                   },
                   {
@@ -586,11 +601,10 @@ export const createPageModel = (props: PageModelInputProps): ModelShape => {
                     friendlyName: 'Signup Offer Price CSS',
                     type: 'map',
                     required: false,
-                    helperText: '',
+                    helperText: 'Custom CSS properties for the signup offer price',
                     defaultCollapsed: false,
                   },
                 ],
-                helperText: '',
                 defaultCollapsed: true,
               },
             ],
@@ -689,6 +703,7 @@ export const createPageModel = (props: PageModelInputProps): ModelShape => {
             required: false,
             copyOnAdd: true,
             defaultCollapsed: true,
+            helperText: 'Assign blog categories for filtering and navigation',
             subFields: [
               {
                 name: 'category',
@@ -698,6 +713,7 @@ export const createPageModel = (props: PageModelInputProps): ModelShape => {
                 required: true,
                 defaultCollapsed: false,
                 copyOnAdd: false,
+                helperText: 'Select a blog category',
               },
             ],
           },

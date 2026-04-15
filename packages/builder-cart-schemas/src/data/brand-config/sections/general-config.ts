@@ -9,6 +9,7 @@ export const createGeneralConfig = (bannerModelId: string): BuilderIOFieldTypes[
       defaultCollapsed: true,
       localized: false,
       required: true,
+      helperText: 'The brand name displayed across the website',
     },
     {
       name: 'images',
@@ -16,6 +17,7 @@ export const createGeneralConfig = (bannerModelId: string): BuilderIOFieldTypes[
       type: 'object',
       defaultCollapsed: true,
       localized: false,
+      helperText: 'Logo and brand images used throughout the website',
       subFields: [
         {
           name: 'brandLogoSmall',
@@ -125,6 +127,7 @@ export const createGeneralConfig = (bannerModelId: string): BuilderIOFieldTypes[
       type: 'object',
       defaultCollapsed: true,
       localized: false,
+      helperText: 'Links to legal pages and external profiles',
       subFields: [
         {
           name: 'termsLink',
@@ -179,15 +182,15 @@ export const createGeneralConfig = (bannerModelId: string): BuilderIOFieldTypes[
           friendlyName: 'Social Media Links',
           type: 'object',
           localized: false,
-          helperText: '',
+          helperText: "Links to the brand's social media profiles",
           defaultCollapsed: true,
           subFields: [
             {
               name: 'twitter',
-              friendlyName: 'Twitter',
+              friendlyName: 'Twitter / X',
               type: 'url',
               localized: false,
-              helperText: '',
+              helperText: "Link to the brand's Twitter/X profile",
               defaultCollapsed: true,
             },
             {
@@ -195,15 +198,15 @@ export const createGeneralConfig = (bannerModelId: string): BuilderIOFieldTypes[
               friendlyName: 'Facebook',
               type: 'url',
               localized: false,
-              helperText: '',
+              helperText: "Link to the brand's Facebook page",
               defaultCollapsed: true,
             },
             {
               name: 'youtube',
-              friendlyName: 'Youtube',
+              friendlyName: 'YouTube',
               type: 'url',
               localized: false,
-              helperText: '',
+              helperText: "Link to the brand's YouTube channel",
               defaultCollapsed: true,
             },
             {
@@ -211,7 +214,7 @@ export const createGeneralConfig = (bannerModelId: string): BuilderIOFieldTypes[
               friendlyName: 'Instagram',
               type: 'url',
               localized: false,
-              helperText: '',
+              helperText: "Link to the brand's Instagram profile",
               defaultCollapsed: true,
             },
             {
@@ -219,15 +222,15 @@ export const createGeneralConfig = (bannerModelId: string): BuilderIOFieldTypes[
               friendlyName: 'Pinterest',
               type: 'url',
               localized: false,
-              helperText: '',
+              helperText: "Link to the brand's Pinterest profile",
               defaultCollapsed: true,
             },
             {
               name: 'tiktok',
-              friendlyName: 'Tiktok',
+              friendlyName: 'TikTok',
               type: 'url',
               localized: false,
-              helperText: '',
+              helperText: "Link to the brand's TikTok profile",
               defaultCollapsed: true,
             },
           ],

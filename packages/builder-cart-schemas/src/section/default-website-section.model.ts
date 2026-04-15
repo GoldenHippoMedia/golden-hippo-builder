@@ -27,7 +27,7 @@ export const createDefaultWebsiteSectionModel = (editUrl: string): ModelShape =>
           'offerSelectorBelowCTAContent',
           'subscriptionManagementNoSubsContent',
         ],
-        helperText: 'Section Type',
+        helperText: 'Choose where this content section appears on the website',
       },
     ],
     editingUrlLogic:
