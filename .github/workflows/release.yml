@@ -29,7 +29,11 @@ jobs:
       - name: Upgrade npm (required for trusted publishing)
         run: |
           npm pack npm@latest --pack-destination /tmp
-          npm install -g /tmp/npm-*.tgz
+          NPM_PREFIX="$(npm prefix -g)"
+          rm -rf "$NPM_PREFIX/lib/node_modules/npm"
+          mkdir -p "$NPM_PREFIX/lib/node_modules/npm"
+          tar xzf /tmp/npm-*.tgz --strip-components=1 -C "$NPM_PREFIX/lib/node_modules/npm"
+          npm --version
 
       - run: npm install
 
