@@ -98,6 +98,20 @@ export const createFeatureConfig = (gridFilterModelId: string): BuilderIOFieldTy
         localized: false,
         defaultCollapsed: true,
       },
+      {
+        name: 'subscriptionExperience',
+        type: 'select',
+        enum: ['Classic', 'Version 2'],
+        defaultValue: 'Classic',
+        defaultCollapsed: false,
+      },
+      {
+        name: 'useDefaultFrequencies',
+        type: 'boolean',
+        helperText:
+          'When enabled, the selected frequency on an Offer Selector is calculated based on the product and quantity selected.',
+        defaultCollapsed: false,
+      },
     ],
   };
 };

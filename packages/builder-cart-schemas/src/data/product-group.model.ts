@@ -1,13 +1,14 @@
 import { BuilderContentReference, BuilderResponseBaseData, ModelShape } from '@goldenhippo/builder-types';
 import { BuilderContent } from '@builder.io/sdk';
 import { BuilderProductContent } from '@goldenhippo/builder-shared-schemas';
+import { BuilderDefaultWebsiteSectionContent } from '../section';
 
 export enum ProductGroupType {
   FlavorOptionGroup = 'Flavor/Option Group',
   TrialGroup = 'Trial Group',
 }
 
-export const createProductGroupModel = (productModelId: string): ModelShape => {
+export const createProductGroupModel = (productModelId: string, sectionModelId: string): ModelShape => {
   return {
     name: 'product-group',
     displayName: 'Product Group',
@@ -54,7 +55,7 @@ export const createProductGroupModel = (productModelId: string): ModelShape => {
       {
         name: 'shortDescription',
         friendlyName: 'Short Description',
-        type: 'longText',
+        type: 'html',
         required: false,
         defaultCollapsed: true,
         localized: true,
@@ -107,7 +108,7 @@ export const createProductGroupModel = (productModelId: string): ModelShape => {
         type: 'boolean',
         required: false,
         defaultCollapsed: true,
-        localized: true,
+        localized: false,
         helperText: 'When true, this product group will not be displayed.',
       },
       {
@@ -149,6 +150,14 @@ export const createProductGroupModel = (productModelId: string): ModelShape => {
         localized: false,
         helperText: 'The internal name for this product group.',
       },
+      {
+        name: 'informationCallout',
+        type: 'reference',
+        required: false,
+        modelId: sectionModelId,
+        copyOnAdd: true,
+        defaultCollapsed: false,
+      },
     ],
   };
 };
@@ -174,5 +183,6 @@ export type BuilderProductGroupContent = BuilderContent &
       };
       groupType?: ProductGroupType;
       name: string;
+      informationCallout?: BuilderContentReference<BuilderDefaultWebsiteSectionContent['data']>;
     };
   }>;

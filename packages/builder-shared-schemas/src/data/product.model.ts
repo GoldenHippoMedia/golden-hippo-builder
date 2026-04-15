@@ -287,6 +287,36 @@ export const createProductModel = (request: ProductModelProps): ModelShape => {
         helperText: 'Internal name for the product, used for identification in the CMS',
       },
       {
+        name: 'components',
+        type: 'list',
+        required: false,
+        defaultCollapsed: false,
+        showIf: `return options.get('gh')?.get("type") === 'Bundle'`,
+        subFields: [
+          {
+            name: 'slug',
+            friendlyName: 'Slug',
+            type: 'text',
+            required: true,
+            defaultCollapsed: false,
+          },
+          {
+            name: 'displayName',
+            friendlyName: 'Display Name',
+            type: 'text',
+            localized: true,
+            defaultCollapsed: false,
+          },
+          {
+            name: 'description',
+            type: 'html',
+            required: false,
+            defaultCollapsed: false,
+            helperText: 'Use this to provide a description display beneath this component on the offer selector.',
+          },
+        ],
+      },
+      {
         name: 'gh',
         friendlyName: 'Golden Hippo Integration Data',
         helperText: 'Stores integration data for Golden Hippo. Do not modify any of these values.',
@@ -369,6 +399,11 @@ export type BuilderProductContent = BuilderContent &
       }[];
       useCases?: {
         useCase: BuilderContentReference<BuilderProductUseCaseContent['data']>;
+      }[];
+      components?: {
+        slug: string;
+        displayName?: string;
+        description?: string;
       }[];
       gh: {
         slug: string;

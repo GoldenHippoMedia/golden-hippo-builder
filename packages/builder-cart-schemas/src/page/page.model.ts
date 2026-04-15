@@ -2,7 +2,7 @@ import { BuilderContentReference, BuilderResponseBaseData, ModelShape } from '@g
 import { BuilderContent } from '@builder.io/sdk';
 import { BuilderProductCategoryContent, BuilderProductContent } from '@goldenhippo/builder-shared-schemas';
 import { BuilderBlogCategoryContent, BuilderProductGroupContent } from '../data';
-import { BuilderSiteBannerModelContent } from '../section';
+import { BuilderDefaultWebsiteSectionContent, BuilderSiteBannerModelContent } from '../section';
 
 interface PageModelInputProps {
   productModelId: string;
@@ -10,6 +10,7 @@ interface PageModelInputProps {
   categoryModelId: string;
   bannerModelId: string;
   blogCategoryModelId: string;
+  sectionModelId: string;
   editUrl: string;
 }
 
@@ -22,17 +23,20 @@ export enum PageTypes {
 export enum PdpTypes {
   PRODUCT = 'Product',
   PRODUCT_GROUP = 'Product Group',
+  MULTI_GROUP = 'Multi-Group',
 }
 
 export enum OfferSelectorTypes {
   VERTICAL = 'Vertical',
   VERTICAL__FLAVOR_DROPDOWN__TYPE_TOGGLE = 'Vertical - Flavor Dropdown - Type Toggle',
   STACKED__FLAVOR_BUTTONS__QUANTITY_TOGGLE = 'Stacked - Flavor Buttons - Quantity Toggle',
+  BUNDLE_GROUP = 'Bundle Group',
 }
 
 export enum OfferSelectorSliderTypes {
   SLIDER_A = 'Slider A',
   SLIDER_B = 'Slider B',
+  SLIDER_ZOOM = 'Slider Zoom',
 }
 
 export enum OfferSelectorDefaultPurchaseType {
@@ -46,7 +50,15 @@ export enum OfferSelectorSavingsType {
 }
 
 export const createPageModel = (props: PageModelInputProps): ModelShape => {
-  const { productModelId, productGroupModelId, categoryModelId, bannerModelId, blogCategoryModelId, editUrl } = props;
+  const {
+    productModelId,
+    productGroupModelId,
+    categoryModelId,
+    bannerModelId,
+    blogCategoryModelId,
+    sectionModelId,
+    editUrl,
+  } = props;
   return {
     name: 'page',
     displayName: 'Page',
@@ -86,7 +98,7 @@ export const createPageModel = (props: PageModelInputProps): ModelShape => {
             defaultValue: PdpTypes.PRODUCT,
             required: true,
             helperText: '',
-            enum: [PdpTypes.PRODUCT, PdpTypes.PRODUCT_GROUP],
+            enum: [PdpTypes.PRODUCT, PdpTypes.PRODUCT_GROUP, PdpTypes.MULTI_GROUP],
             defaultCollapsed: false,
           },
           {
@@ -110,6 +122,90 @@ export const createPageModel = (props: PageModelInputProps): ModelShape => {
             copyOnAdd: true,
             showIf: "return options.get('type') === 'Product Group'",
             defaultCollapsed: false,
+          },
+          {
+            name: 'pdpTitle',
+            friendlyName: 'Display Title',
+            type: 'text',
+            localized: true,
+            required: true,
+            helperText: 'For multi-group selectors, provide the "product" title to present.',
+            showIf: `return options.get('type') === 'Multi-Group'`,
+            defaultCollapsed: false,
+          },
+          {
+            name: 'pdpDescription',
+            type: 'html',
+            localized: true,
+            required: false,
+            helperText: 'For multi-group selectors, provide the "product" description to present.',
+            showIf: `return options.get('type') === 'Multi-Group'`,
+            defaultCollapsed: false,
+          },
+          {
+            name: 'multiProductGroup',
+            type: 'list',
+            required: false,
+            localized: false,
+            showIf: `return options.get('type') === 'Multi-Group'`,
+            defaultCollapsed: false,
+            subFields: [
+              {
+                name: 'group',
+                type: 'reference',
+                required: true,
+                modelId: productGroupModelId,
+                copyOnAdd: true,
+                defaultCollapsed: false,
+              },
+              {
+                name: 'optionsOverrides',
+                type: 'list',
+                localized: true,
+                required: false,
+                copyOnAdd: false,
+                defaultCollapsed: false,
+                subFields: [
+                  {
+                    name: 'quantity',
+                    type: 'number',
+                    required: false,
+                    defaultValue: undefined,
+                    defaultCollapsed: false,
+                  },
+                  {
+                    name: 'description',
+                    type: 'html',
+                    localized: true,
+                    required: false,
+                    defaultCollapsed: false,
+                  },
+                  {
+                    name: 'pillLabel',
+                    type: 'text',
+                    localized: true,
+                    required: false,
+                    defaultCollapsed: false,
+                  },
+                  {
+                    name: 'pillColor',
+                    friendlyName: 'Pill Color',
+                    type: 'color',
+                    required: false,
+                    defaultCollapsed: false,
+                  },
+                ],
+              },
+              {
+                name: 'pillLabel',
+                friendlyName: 'Pill Label',
+                type: 'text',
+                localized: true,
+                required: false,
+                helperText: '(Optional) If provided, used to apply a pill on this option (e.g. Most Popular).',
+                defaultCollapsed: false,
+              },
+            ],
           },
           {
             name: 'slides',
@@ -158,7 +254,11 @@ export const createPageModel = (props: PageModelInputProps): ModelShape => {
           {
             name: 'sliderComponent',
             type: 'select',
-            enum: [OfferSelectorSliderTypes.SLIDER_A, OfferSelectorSliderTypes.SLIDER_B],
+            enum: [
+              OfferSelectorSliderTypes.SLIDER_A,
+              OfferSelectorSliderTypes.SLIDER_B,
+              OfferSelectorSliderTypes.SLIDER_ZOOM,
+            ],
             friendlyName: 'Slider Component',
             defaultValue: OfferSelectorSliderTypes.SLIDER_A,
             required: false,
@@ -192,6 +292,7 @@ export const createPageModel = (props: PageModelInputProps): ModelShape => {
                   OfferSelectorTypes.VERTICAL,
                   OfferSelectorTypes.VERTICAL__FLAVOR_DROPDOWN__TYPE_TOGGLE,
                   OfferSelectorTypes.STACKED__FLAVOR_BUTTONS__QUANTITY_TOGGLE,
+                  OfferSelectorTypes.BUNDLE_GROUP,
                 ],
                 defaultCollapsed: false,
               },
@@ -296,32 +397,35 @@ export const createPageModel = (props: PageModelInputProps): ModelShape => {
                 friendlyName: 'Labels',
                 type: 'object',
                 defaultValue: {
-                  subscriptionOffer: {
-                    Default: 'Or $PRICE when you subscribe & save',
-                  },
-                  subscriptionToggle: {
-                    Default: 'Subscribe & save',
-                  },
-                  scrollButton: {
-                    Default: '<span class="material-icons">keyboard_arrow_up</span> Back to top',
+                  quantitySelector: {
+                    '@type': '@builder.io/core:LocalizedValue',
                   },
                   actionButton: {
                     Default: 'ADD TO CART',
                   },
-                  outOfStockFormSuccess: {
-                    Default: '<p class="text-center">We will notify you as soon as this item is back in stock.</p>',
-                  },
-                  otpToggle: {
-                    Default: 'Single purchase',
+                  subscriptionOffer: {
+                    Default: 'Or $PRICE when you subscribe & save',
                   },
                   flavorSelector: {
                     Default: 'Choose a flavor',
                   },
-                  outOfStock: {
-                    Default: 'Sorry, we"re currently out of stock',
+                  otpToggle: {
+                    Default: 'Single purchase',
                   },
                   memberOffer: {
                     Default: 'Or pay member price of',
+                  },
+                  scrollButton: {
+                    Default: '<span class="material-icons">keyboard_arrow_up</span> Back to top',
+                  },
+                  outOfStock: {
+                    Default: 'Sorry, we"re currently out of stock',
+                  },
+                  outOfStockFormSuccess: {
+                    Default: '<p class="text-center">We will notify you as soon as this item is back in stock.</p>',
+                  },
+                  subscriptionToggle: {
+                    Default: 'Subscribe & save',
                   },
                 },
                 required: false,
@@ -426,6 +530,16 @@ export const createPageModel = (props: PageModelInputProps): ModelShape => {
                     helperText: '',
                     defaultCollapsed: false,
                   },
+                  {
+                    name: 'quantitySelector',
+                    friendlyName: 'Quantity Selector',
+                    type: 'text',
+                    localized: true,
+                    required: false,
+                    helperText:
+                      '(Optional) Provide a label for the quantity selection. Only displayed if your selected offer selector supports this feature.',
+                    defaultCollapsed: false,
+                  },
                 ],
                 helperText: 'Customize the various labels on the offer selector',
                 defaultCollapsed: false,
@@ -492,6 +606,17 @@ export const createPageModel = (props: PageModelInputProps): ModelShape => {
             modelId: categoryModelId,
             copyOnAdd: true,
             friendlyName: 'Category',
+            defaultCollapsed: false,
+          },
+          {
+            name: 'desktopSliderOverride',
+            friendlyName: 'Slider Override (Desktop)',
+            type: 'reference',
+            required: false,
+            helperText:
+              "(Optional) Select content to display in place of your PDP's product image slider. Disables the slider on desktop. On mobile, this content is hidden and the standard slider is displayed.",
+            modelId: sectionModelId,
+            copyOnAdd: true,
             defaultCollapsed: false,
           },
         ],
@@ -784,6 +909,18 @@ export type BuilderPdpPageContent = BuilderContent &
           type: PdpTypes;
           product?: BuilderContentReference<BuilderProductContent['data']>;
           productGroup?: BuilderContentReference<BuilderProductGroupContent['data']>;
+          pdpTitle?: string;
+          pdpDescription?: string;
+          multiProductGroup?: {
+            group: BuilderContentReference<BuilderProductGroupContent['data']>;
+            optionsOverrides?: {
+              quantity?: number;
+              description?: string;
+              pillLabel?: string;
+              pillColor?: string;
+            }[];
+            pillLabel?: string;
+          }[];
           slides?: {
             image: string;
           }[];
@@ -814,6 +951,7 @@ export type BuilderPdpPageContent = BuilderContent &
               outOfStockFormSuccess?: string;
               scrollButton?: string;
               flavorSelector?: string;
+              quantitySelector?: string;
             };
             bestSellerImage?: string;
             bestValueImage?: string;
@@ -823,6 +961,7 @@ export type BuilderPdpPageContent = BuilderContent &
             };
           };
           category?: BuilderContentReference<BuilderProductCategoryContent['data']>;
+          desktopSliderOverride?: BuilderContentReference<BuilderDefaultWebsiteSectionContent['data']>;
         };
       };
   }>;

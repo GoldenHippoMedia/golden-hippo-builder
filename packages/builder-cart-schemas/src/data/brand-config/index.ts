@@ -37,6 +37,24 @@ export const createBrandConfigModel = (gridFilterModelId: string, bannerModelId:
       createSupportConfig(),
       createPageConfig(),
       createCookieConfig(),
+      {
+        name: 'seo',
+        type: 'object',
+        defaultCollapsed: true,
+        localized: false,
+        subFields: [
+          {
+            name: 'description',
+            type: 'longText',
+            defaultCollapsed: false,
+          },
+          {
+            name: 'knowsAbout',
+            type: 'Tags',
+            defaultCollapsed: false,
+          },
+        ],
+      },
     ],
   };
 };
@@ -55,10 +73,9 @@ export type BuilderBrandConfigContent = BuilderContent &
         termsLink: string;
         subscriptionTermsLink: string;
         privacyLink: string;
-        supportLink: string;
         ccpaLink: string;
         bbbLink: string;
-        accessibilityLink: string;
+        accessibiltyLink: string;
         socialMedia: {
           twitter: string;
           facebook: string;
@@ -220,6 +237,8 @@ export type BuilderBrandConfigContent = BuilderContent &
         shippingThresholdNotificationEnabled: boolean;
         bundlingEnabled: boolean;
         cartDrawerEnabled: boolean;
+        subscriptionExperience: 'Classic' | 'Version 2';
+        useDefaultFrequencies: boolean;
       };
       support: {
         email: string;
@@ -355,6 +374,10 @@ export type BuilderBrandConfigContent = BuilderContent &
             color: string;
           };
         };
+      };
+      seo?: {
+        description?: string;
+        knowsAbout?: string[];
       };
     };
   }>;
