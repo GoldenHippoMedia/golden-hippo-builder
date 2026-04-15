@@ -14,5 +14,5 @@
   "access": "public",
   "baseBranch": "main",
   "updateInternalDependencies": "patch",
-  "ignore": ["@goldenhippo/builder-ui", "@goldenhippo/builder-cart-plugin", "@goldenhippo/builder-funnel-plugin"]
+  "ignore": []
 }
