@@ -1,7 +1,6 @@
 ---
 '@goldenhippo/builder-shared-schemas': minor
 '@goldenhippo/builder-cart-schemas': minor
-'@goldenhippo/builder-cart-plugin': minor
 ---
 
 Sync Builder.io model definitions with production and improve field usability.
