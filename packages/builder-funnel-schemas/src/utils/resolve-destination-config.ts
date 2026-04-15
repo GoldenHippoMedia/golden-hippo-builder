@@ -1,50 +1,51 @@
-import { BuilderFunnelDestinationContent } from '../data/funnel-destination.model';
+import { BuilderDestinationSplitTestOption, BuilderFunnelDestinationContent } from '../data';
 
 export interface DestinationConfig {
-  /** The offer ID referenced by this destination */
-  offerId: string;
   /** The resolved funnel ID (from split test variant or primary funnel) */
   funnelId: string;
+  funnelSlug: string;
   /** The active split test ID, if one is running */
   splitTestId?: string;
+  splitTestSlug?: string;
 }
 
-/**
- * Resolves the active configuration for a destination.
- *
- * If an active split test is present with variants, selects a funnel via
- * even randomization across variants. The caller is responsible for
- * persisting the result (e.g., in a cookie keyed by destination + split test ID)
- * to ensure the same user sees the same variant within a session.
- *
- * @param destination - An enriched `BuilderFunnelDestinationContent` from the Builder CDN.
- *   The `activeSplitTest` reference must be enriched (fetched with `enrich=true`)
- *   for split test resolution to work; otherwise falls back to the primary funnel.
- * @returns The resolved config, or `undefined` if the destination is missing required data.
- */
 export function resolveDestinationConfig(destination: BuilderFunnelDestinationContent): DestinationConfig | undefined {
-  const d = destination.data;
-  if (!d) return undefined;
-
-  const offerId = d.offer?.id;
-  if (!offerId) return undefined;
+  const dest = destination.data;
+  if (!dest) return undefined;
 
   // Check for an active split test with enriched variant data
-  const splitTest = d.activeSplitTest as any;
-  const splitTestId: string | undefined = splitTest?.id;
-  const variants: any[] | undefined = splitTest?.data?.variants;
+  const splitTest = dest.splitTest;
+  const splitTestId: string | undefined = splitTest?.productionId;
+  const splitTestSlug: string | undefined = splitTest?.slug;
+  const variants: BuilderDestinationSplitTestOption[] = splitTest?.options ?? [];
 
-  if (splitTestId && variants && variants.length > 0) {
-    const idx = Math.floor(Math.random() * variants.length);
-    const funnelId: string | undefined = variants[idx]?.funnel?.id;
-    if (funnelId) {
-      return { offerId, funnelId, splitTestId };
+  if (splitTestId && splitTestSlug && variants.length > 0) {
+    const variantFunnelId = getRandomVariant(variants);
+    const idx = variants.findIndex((option) => option.funnel.id === variantFunnelId);
+    const funnelId = variants[idx].funnel.id;
+    const funnelSlug = variants[idx].funnel.value.data?.slug;
+    if (funnelId && funnelSlug) {
+      return { funnelId, funnelSlug, splitTestId, splitTestSlug };
     }
   }
 
   // Fall back to primary funnel
-  const funnelId = d.primaryFunnel?.id;
-  if (!funnelId) return undefined;
+  const funnelId = dest.defaultFunnel.value.data?.productionId;
+  const funnelSlug = dest.defaultFunnel.value.data?.slug;
+  if (!funnelId || !funnelSlug) return undefined;
 
-  return { offerId, funnelId };
+  return { funnelId, funnelSlug };
+}
+
+function getRandomVariant(variants: BuilderDestinationSplitTestOption[]): string {
+  const totalAllocation = variants.reduce((sum, option) => sum + option.trafficAllocation, 0);
+  const rand = Math.random() * totalAllocation;
+  let cumulative = 0;
+  for (const option of variants) {
+    cumulative += option.trafficAllocation;
+    if (rand < cumulative) {
+      return option.funnel.id;
+    }
+  }
+  return variants[variants.length - 1].funnel.id; // Fallback in case of rounding issues
 }

@@ -1,42 +1,32 @@
-import React, { useEffect, useCallback, useState } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { useLocalStore, useObserver } from 'mobx-react';
 import { useCookies } from 'react-cookie';
 import appState from '@builder.io/app-context';
 import {
-  BuilderProductContent,
-  BuilderFunnelOfferContent,
   BuilderFunnelContent,
-  BuilderFunnelPageContent,
   BuilderFunnelDestinationContent,
-  BuilderFunnelSplitTestContent,
+  BuilderFunnelPageContent,
 } from '@goldenhippo/builder-funnel-schemas';
 import './styles.css';
 import { LoadingSection } from '@goldenhippo/builder-ui';
 import { ExtendedApplicationContext } from './interfaces/application-context.interface';
 import BuilderApi from './services/builder-api';
 import DashboardPage from './application/dashboard.page';
-import OffersPage from './application/offers/offers.page';
 import FunnelsPage from './application/funnels/funnels.page';
 import DestinationsPage from './application/destinations/destinations.page';
-import SplitTestsPage from './application/split-tests/split-tests.page';
 import AdminPage from './application/admin/admin.page';
 
 export enum PageOption {
   DASHBOARD = 'dashboard',
-  OFFERS = 'offers',
   FUNNELS = 'funnels',
   DESTINATIONS = 'destinations',
-  SPLIT_TESTS = 'split-tests',
   ADMIN = 'admin',
 }
 
 export interface FunnelAppData {
-  products: BuilderProductContent[];
-  offers: BuilderFunnelOfferContent[];
   funnels: BuilderFunnelContent[];
   funnelPages: BuilderFunnelPageContent[];
   destinations: BuilderFunnelDestinationContent[];
-  splitTests: BuilderFunnelSplitTestContent[];
 }
 
 const App: React.FC = () => {
@@ -45,12 +35,9 @@ const App: React.FC = () => {
   const currentPage = (cookies['hippo-funnel-page'] as PageOption) ?? PageOption.DASHBOARD;
 
   const store = useLocalStore(() => ({
-    products: [] as BuilderProductContent[],
-    offers: [] as BuilderFunnelOfferContent[],
     funnels: [] as BuilderFunnelContent[],
     funnelPages: [] as BuilderFunnelPageContent[],
     destinations: [] as BuilderFunnelDestinationContent[],
-    splitTests: [] as BuilderFunnelSplitTestContent[],
     loading: true,
     error: null as string | null,
   }));
@@ -67,20 +54,14 @@ const App: React.FC = () => {
       if (showLoading) store.loading = true;
       try {
         const builderApi = new BuilderApi(context);
-        const [products, offers, funnels, funnelPages, destinations, splitTests] = await Promise.all([
-          builderApi.getProducts(true),
-          builderApi.getOffers(true),
+        const [funnels, funnelPages, destinations] = await Promise.all([
           builderApi.getFunnels(true),
           builderApi.getFunnelPages(true),
           builderApi.getDestinations(true),
-          builderApi.getSplitTests(true),
         ]);
-        store.products = products;
-        store.offers = offers;
         store.funnels = funnels;
         store.funnelPages = funnelPages;
         store.destinations = destinations;
-        store.splitTests = splitTests;
         store.error = null;
       } catch (err: any) {
         console.error('[Hippo Funnels] Error loading data', err);
@@ -99,7 +80,6 @@ const App: React.FC = () => {
   }, []);
 
   return useObserver(() => {
-    // Read MobX observables INSIDE useObserver so toggling triggers re-render
     const isDark = context.config.darkMode;
     const theme = isDark ? 'ghippo' : 'ghippolight';
 
@@ -132,24 +112,17 @@ const App: React.FC = () => {
     }
 
     const data: FunnelAppData = {
-      products: store.products,
-      offers: store.offers,
       funnels: store.funnels,
       funnelPages: store.funnelPages,
       destinations: store.destinations,
-      splitTests: store.splitTests,
     };
 
     const renderPage = () => {
       switch (currentPage) {
-        case PageOption.OFFERS:
-          return <OffersPage data={data} context={context} onRefresh={refresh} />;
         case PageOption.FUNNELS:
           return <FunnelsPage data={data} context={context} onRefresh={refresh} />;
         case PageOption.DESTINATIONS:
           return <DestinationsPage data={data} context={context} onRefresh={refresh} />;
-        case PageOption.SPLIT_TESTS:
-          return <SplitTestsPage data={data} context={context} onRefresh={refresh} />;
         case PageOption.ADMIN:
           return <AdminPage data={data} context={context} onRefresh={refresh} />;
         case PageOption.DASHBOARD:
@@ -170,12 +143,6 @@ const App: React.FC = () => {
               Home
             </button>
             <button
-              className={`btn btn-sm ${currentPage === PageOption.OFFERS ? 'btn-primary' : 'btn-ghost'}`}
-              onClick={() => setPage(PageOption.OFFERS)}
-            >
-              Offers
-            </button>
-            <button
               className={`btn btn-sm ${currentPage === PageOption.FUNNELS ? 'btn-primary' : 'btn-ghost'}`}
               onClick={() => setPage(PageOption.FUNNELS)}
             >
@@ -186,12 +153,6 @@ const App: React.FC = () => {
               onClick={() => setPage(PageOption.DESTINATIONS)}
             >
               Destinations
-            </button>
-            <button
-              className={`btn btn-sm ${currentPage === PageOption.SPLIT_TESTS ? 'btn-primary' : 'btn-ghost'}`}
-              onClick={() => setPage(PageOption.SPLIT_TESTS)}
-            >
-              Split Tests
             </button>
           </div>
           <div className="navbar-end gap-2">

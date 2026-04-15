@@ -15,6 +15,7 @@ export const createProductTagModel = (): ModelShape => ({
       required: true,
       defaultCollapsed: true,
       localized: true,
+      makeEntryTitle: true,
     },
     {
       name: 'tagColor',

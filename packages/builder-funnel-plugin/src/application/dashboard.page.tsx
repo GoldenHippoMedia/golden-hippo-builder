@@ -8,10 +8,9 @@ interface DashboardPageProps {
 }
 
 const DashboardPage: React.FC<DashboardPageProps> = ({ data, setPage }) => {
-  const activeFunnels = data.funnels.filter((f) => f.data?.status === 'active').length;
-  const activeDestinations = data.destinations.filter((d) => d.data?.status === 'active').length;
-  const activeSplitTests = data.splitTests.filter((t) => t.data?.status === 'active').length;
-  const defaultOffer = data.offers.find((o) => o.data?.isDefaultOffer);
+  const prePurchaseFunnels = data.funnels.filter((f) => !f.data?.type || f.data.type === 'Pre-purchase');
+  const activeFunnels = prePurchaseFunnels.filter((f) => f.data?.active).length;
+  const activeDestinations = data.destinations.filter((d) => d.data?.active).length;
 
   return (
     <div className="max-w-6xl mx-auto">
@@ -19,66 +18,71 @@ const DashboardPage: React.FC<DashboardPageProps> = ({ data, setPage }) => {
 
       <StatGridContainer columns={4}>
         <StatGridCard
-          title="Offers"
-          metric={data.offers.length}
-          actionLabel="View"
-          onActionClick={() => setPage(PageOption.OFFERS)}
-        />
-        <StatGridCard
-          title="Active Funnels"
-          metric={`${activeFunnels} / ${data.funnels.length}`}
+          title="Pre-Purchase Funnels"
+          metric={`${activeFunnels} active / ${prePurchaseFunnels.length} total`}
           actionLabel="View"
           onActionClick={() => setPage(PageOption.FUNNELS)}
         />
         <StatGridCard
           title="Destinations"
-          metric={`${activeDestinations} / ${data.destinations.length}`}
+          metric={`${activeDestinations} active / ${data.destinations.length} total`}
           actionLabel="View"
           onActionClick={() => setPage(PageOption.DESTINATIONS)}
         />
         <StatGridCard
-          title="Split Tests"
-          metric={activeSplitTests}
-          subtitle={activeSplitTests > 0 ? 'active' : 'none active'}
-          actionLabel="View"
-          onActionClick={() => setPage(PageOption.SPLIT_TESTS)}
+          title="Funnel Pages"
+          metric={`${data.funnelPages.length}`}
+          actionLabel="View Funnels"
+          onActionClick={() => setPage(PageOption.FUNNELS)}
         />
       </StatGridContainer>
 
       <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Section title="Default Offer">
-          {defaultOffer ? (
-            <div>
-              <p className="text-lg font-semibold">{defaultOffer.data?.displayName ?? defaultOffer.data?.name}</p>
-              <p className="text-sm text-base-content/60 mt-1">
-                {defaultOffer.data?.products?.length ?? 0} product(s), {defaultOffer.data?.defaultPricing?.length ?? 0}{' '}
-                pricing tier(s)
-              </p>
-            </div>
-          ) : (
-            <p className="text-base-content/50 italic">No default offer set. Set one in the Offers section.</p>
-          )}
-        </Section>
-
         <Section title="Recent Funnels">
-          {data.funnels.length > 0 ? (
+          {prePurchaseFunnels.length > 0 ? (
             <ul className="space-y-3">
-              {data.funnels.slice(0, 5).map((funnel) => (
+              {prePurchaseFunnels.slice(0, 6).map((funnel) => (
                 <li key={funnel.id} className="flex items-center justify-between">
-                  <span className="font-medium">{funnel.data?.name ?? funnel.name}</span>
-                  <div className="flex items-center gap-2">
-                    {funnel.data?.isControl && <span className="badge badge-primary badge-sm">Control</span>}
-                    <span
-                      className={`badge badge-sm ${funnel.data?.status === 'active' ? 'badge-success' : 'badge-ghost'}`}
-                    >
-                      {funnel.data?.status ?? 'draft'}
-                    </span>
+                  <div>
+                    <span className="font-medium">{funnel.data?.name ?? funnel.name}</span>
+                    {funnel.data?.slug && (
+                      <code className="ml-2 text-xs bg-base-300 px-1.5 py-0.5 rounded text-base-content/60">
+                        {funnel.data.slug}
+                      </code>
+                    )}
                   </div>
+                  <span className={`badge badge-sm ${funnel.data?.active ? 'badge-success' : 'badge-ghost'}`}>
+                    {funnel.data?.active ? 'Active' : 'Inactive'}
+                  </span>
                 </li>
               ))}
             </ul>
           ) : (
-            <p className="text-base-content/50 italic">No funnels created yet.</p>
+            <p className="text-base-content/50 italic">No funnels yet. Make sure the sync job has run.</p>
+          )}
+        </Section>
+
+        <Section title="Recent Destinations">
+          {data.destinations.length > 0 ? (
+            <ul className="space-y-3">
+              {data.destinations.slice(0, 6).map((dest) => (
+                <li key={dest.id} className="flex items-center justify-between">
+                  <div>
+                    <span className="font-medium">{dest.data?.name ?? 'Untitled'}</span>
+                    {dest.data?.slug && (
+                      <code className="ml-2 text-xs bg-base-300 px-1.5 py-0.5 rounded text-base-content/60">
+                        /d/{dest.data.slug}
+                      </code>
+                    )}
+                  </div>
+                  <span className={`badge badge-sm ${dest.data?.active ? 'badge-success' : 'badge-ghost'}`}>
+                    {dest.data?.active ? 'Active' : 'Inactive'}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-base-content/50 italic">No destinations yet.</p>
           )}
         </Section>
       </div>

@@ -20,6 +20,7 @@ import {
 } from './sections';
 import { BuilderContent } from '@builder.io/sdk';
 import { BuilderProductGridFilterGroupContent } from '../product-grid-filter-group.model';
+import { BuilderSiteBannerModelContent } from '../../section';
 
 export const createBrandConfigModel = (gridFilterModelId: string, bannerModelId: string): ModelShape => {
   return {
@@ -68,10 +69,7 @@ export type BuilderBrandConfigContent = BuilderContent &
         };
       };
       banners: {
-        banner: {
-          id: string;
-          value: BuilderContentReference<BuilderContent>;
-        };
+        banner: BuilderContentReference<BuilderSiteBannerModelContent['data']>;
         alwaysShow: boolean;
       }[];
       header: {
@@ -214,10 +212,7 @@ export type BuilderBrandConfigContent = BuilderContent &
       features: {
         productGridFilterType: ProductGridFilterType;
         productGridFilterGroups: {
-          filterConfig: {
-            id: string;
-            value: BuilderContentReference<BuilderProductGridFilterGroupContent>;
-          };
+          filterConfig: BuilderContentReference<BuilderProductGridFilterGroupContent['data']>;
         }[];
         productGridHideRestricted: boolean;
         productLinkPrefix: ProductLinkPrefix;

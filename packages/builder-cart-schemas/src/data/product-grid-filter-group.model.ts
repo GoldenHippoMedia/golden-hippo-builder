@@ -1,10 +1,10 @@
 import { BuilderContentReference, BuilderResponseBaseData, ModelShape } from '@goldenhippo/builder-types';
 import { BuilderContent } from '@builder.io/sdk';
 import {
-  BuilderProductCategoryContent,
   BuilderIngredientContent,
-  BuilderProductUseCaseContent,
+  BuilderProductCategoryContent,
   BuilderProductTagContent,
+  BuilderProductUseCaseContent,
 } from '@goldenhippo/builder-shared-schemas';
 
 interface ProductFilterModels {
@@ -14,7 +14,7 @@ interface ProductFilterModels {
   tagId: string;
 }
 
-enum FilterApplicationType {
+export enum FilterApplicationType {
   Inclusive = 'Inclusive',
   Exclusive = 'Exclusive',
 }
@@ -139,28 +139,16 @@ export type BuilderProductGridFilterGroupContent = BuilderContent &
     data: BuilderResponseBaseData & {
       displayName: string;
       categories: {
-        category: {
-          id: string;
-          value: BuilderContentReference<BuilderProductCategoryContent>;
-        };
+        category: BuilderContentReference<BuilderProductCategoryContent['data']>;
       }[];
       ingredients: {
-        ingredient: {
-          id: string;
-          value: BuilderContentReference<BuilderIngredientContent>;
-        };
+        ingredient: BuilderContentReference<BuilderIngredientContent['data']>;
       }[];
       useCases: {
-        useCase: {
-          id: string;
-          value: BuilderContentReference<BuilderProductUseCaseContent>;
-        };
+        useCase: BuilderContentReference<BuilderProductUseCaseContent['data']>;
       }[];
       tags: {
-        tag: {
-          id: string;
-          value: BuilderContentReference<BuilderProductTagContent>;
-        };
+        tag: BuilderContentReference<BuilderProductTagContent['data']>;
       }[];
       filterApplicationType: FilterApplicationType;
     };

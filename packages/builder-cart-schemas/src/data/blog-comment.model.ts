@@ -126,10 +126,6 @@ export type BuilderBlogCommentContent = BuilderContent &
       locale: string;
       parentId?: string;
       internal?: boolean;
-      blog: {
-        id: string;
-        name: string;
-        value: BuilderContentReference<BuilderBlogPageContent>;
-      };
+      blog: BuilderContentReference<BuilderBlogPageContent['data']>;
     };
   }>;

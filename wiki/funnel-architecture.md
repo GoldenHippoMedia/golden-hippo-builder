@@ -4,55 +4,103 @@ Design document for the Golden Hippo funnel management system: Builder.io schema
 
 ## Problem Statement
 
-Golden Hippo manages multiple sales funnels for product "offers" across brands. These funnels are combinations of landing pages, video sales letters, coupon pages, surveys, and offer selectors. Funnel configuration currently lives in Salesforce, and linking pages/settings to funnels in the Angular commerce app is tedious, error-prone, and leads to extensive content duplication. Even basic changes require long development cycles.
+Golden Hippo manages multiple sales funnels for product "offers" across brands. Funnel configuration (offers, pricing, steps) lives in the internal ERP/CRM system. This plugin bridges that system with Builder.io so designers and developers can build and preview funnel pages without needing ERP access.
 
-This system moves funnel configuration into Builder.io, where:
-
-- Content teams manage funnel pages visually
-- Offers, pricing, and funnel structure are defined as structured data models
-- A/B testing is built in via split tests on destinations
-- The Angular app queries Builder.io for everything it needs to render a funnel
+The key design principle: **the ERP is the source of truth for funnel structure and pricing**. Builder.io holds the visual pages and acts as a lookup reference (synced from the ERP). The plugin provides tooling to manage the Builder pages that correspond to each funnel step.
 
 ## Domain Overview
 
 ```
-┌──────────────────────────────────────────────────────────────────────────┐
-│                            FUNNEL SYSTEM                                │
-│                                                                         │
-│  Product ──┐                                                            │
-│  Product ──┼──▶ Offer ──▶ Funnel (control) ──▶ Destination ◀── Split   │
-│  Product ──┘      │       Funnel (variant A)        │          Test     │
-│                   │       Funnel (variant B) ◀──────┘                   │
-│                   │                │                                     │
-│                   │          ┌─────┴──────┐                             │
-│                   │          │   Steps    │                             │
-│                   │          │ 1. Survey  │──▶ Funnel Page              │
-│                   │          │ 2. VSL     │──▶ Funnel Page              │
-│                   │          │ 3. Coupon  │──▶ Funnel Page              │
-│                   │          │ 4. Offer   │──▶ Funnel Page              │
-│                   │          └────────────┘                             │
-│                   │                                                     │
-│  Offer.isDefaultOffer = true                                            │
-│  (fallback for not-found)                                               │
-└──────────────────────────────────────────────────────────────────────────┘
+ERP System (Hippo)                      Builder.io
+──────────────────                      ──────────
+Funnel (Pre-purchase)   ──sync──▶  funnel (data model, lookup reference)
+  └── Steps                             └── funnel-page (page model per step)
+        step 1 /fp/step-slug-1 ◀──────────── Builder page at /fp/step-slug-1
+        step 2 /fp/step-slug-2 ◀──────────── Builder page at /fp/step-slug-2
+        ...
+
+Destination             ──sync──▶  funnel-destination (data model)
+  └── Default Funnel ref
+  └── Optional Split Test
 ```
 
 ### Entities
 
-| Entity      | Builder.io Model     | Kind | Purpose                                                                   |
-| ----------- | -------------------- | ---- | ------------------------------------------------------------------------- |
-| Product     | `product`            | data | Shared with cart — the same product catalog                               |
-| Offer       | `funnel-offer`       | data | Groups 1+ products with default pricing tiers                             |
-| Funnel      | `funnel`             | data | A specific path through pages for an offer, with pricing and steps        |
-| Funnel Page | `funnel-page`        | page | A visual page within a funnel (survey, VSL, coupon, offer selector, etc.) |
-| Destination | `funnel-destination` | data | URL entry point (`/d/[slug]`) that routes to a funnel                     |
-| Split Test  | `funnel-split-test`  | data | A/B test splitting traffic across funnel variants on a destination        |
+| Entity      | Builder.io Model     | Kind | Source of Truth | Purpose                                             |
+| ----------- | -------------------- | ---- | --------------- | --------------------------------------------------- |
+| Funnel      | `funnel`             | data | ERP (synced)    | Lookup reference for funnel metadata + productionId |
+| Funnel Page | `funnel-page`        | page | Builder.io      | Visual page for a funnel step at `/fp/[step-slug]`  |
+| Destination | `funnel-destination` | data | ERP (synced)    | URL entry point (`/d/[slug]`) routing to a funnel   |
 
-> **Default offer fallback:** Instead of a separate config model, the `funnel-offer` model includes an `isDefaultOffer` boolean. The app queries for the first offer with this flag set. Plugin validation is best-effort — if multiple are flagged, the first one found wins.
+> **Sync job:** An external process syncs `funnel` and `funnel-destination` records from the ERP into Builder.io on a schedule. The plugin does not create these records — it only reads them and uses the `productionId` to fetch full detail from the Hippo API.
+
+> **Pre-purchase only (current):** Post-purchase funnel flow is not yet defined. The plugin currently filters to Pre-purchase funnels only.
+
+## Data Models
+
+### `funnel` (synced from ERP)
+
+A lightweight lookup reference for a funnel. The full step data (including pricing and step structure) is fetched on demand from the Hippo API using `productionId`.
+
+**Fields:**
+
+| Field          | Type    | Required | Notes                                                    |
+| -------------- | ------- | -------- | -------------------------------------------------------- |
+| `name`         | text    | yes      | Funnel name (e.g., "Control", "Pricing Test v2")         |
+| `type`         | select  | yes      | `Pre-purchase` or `Post-purchase`                        |
+| `active`       | boolean | no       | Whether the funnel is currently live                     |
+| `slug`         | text    | yes      | URL slug (e.g., "control")                               |
+| `productionId` | text    | yes      | ERP ID used to fetch full funnel data from the Hippo API |
+
+**Factory:** `createFunnelModel(): ModelShape`
+
+### `funnel-page`
+
+A visual page within a funnel. Matched to funnel steps by URL path: a step with `slug` maps to the Builder page at `/fp/${slug}`. Pages are created by the plugin when needed and edited in the visual editor.
+
+**Fields:**
+
+| Field                 | Type      | Required | Notes                                           |
+| --------------------- | --------- | -------- | ----------------------------------------------- |
+| `title`               | text      | yes      | Page title                                      |
+| `funnel`              | reference | no       | The funnel this page belongs to (optional link) |
+| `seo`                 | object    | no       | SEO configuration                               |
+| `seo.heading`         | text      | no       | Override page title for SEO                     |
+| `seo.description`     | longText  | no       | Meta description                                |
+| `seo.image`           | file      | no       | Open Graph image                                |
+| `robotsMeta`          | object    | no       | Robots directives                               |
+| `robotsMeta.noIndex`  | boolean   | no       | Prevent indexing                                |
+| `robotsMeta.noFollow` | boolean   | no       | Prevent link following                          |
+
+**Factory:** `createFunnelPageModel(editUrl: string, funnelModelId: string): ModelShape`
+
+**URL pattern:** Pages are created with `urlPath = /fp/${step.slug}`. The editing URL logic previews at `${editUrl}/fp/preview${targeting.urlPath}`.
+
+### `funnel-destination` (synced from ERP)
+
+The URL entry point for a funnel. Users land on `/d/[slug]` and the app routes to the appropriate funnel.
+
+**Fields:**
+
+| Field                    | Type      | Required | Notes                                                            |
+| ------------------------ | --------- | -------- | ---------------------------------------------------------------- |
+| `name`                   | text      | yes      | Destination name                                                 |
+| `type`                   | select    | yes      | `Pre-purchase` or `Post-purchase`                                |
+| `slug`                   | text      | yes      | URL slug — used in `/d/[slug]`                                   |
+| `productionId`           | text      | yes      | ERP ID for this destination                                      |
+| `description`            | longText  | no       | Optional internal description                                    |
+| `defaultFunnel`          | reference | yes      | Reference to the primary funnel for this destination             |
+| `splitTest`              | object    | no       | Optional split test configuration                                |
+| `splitTest.name`         | text      | no       | Split test name                                                  |
+| `splitTest.productionId` | text      | no       | ERP ID of the split test                                         |
+| `splitTest.slug`         | text      | no       | Split test slug                                                  |
+| `splitTest.options`      | list      | no       | Split test variants with funnel reference and traffic allocation |
+
+**Factory:** `createFunnelDestinationModel(funnelModelId: string): ModelShape`
 
 ## Shared Product Models (`builder-shared-schemas`)
 
-Product-related models live in `@goldenhippo/builder-shared-schemas` — a published npm package that both `builder-cart-schemas` and `builder-funnel-schemas` depend on. Products are the same entities across cart and funnel contexts, so a single source of truth avoids duplication.
+Product-related models live in `@goldenhippo/builder-shared-schemas` — a published npm package that both `builder-cart-schemas` and `builder-funnel-schemas` depend on.
 
 **Models in `builder-shared-schemas`** (5 models):
 
@@ -64,310 +112,139 @@ Product-related models live in `@goldenhippo/builder-shared-schemas` — a publi
 | `product-ingredient` | `createIngredientsModel()`    | Product ingredients     |
 | `product-use-case`   | `createProductUseCaseModel()` | Product use cases       |
 
-Both `builder-cart-schemas` and `builder-funnel-schemas` re-export these factories and content types for consumer convenience. The cart plugin continues to `import { createProductModel } from '@goldenhippo/builder-cart-schemas'` with no changes. The funnel plugin imports from `@goldenhippo/builder-funnel-schemas`.
-
-**Same-instance compatibility:** When cart and funnel plugins are installed in the same Builder.io instance, both use the same `product` model (and its dependencies). The funnel plugin's model creation checks for existing models before creating:
-
-```
-if model "product" exists → use existing ID
-else → create product model (and its dependencies)
-```
-
-All funnel-specific models use a `funnel-` prefix to avoid any naming collision with cart models.
-
-### Product Model Addition: `servingsPerUnit`
-
-The product model gains a new field:
-
-| Field             | Type   | Required | Notes                                                                                                                                                                                                    |
-| ----------------- | ------ | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `servingsPerUnit` | number | no       | Typical number of servings (or doses, days of supply, etc.) per unit. Used to auto-calculate default subscription frequency: `servingsPerUnit * quantity` days. Falls back to 30 days when not provided. |
-
-This field lives in `builder-shared-schemas` and is available to both scopes. Example: a 30-serving jar has `servingsPerUnit: 30`. An offer with quantity 3 auto-suggests a subscription frequency of 90 days.
-
-## Data Models
-
-### `funnel-offer`
-
-An Offer represents a purchasable product (or product selection) with default pricing tiers. Most offers are 1:1 with a product. Multi-product offers (e.g., three flavors) let the customer choose.
-
-**Fields:**
-
-| Field                                               | Type                  | Required | Notes                                                                                                                                             |
-| --------------------------------------------------- | --------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `displayName`                                       | text                  | yes      | Customer-facing offer name                                                                                                                        |
-| `featuredImage`                                     | file                  | no       | Primary image for the offer                                                                                                                       |
-| `description`                                       | longText              | no       | Offer description                                                                                                                                 |
-| `products`                                          | list                  | yes      | One or more product references                                                                                                                    |
-| `products[].product`                                | reference → `product` | yes      | Link to product model                                                                                                                             |
-| `products[].displayName`                            | text                  | no       | Override name in offer context (e.g., flavor name)                                                                                                |
-| `selectionLabel`                                    | text                  | no       | Label for product chooser (e.g., "Choose your flavor")                                                                                            |
-| `defaultPricing`                                    | list                  | yes      | Pricing tiers copied to new funnels                                                                                                               |
-| `defaultPricing[].quantity`                         | number                | yes      | Purchase quantity (e.g., 1, 3, 6)                                                                                                                 |
-| `defaultPricing[].label`                            | text                  | no       | Tier label (e.g., "Best Value", "Most Popular")                                                                                                   |
-| `defaultPricing[].isMostPopular`                    | boolean               | no       | Highlights this tier in UI                                                                                                                        |
-| `defaultPricing[].standardPrice`                    | number                | yes      | One-time purchase price                                                                                                                           |
-| `defaultPricing[].subscriptionPrice`                | number                | no       | Subscription price                                                                                                                                |
-| `defaultPricing[].defaultSubscriptionFrequencyDays` | number                | no       | Default frequency in days. Auto-calculated from `product.servingsPerUnit * quantity` when available, otherwise defaults to 30. Can be overridden. |
-| `isDefaultOffer`                                    | boolean               | no       | When true, this is the global default offer used as fallback for not-found scenarios. First flagged offer wins if multiple are set.               |
-| `name`                                              | text                  | yes      | Internal name (not localized)                                                                                                                     |
-| `gh`                                                | object                | no       | Integration data                                                                                                                                  |
-| `gh.slug`                                           | text                  | no       | Unique slug for cross-environment sync                                                                                                            |
-
-**Factory:** `createFunnelOfferModel(productModelId: string): ModelShape`
-
-### `funnel`
-
-A Funnel is a specific sequence of pages tied to an Offer. Each Offer has one control funnel and zero or more variant funnels. Pricing on the funnel is the complete, resolved pricing (initialized from the offer's defaults or copied from the control, then customized).
-
-**Fields:**
-
-| Field                                                                 | Type                       | Required | Notes                                                                        |
-| --------------------------------------------------------------------- | -------------------------- | -------- | ---------------------------------------------------------------------------- |
-| `name`                                                                | text                       | yes      | Funnel name (e.g., "Control", "Pricing Test v2")                             |
-| `offer`                                                               | reference → `funnel-offer` | yes      | The offer this funnel belongs to                                             |
-| `isControl`                                                           | boolean                    | no       | Whether this is the control funnel for its offer                             |
-| `status`                                                              | select                     | yes      | `draft`, `active`, `paused`, `archived`                                      |
-| `pricing`                                                             | list                       | yes      | Resolved pricing tiers for this funnel                                       |
-| `pricing[].quantity`                                                  | number                     | yes      | Purchase quantity                                                            |
-| `pricing[].label`                                                     | text                       | no       | Tier label                                                                   |
-| `pricing[].isMostPopular`                                             | boolean                    | no       | Highlighted tier                                                             |
-| `pricing[].standardPrice`                                             | number                     | yes      | One-time purchase price                                                      |
-| `pricing[].subscriptionPrice`                                         | number                     | no       | Subscription price                                                           |
-| `pricing[].defaultSubscriptionFrequencyDays`                          | number                     | no       | Default subscription frequency (days)                                        |
-| `pricing[].availableSubscriptionFrequencies`                          | list                       | no       | All frequency options offered to customer                                    |
-| `pricing[].availableSubscriptionFrequencies[].frequencyDays`          | number                     | yes      | Frequency option in days                                                     |
-| `pricing[].checkoutFeatures`                                          | object                     | no       | Per-tier checkout configuration                                              |
-| `pricing[].checkoutFeatures.tryBeforeYouBuy`                          | object                     | no       | TBYB settings                                                                |
-| `pricing[].checkoutFeatures.tryBeforeYouBuy.enabled`                  | boolean                    | no       | Whether TBYB is available                                                    |
-| `pricing[].checkoutFeatures.tryBeforeYouBuy.upfrontCost`              | number                     | no       | Upfront charge for TBYB                                                      |
-| `pricing[].checkoutFeatures.installmentPayments`                      | object                     | no       | Installment settings                                                         |
-| `pricing[].checkoutFeatures.installmentPayments.enabled`              | boolean                    | no       | Whether installments are available                                           |
-| `pricing[].checkoutFeatures.installmentPayments.numberOfInstallments` | number                     | no       | Number of payments                                                           |
-| `pricing[].checkoutFeatures.installmentPayments.installmentAmount`    | number                     | no       | Per-installment charge                                                       |
-| `steps`                                                               | list                       | yes      | Ordered funnel step sequence                                                 |
-| `steps[].stepType`                                                    | select                     | yes      | `landing`, `survey`, `vsl`, `coupon`, `offer-selector`, `checkout`, `custom` |
-| `steps[].label`                                                       | text                       | no       | Display label for this step                                                  |
-| `steps[].page`                                                        | reference → `funnel-page`  | no       | Builder.io page for this step                                                |
-| `gh`                                                                  | object                     | no       | Integration data                                                             |
-| `gh.slug`                                                             | text                       | no       | Funnel GEP — direct access at `/f/[slug]`                                    |
-
-**Factory:** `createFunnelModel(offerModelId: string, funnelPageModelId: string): ModelShape`
-
-### `funnel-page`
-
-A visual page within a funnel. Uses Builder.io's page model (`kind: 'page'`) so content is edited in the visual editor. Each funnel step references one of these pages. When creating a funnel variant from a control, the plugin copies each page.
-
-**Fields:**
-
-| Field                 | Type     | Required | Notes                                                            |
-| --------------------- | -------- | -------- | ---------------------------------------------------------------- |
-| `title`               | text     | yes      | Page title                                                       |
-| `pageType`            | select   | yes      | `landing`, `survey`, `vsl`, `coupon`, `offer-selector`, `custom` |
-| `seo`                 | object   | no       | SEO configuration                                                |
-| `seo.heading`         | text     | no       | Override page title for SEO                                      |
-| `seo.description`     | longText | no       | Meta description                                                 |
-| `seo.image`           | file     | no       | Open Graph image                                                 |
-| `robotsMeta`          | object   | no       | Robots directives                                                |
-| `robotsMeta.noIndex`  | boolean  | no       | Prevent indexing                                                 |
-| `robotsMeta.noFollow` | boolean  | no       | Prevent link following                                           |
-
-**Factory:** `createFunnelPageModel(editUrl: string): ModelShape`
-
-**Editing URL logic:** `return \`${editUrl}/f/preview${targeting.urlPath}?builder.preview=true&builder.frameEditing=true\``
-
-### `funnel-destination`
-
-A Destination is the URL entry point for the Angular app. Users land on `/fst/[slug]` and the app loads the destination's primary funnel (or randomly assigns a funnel via split test).
-
-**Fields:**
-
-| Field                  | Type                       | Required | Notes                                                 |
-| ---------------------- | -------------------------- | -------- | ----------------------------------------------------- |
-| `name`                 | text                       | yes      | Destination name                                      |
-| `slug`                 | text                       | yes      | URL slug — unique, used in `/fst/[slug]`              |
-| `offer`                | reference → `funnel-offer` | yes      | The offer for this destination                        |
-| `primaryFunnel`        | reference → `funnel`       | yes      | Default funnel (typically the control)                |
-| `followControlUpdates` | boolean                    | no       | Auto-swap primary funnel when offer's control changes |
-| `status`               | select                     | yes      | `active`, `inactive`                                  |
-
-**Factory:** `createFunnelDestinationModel(offerModelId: string, funnelModelId: string): ModelShape`
-
-### `funnel-split-test`
-
-A Split Test assigns multiple funnel variants to a Destination for A/B testing. Traffic is evenly split. Only one split test can be active per destination at a time. When a visitor lands on a destination with an active split test, a funnel is randomly selected and stored in a session cookie so subsequent visits use the same funnel.
-
-**Fields:**
-
-| Field               | Type                             | Required | Notes                                        |
-| ------------------- | -------------------------------- | -------- | -------------------------------------------- |
-| `name`              | text                             | yes      | Test name (e.g., "Pricing Test Jan 2026")    |
-| `destination`       | reference → `funnel-destination` | yes      | The destination running this test            |
-| `status`            | select                           | yes      | `draft`, `running`, `completed`, `cancelled` |
-| `variants`          | list                             | yes      | Funnel variants in the test                  |
-| `variants[].funnel` | reference → `funnel`             | yes      | A funnel variant                             |
-| `variants[].label`  | text                             | no       | Label (e.g., "Control", "Variant A")         |
-
-**Factory:** `createFunnelSplitTestModel(destinationModelId: string, funnelModelId: string): ModelShape`
-
 ## Model Creation Phases
 
-The funnel plugin provisions models in dependency order on first save, mirroring the cart plugin's phase pattern. In a same-instance installation, phases 1-2 detect existing cart models and skip creation.
+The funnel plugin provisions models on first save (settings dialog → "Save & Sync Models").
 
 ```
-Phase 1 — Independent (check-or-create, shared with cart)
+Phase 1 — Independent shared models (check-or-create)
   ├── product-ingredient
   ├── product-category
   ├── product-tag
   └── product-use-case
 
-Phase 2 — Product (depends on Phase 1, shared with cart)
+Phase 2 — Product (depends on Phase 1)
   └── product
 
-Phase 3 — Funnel Page (independent of product)
+Phase 3 — Funnel Page (independent)
   └── funnel-page
 
-Phase 4 — Offer (depends on Phase 2: product)
-  └── funnel-offer
-
-Phase 5 — Funnel (depends on Phase 3 + 4: funnel-page, funnel-offer)
+Phase 4 — Funnel (independent)
   └── funnel
 
-Phase 6 — Destination (depends on Phase 4 + 5: funnel-offer, funnel)
+Phase 5 — Destination (depends on Phase 4: funnel)
   └── funnel-destination
-
-Phase 7 — Split Test (depends on Phase 5 + 6: funnel, funnel-destination)
-  └── funnel-split-test
 ```
 
-## Package Responsibilities
+## Plugin Settings
 
-### `@goldenhippo/builder-shared-schemas`
+| Setting                   | Type     | Purpose                                                       |
+| ------------------------- | -------- | ------------------------------------------------------------- |
+| `editUrl`                 | text     | Funnel site URL for page preview links                        |
+| `apiUrl`                  | text     | Hippo Commerce API base URL                                   |
+| `apiUser`                 | text     | API credentials                                               |
+| `apiPassword`             | password | API credentials                                               |
+| `privateApiKey`           | password | Builder.io private API key for write operations               |
+| `builderCartPublicApiKey` | text     | Cart space public key for cross-space product sync (advanced) |
 
-Shared product-related model factories and content types. Published to npm with linked versioning alongside the other schema packages.
-
-- **`src/data/`** — 5 models: product, product-category, product-tag, product-ingredient, product-use-case
-- Built with **tsup** → dual CJS/ESM + declarations
-- **2 export subpaths:** `.`, `./data`
-- Tags: `scope:shared`, `type:schema`
-- Dependencies: `@goldenhippo/builder-types`
-
-### `@goldenhippo/builder-funnel-schemas`
-
-All funnel model factory functions and TypeScript content types. Depends on `@goldenhippo/builder-shared-schemas` for product models (not cart-schemas).
-
-**New exports:**
-
-| Export Subpath | Contents                                                                                                                                  |
-| -------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
-| `./data`       | `createFunnelOfferModel`, `createFunnelModel`, `createFunnelDestinationModel`, `createFunnelSplitTestModel` + all `Builder*Content` types |
-| `./page`       | `createFunnelPageModel`, `BuilderFunnelPageContent`                                                                                       |
-| `.`            | Re-exports all of the above + re-exports product factories from shared-schemas                                                            |
-
-### `@goldenhippo/builder-funnel-plugin`
-
-The Builder.io editor plugin. Handles model provisioning, provides the management UI, and orchestrates funnel operations (copy control, page duplication, etc.).
-
-**Plugin settings:**
-
-| Setting       | Type     | Purpose                           |
-| ------------- | -------- | --------------------------------- |
-| `editUrl`     | text     | Funnel site URL for page previews |
-| `apiUrl`      | text     | Hippo Commerce API URL            |
-| `apiUser`     | text     | API credentials                   |
-| `apiPassword` | password | API credentials                   |
-
-**CTA:** "Save & Create Models" (triggers model provisioning)
-
-## Plugin UI Sections
+## Plugin UI
 
 ### Dashboard (Home)
 
-Overview stats: total offers, active funnels, active destinations, running split tests. Quick links to recent items.
+Overview stats: active pre-purchase funnels, destinations, and funnel pages. Quick links to the Funnels and Destinations sections.
 
-### Offers
+### Funnels (Pre-Purchase)
 
-CRUD for offers. Each offer card shows linked products, pricing tier count, and number of funnels. Editing an offer lets you manage the product list, set default pricing tiers, and view all funnels for the offer.
+The main developer workflow. Shows all Pre-purchase funnels synced from Hippo.
 
-### Funnels
+**Search:** Filter by name, slug, or production ID.
 
-Filtered by offer. Shows control badge and status for each funnel. The primary workflow for creating a variant:
+**Funnel list columns:**
 
-```
-1. Select Offer
-2. "Create Funnel" → "Copy from Control?" (default: Yes)
-   ├── Yes → Name the variation
-   │         → "Retain Control Pricing?" (default: Yes)
-   │         │   ├── Yes → Confirm steps/pages list → Create
-   │         │   └── No  → Configure pricing & checkout features → Confirm → Create
-   │         └── Plugin copies control pages and creates funnel with references
-   └── No  → Full funnel builder flow (select pages, configure steps)
-```
+- Name, Slug, Production ID, Page count (pages linked to this funnel), Active status
 
-On creation, the plugin:
+**Selecting a funnel → Funnel Detail view:**
 
-1. Creates the `funnel` content entry with pricing and steps
-2. For each step with a page reference in the source funnel, duplicates the `funnel-page` content via the Builder.io API
-3. Updates the new funnel's step references to point to the duplicated pages
-4. Navigates to the funnel detail view
+1. Fetches full funnel data from the Hippo API (steps, pricing, purchase options) using `productionId`
+2. Shows a summary: slug, production ID, step count, Builder page count
+3. Shows purchase options table (SKU, product name, price, quantity, subscription type)
+4. Shows the steps table with Builder page status
 
-### Funnel Detail
+**Steps table columns:**
 
-Shows funnel metadata, pricing table with checkout features, and an ordered list of steps. Each step shows its type, label, and page link. Clicking a page opens it in the Builder.io visual editor.
+- Step number, Step name (+ GEP if set), Page type, URL (`/fp/[slug]`), Builder Page status, Action
+
+**Builder Page status:**
+
+- `Created` (green badge) — a `funnel-page` with `urlPath = /fp/[step.slug]` exists
+- `Missing` (yellow badge) — no Builder page exists for this step yet
+
+**Actions (role-aware):**
+
+| Role      | Funnel Status | Step has page                      | Step missing page        |
+| --------- | ------------- | ---------------------------------- | ------------------------ |
+| Admin     | Any           | "Edit Page" → opens Builder editor | "Create Page" button     |
+| Non-admin | Inactive      | "Edit Page" → opens Builder editor | "Create Page" button     |
+| Non-admin | Active        | "View Page" → opens Builder editor | — (read-only, no create) |
+
+**"Create All Missing Pages" / "Create Missing Pages" button:**
+
+- Appears in the header and steps section when there are missing pages and `canEdit = true`
+- Requires typing "CREATE" to confirm
+- Creates all missing pages sequentially, then refreshes
+
+**Read-only warning:**
+
+- Non-admins viewing an active funnel see an alert: "This funnel is active in production. Pages are shown in read-only mode."
 
 ### Destinations
 
-CRUD for destinations. Each destination shows its slug, linked offer, primary funnel, and whether a split test is running. Creating a destination:
+Lists all synced destinations with name, slug, default funnel, active status, and split test info. Click to view/edit a destination record.
 
-1. Name the destination
-2. Provide the slug (validated for uniqueness)
-3. Select the offer
-4. Primary funnel defaults to the offer's control (option to select another)
-5. Toggle "Follow Control Updates" (off by default)
+## Hippo API Integration
 
-### Split Tests
+The plugin calls the Hippo Commerce API to retrieve full funnel details on demand. Authentication uses Basic auth (configured in plugin settings).
 
-Managed from the destination detail view or a dedicated section. Creating a split test:
+**Endpoints used:**
 
-1. Select destination
-2. Add funnel variants (must belong to the same offer as the destination)
-3. Traffic is evenly split (no weight configuration for now)
-4. Start test → status moves to `running`
+| Method | Path                     | Purpose                                |
+| ------ | ------------------------ | -------------------------------------- |
+| GET    | `/funnel/{id}`           | Get full funnel with steps and pricing |
+| GET    | `/funnel/gep/{gep}`      | Get funnel by GEP slug                 |
+| GET    | `/destination/{id}`      | Get destination details                |
+| GET    | `/destination/gep/{gep}` | Get destination by GEP slug            |
 
-Only one split test per destination can be `running` at a time.
+The `HippoFunnel` response includes:
 
-### Settings
-
-Plugin connection settings (editUrl, API credentials). The default offer is managed directly on the offer via the `isDefaultOffer` toggle in the Offers section.
+- `id`, `name`, `type`, `active`, `slug`
+- `steps[]` — ordered step list with `stepNumber`, `slug`, `pageType`, `name`, `gep`
+- `prePurchaseOptions[]` — purchase options with SKU, pricing, subscription info (Pre-purchase funnels only)
 
 ## Angular App Integration
 
-The Angular funnel app (future) consumes `@goldenhippo/builder-funnel-schemas` for type-safe Builder.io queries.
+The Angular funnel app consumes `@goldenhippo/builder-funnel-schemas` for type-safe Builder.io queries.
 
 ### Request Flow
 
 ```
-User hits /fst/my-offer-gep
+User hits /d/my-destination-slug
          │
          ▼
-Query funnel-destination where slug = "my-offer-gep"
-         │
-         ├── No destination found → query funnel-offer where isDefaultOffer = true
-         │                          → load control funnel for that offer
+Query funnel-destination where slug = "my-destination-slug"
          │
          ▼
-Has active split test?
-  ├── No  → use destination.primaryFunnel
+Has split test?
+  ├── No  → use destination.defaultFunnel
   └── Yes → check session cookie for existing assignment
             ├── Found → use stored funnel ID
-            └── Not found → randomly select from variants
+            └── Not found → randomly select from split test options
                             → store funnel ID in session cookie
          │
          ▼
-Load funnel content (pricing, steps, checkout features)
+Fetch full funnel from Hippo API (or Builder content for step-page mapping)
          │
          ▼
-For each step: load funnel-page content
+For each step: load funnel-page content at /fp/[step.slug]
          │
          ▼
 Render funnel flow: step 1 → step 2 → ... → checkout
@@ -375,105 +252,42 @@ Render funnel flow: step 1 → step 2 → ... → checkout
 
 ### Direct Funnel Access
 
-Users can also land on `/f/[funnel-slug]`, which bypasses destination and split test logic:
+Developers can preview funnels directly at `/fp/preview/[step-slug]`:
 
 ```
-User hits /f/pricing-test-v2
-         │
-         ▼
-Query funnel where gh.slug = "pricing-test-v2"
-         │
-         ▼
-Load funnel + pages → render
+Builder funnel-page editingUrlLogic:
+return `${editUrl}/fp/preview${targeting.urlPath}?builder.preview=true&builder.frameEditing=true`
 ```
 
-### Session Cookie
+## Package Responsibilities
 
-When a split test assigns a funnel, the app stores a cookie:
+### `@goldenhippo/builder-funnel-schemas`
 
-```
-Key:    gh_funnel_[destination-content-id]
-Value:  [funnel-content-id]
-Scope:  session
-```
+All funnel model factory functions and TypeScript content types.
 
-This ensures visitors see the same funnel variant across page refreshes and return visits within the session.
+| Export Subpath | Contents                                                                      |
+| -------------- | ----------------------------------------------------------------------------- |
+| `./data`       | `createFunnelModel`, `createFunnelDestinationModel` + `Builder*Content` types |
+| `./page`       | `createFunnelPageModel`, `BuilderFunnelPageContent`                           |
+| `.`            | Re-exports all of the above + product factories from shared-schemas           |
 
-## Implementation Plan
+### `@goldenhippo/builder-funnel-plugin`
 
-### Phase 1: Shared Schemas Extraction
+The Builder.io editor plugin tab. Handles model provisioning and provides the funnel page management UI.
 
-Create `@goldenhippo/builder-shared-schemas` and move product models out of cart-schemas:
+**Core services:**
 
-1. Scaffold `packages/builder-shared-schemas/` (package.json, tsconfig.json, tsup.config.ts)
-2. Move from `builder-cart-schemas/src/data/` → `builder-shared-schemas/src/data/`:
-   - `product.model.ts` (add `servingsPerUnit` field)
-   - `product-category.model.ts`
-   - `product-tag.model.ts`
-   - `product-ingredient.model.ts`
-   - `product-use-case.model.ts`
-3. Set up barrel exports (`src/data/index.ts`, `src/index.ts`)
-4. Update `builder-cart-schemas`:
-   - Add `@goldenhippo/builder-shared-schemas` dependency
-   - Replace moved files with re-exports from shared-schemas in `src/data/index.ts`
-   - Add `@goldenhippo/builder-shared-schemas` to `tsup.config.ts` externals
-5. Update `builder-funnel-schemas`:
-   - Add `@goldenhippo/builder-shared-schemas` dependency
-   - Remove `@goldenhippo/builder-cart-schemas` dependency (if present)
-   - Add `@goldenhippo/builder-shared-schemas` to `tsup.config.ts` externals
-6. Add `@goldenhippo/builder-shared-schemas` to changesets linked versions
-7. Verify `npm run build && npm run typecheck && npm run lint` pass
-
-### Phase 2: Funnel Schemas
-
-Create funnel model factory functions and content types in `builder-funnel-schemas`:
-
-1. `src/data/funnel-offer.model.ts` — Offer model + `BuilderFunnelOfferContent`
-2. `src/data/funnel.model.ts` — Funnel model + `BuilderFunnelContent`
-3. `src/data/funnel-destination.model.ts` — Destination model + `BuilderFunnelDestinationContent`
-4. `src/data/funnel-split-test.model.ts` — Split test model + `BuilderFunnelSplitTestContent`
-5. `src/page/funnel-page.model.ts` — Funnel page model + `BuilderFunnelPageContent`
-6. Update barrel exports (`src/data/index.ts`, `src/page/index.ts`, `src/index.ts`)
-7. Re-export product-related factories from shared-schemas through `src/index.ts`
-
-### Phase 3: Funnel Plugin — Model Provisioning
-
-Wire up model creation in `builder-funnel-plugin`:
-
-1. Create `src/core/models/funnel-builder-helper.ts` — Model factory registry (mirrors cart's `BuilderHelper`)
-2. Update `src/plugin.ts` — Add plugin settings (apiUrl, apiUser, apiPassword), implement `setHippoFunnelModels()` with the 7-phase creation
-3. Add `getModel` / `setModel` utilities (extract shared pattern or duplicate from cart plugin)
-
-### Phase 4: Funnel Plugin — Core UI
-
-Build the plugin's management interface:
-
-1. `src/application/` — App shell with MobX state and routing (Dashboard, Offers, Funnels, Destinations, Split Tests, Settings)
-2. `src/services/builder-api/` — Builder.io content CRUD for funnel models
-3. `src/services/commerce-api/` — Hippo Commerce API integration (if needed for product data)
-
-### Phase 5: Funnel Plugin — Workflows
-
-Implement the key user workflows:
-
-1. **Create funnel from control** — Copy pricing, duplicate pages, create funnel entry
-2. **Mark funnel as control** — Unset previous control, update destinations with `followControlUpdates`
-3. **Create split test** — Validate same-offer constraint, enforce single active test per destination
-4. **Set default offer** — Toggle `isDefaultOffer` on an offer (best-effort uniqueness — first flagged offer wins)
-
-### Phase 6: Testing & Documentation
-
-1. Unit tests for model factories (validate field structures)
-2. Integration tests for plugin workflows (mock Builder.io API)
-3. Update CLAUDE.md with funnel package descriptions
-4. Update wiki with consuming guides for Angular teams
+- `BuilderApi` — Builder.io content CRUD (fetches funnels, destinations, funnel-pages; creates pages)
+- `HippoApi` — Hippo Commerce API calls (fetches full funnel data with steps and pricing)
+- `UserManagementService` — extracts user context and API credentials from Builder.io plugin settings
+- `ModelSyncService` — provisions all models on plugin settings save
 
 ## Open Questions
 
-1. **Pricing data source:** Should funnel pricing be queryable from the commerce API to auto-populate offer defaults, or is manual entry sufficient for now?
+1. **Post-purchase flow:** Post-purchase funnel step URLs and page structure not yet defined. Plugin currently hides post-purchase funnels. Will need a similar step → Builder page workflow when ready.
 
-2. **Page duplication API:** Builder.io's content API supports duplicating entries. Need to verify the exact API call and whether visual blocks are deep-copied or reference-linked.
+2. **Funnel page ↔ funnel reference:** Pages are currently created without an explicit `funnel` reference field. The link is implied by URL path. Should we populate the `funnel` reference field on creation for easier filtering in Builder's content list?
 
-3. **Split test analytics:** The current design tracks assignment only. Analytics (conversion rates, statistical significance) likely live in a separate system. Confirm whether any analytics metadata should be stored on the split test model.
+3. **Split test analytics:** Assignment tracking only. Confirm whether analytics metadata should be stored on split test records or sourced entirely from an external analytics system.
 
-4. **Multi-locale support:** Funnel pages and offers will likely need localization. The model fields support `localized: true` — confirm which fields need it based on brand requirements.
+4. **Multi-locale support:** Funnel pages support localized fields. Confirm which fields need localization for brand requirements.

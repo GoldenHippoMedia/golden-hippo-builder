@@ -1,15 +1,13 @@
 import { ModelShape } from '@goldenhippo/builder-types';
 import {
-  createIngredientsModel,
   createCategoryModel,
+  createFunnelDestinationModel,
+  createFunnelModel,
+  createFunnelPageModel,
+  createIngredientsModel,
+  createProductModel,
   createProductTagModel,
   createProductUseCaseModel,
-  createProductModel,
-  createFunnelOfferModel,
-  createFunnelModel,
-  createFunnelDestinationModel,
-  createFunnelSplitTestModel,
-  createFunnelPageModel,
 } from '@goldenhippo/builder-funnel-schemas';
 
 class FunnelBuilderHelper {
@@ -18,6 +16,7 @@ class FunnelBuilderHelper {
   categoryModel = createCategoryModel();
   productTagModel = createProductTagModel();
   useCaseModel = createProductUseCaseModel();
+  funnelModel = createFunnelModel();
 
   // Factory models (require model IDs from cascading creation)
   productModel(request: {
@@ -29,24 +28,12 @@ class FunnelBuilderHelper {
     return createProductModel(request);
   }
 
-  funnelPageModel(editUrl: string, funnelModelId?: string): ModelShape {
+  funnelPageModel(editUrl: string, funnelModelId: string): ModelShape {
     return createFunnelPageModel(editUrl, funnelModelId);
   }
 
-  funnelOfferModel(productModelId: string): ModelShape {
-    return createFunnelOfferModel(productModelId);
-  }
-
-  funnelModel(offerModelId: string, funnelPageModelId: string): ModelShape {
-    return createFunnelModel(offerModelId, funnelPageModelId);
-  }
-
-  funnelDestinationModel(offerModelId: string, funnelModelId: string, splitTestModelId?: string): ModelShape {
-    return createFunnelDestinationModel(offerModelId, funnelModelId, splitTestModelId);
-  }
-
-  funnelSplitTestModel(destinationModelId: string, funnelModelId: string): ModelShape {
-    return createFunnelSplitTestModel(destinationModelId, funnelModelId);
+  funnelDestinationModel(funnelModelId: string): ModelShape {
+    return createFunnelDestinationModel(funnelModelId);
   }
 }
 
