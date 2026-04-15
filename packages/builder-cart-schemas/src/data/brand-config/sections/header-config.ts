@@ -4,6 +4,7 @@ export enum HeaderType {
   BASIC = 'BASIC',
   MEDIUM = 'MEDIUM',
   MEGA = 'MEGA',
+  LINKLESS = 'LINKLESS',
   NONE = 'NONE',
   DMP = 'DMP',
 }
@@ -1247,7 +1248,14 @@ export const createHeaderConfig = (): BuilderIOFieldTypes => {
         helperText: 'Select the type of header to use',
         defaultCollapsed: true,
         type: 'select',
-        enum: [HeaderType.BASIC, HeaderType.MEDIUM, HeaderType.MEGA, HeaderType.NONE, HeaderType.DMP],
+        enum: [
+          HeaderType.BASIC,
+          HeaderType.MEDIUM,
+          HeaderType.MEGA,
+          HeaderType.LINKLESS,
+          HeaderType.NONE,
+          HeaderType.DMP,
+        ],
         defaultValue: 'MEDIUM',
       },
       headerOptions.basic,

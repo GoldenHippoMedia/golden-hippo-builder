@@ -37,6 +37,30 @@ export const createBrandConfigModel = (gridFilterModelId: string, bannerModelId:
       createSupportConfig(),
       createPageConfig(),
       createCookieConfig(),
+      {
+        name: 'seo',
+        friendlyName: 'SEO',
+        type: 'object',
+        defaultCollapsed: true,
+        localized: false,
+        helperText: 'Search engine optimization settings for the brand',
+        subFields: [
+          {
+            name: 'description',
+            friendlyName: 'Site Description',
+            type: 'longText',
+            defaultCollapsed: false,
+            helperText: 'Default meta description for the website, used when pages do not provide their own',
+          },
+          {
+            name: 'knowsAbout',
+            friendlyName: 'Topics',
+            type: 'Tags',
+            defaultCollapsed: false,
+            helperText: 'Topics the brand is knowledgeable about, used in structured data for search engines',
+          },
+        ],
+      },
     ],
   };
 };
@@ -55,10 +79,9 @@ export type BuilderBrandConfigContent = BuilderContent &
         termsLink: string;
         subscriptionTermsLink: string;
         privacyLink: string;
-        supportLink: string;
         ccpaLink: string;
         bbbLink: string;
-        accessibilityLink: string;
+        accessibiltyLink: string;
         socialMedia: {
           twitter: string;
           facebook: string;
@@ -220,6 +243,8 @@ export type BuilderBrandConfigContent = BuilderContent &
         shippingThresholdNotificationEnabled: boolean;
         bundlingEnabled: boolean;
         cartDrawerEnabled: boolean;
+        subscriptionExperience: 'Classic' | 'Version 2';
+        useDefaultFrequencies: boolean;
       };
       support: {
         email: string;
@@ -355,6 +380,10 @@ export type BuilderBrandConfigContent = BuilderContent &
             color: string;
           };
         };
+      };
+      seo?: {
+        description?: string;
+        knowsAbout?: string[];
       };
     };
   }>;

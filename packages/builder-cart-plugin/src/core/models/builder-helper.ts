@@ -33,8 +33,8 @@ class BuilderHelper {
     return createProductModel(request);
   }
 
-  productGroupModel(productModelId: string): ModelShape {
-    return createProductGroupModel(productModelId);
+  productGroupModel(productModelId: string, sectionModelId: string): ModelShape {
+    return createProductGroupModel(productModelId, sectionModelId);
   }
 
   productGridConfigModel(models: {
@@ -64,6 +64,7 @@ class BuilderHelper {
     categoryModelId: string;
     bannerModelId: string;
     blogCategoryModelId: string;
+    sectionModelId: string;
     editUrl: string;
   }): ModelShape {
     return createPageModel(props);

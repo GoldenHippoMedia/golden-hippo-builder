@@ -2,7 +2,7 @@ import { BuilderContentReference, BuilderResponseBaseData, ModelShape } from '@g
 import { BuilderContent } from '@builder.io/sdk';
 import { BuilderProductCategoryContent, BuilderProductContent } from '@goldenhippo/builder-shared-schemas';
 import { BuilderBlogCategoryContent, BuilderProductGroupContent } from '../data';
-import { BuilderSiteBannerModelContent } from '../section';
+import { BuilderDefaultWebsiteSectionContent, BuilderSiteBannerModelContent } from '../section';
 
 interface PageModelInputProps {
   productModelId: string;
@@ -10,6 +10,7 @@ interface PageModelInputProps {
   categoryModelId: string;
   bannerModelId: string;
   blogCategoryModelId: string;
+  sectionModelId: string;
   editUrl: string;
 }
 
@@ -22,17 +23,20 @@ export enum PageTypes {
 export enum PdpTypes {
   PRODUCT = 'Product',
   PRODUCT_GROUP = 'Product Group',
+  MULTI_GROUP = 'Multi-Group',
 }
 
 export enum OfferSelectorTypes {
   VERTICAL = 'Vertical',
   VERTICAL__FLAVOR_DROPDOWN__TYPE_TOGGLE = 'Vertical - Flavor Dropdown - Type Toggle',
   STACKED__FLAVOR_BUTTONS__QUANTITY_TOGGLE = 'Stacked - Flavor Buttons - Quantity Toggle',
+  BUNDLE_GROUP = 'Bundle Group',
 }
 
 export enum OfferSelectorSliderTypes {
   SLIDER_A = 'Slider A',
   SLIDER_B = 'Slider B',
+  SLIDER_ZOOM = 'Slider Zoom',
 }
 
 export enum OfferSelectorDefaultPurchaseType {
@@ -46,7 +50,15 @@ export enum OfferSelectorSavingsType {
 }
 
 export const createPageModel = (props: PageModelInputProps): ModelShape => {
-  const { productModelId, productGroupModelId, categoryModelId, bannerModelId, blogCategoryModelId, editUrl } = props;
+  const {
+    productModelId,
+    productGroupModelId,
+    categoryModelId,
+    bannerModelId,
+    blogCategoryModelId,
+    sectionModelId,
+    editUrl,
+  } = props;
   return {
     name: 'page',
     displayName: 'Page',
@@ -81,12 +93,12 @@ export const createPageModel = (props: PageModelInputProps): ModelShape => {
         subFields: [
           {
             name: 'type',
-            friendlyName: 'Type',
+            friendlyName: 'Product Page Type',
             type: 'select',
             defaultValue: PdpTypes.PRODUCT,
             required: true,
-            helperText: '',
-            enum: [PdpTypes.PRODUCT, PdpTypes.PRODUCT_GROUP],
+            helperText: 'Choose whether this is a single product, product group, or multi-group page',
+            enum: [PdpTypes.PRODUCT, PdpTypes.PRODUCT_GROUP, PdpTypes.MULTI_GROUP],
             defaultCollapsed: false,
           },
           {
@@ -105,11 +117,109 @@ export const createPageModel = (props: PageModelInputProps): ModelShape => {
             friendlyName: 'Product Group',
             type: 'reference',
             required: false,
-            helperText: '',
+            helperText: 'Select the product group to display',
             modelId: productGroupModelId,
             copyOnAdd: true,
             showIf: "return options.get('type') === 'Product Group'",
             defaultCollapsed: false,
+          },
+          {
+            name: 'pdpTitle',
+            friendlyName: 'Display Title',
+            type: 'text',
+            localized: true,
+            required: true,
+            helperText: 'For multi-group selectors, provide the "product" title to present.',
+            showIf: `return options.get('type') === 'Multi-Group'`,
+            defaultCollapsed: false,
+          },
+          {
+            name: 'pdpDescription',
+            friendlyName: 'Description',
+            type: 'html',
+            localized: true,
+            required: false,
+            helperText: 'For multi-group selectors, provide the "product" description to present.',
+            showIf: `return options.get('type') === 'Multi-Group'`,
+            defaultCollapsed: false,
+          },
+          {
+            name: 'multiProductGroup',
+            friendlyName: 'Product Groups',
+            type: 'list',
+            required: false,
+            localized: false,
+            helperText: 'Add the product groups to include in this multi-group page',
+            showIf: `return options.get('type') === 'Multi-Group'`,
+            defaultCollapsed: false,
+            subFields: [
+              {
+                name: 'group',
+                friendlyName: 'Product Group',
+                type: 'reference',
+                required: true,
+                helperText: 'Select a product group to include',
+                modelId: productGroupModelId,
+                copyOnAdd: true,
+                defaultCollapsed: false,
+              },
+              {
+                name: 'optionsOverrides',
+                friendlyName: 'Offer Options',
+                type: 'list',
+                localized: true,
+                required: false,
+                copyOnAdd: false,
+                defaultCollapsed: false,
+                helperText: 'Override the default offer options for this product group',
+                subFields: [
+                  {
+                    name: 'quantity',
+                    friendlyName: 'Quantity',
+                    type: 'number',
+                    required: false,
+                    defaultValue: undefined,
+                    defaultCollapsed: false,
+                    helperText: 'The quantity for this offer option',
+                  },
+                  {
+                    name: 'description',
+                    friendlyName: 'Description',
+                    type: 'html',
+                    localized: true,
+                    required: false,
+                    defaultCollapsed: false,
+                    helperText: 'Description displayed for this offer option',
+                  },
+                  {
+                    name: 'pillLabel',
+                    friendlyName: 'Pill Label',
+                    type: 'text',
+                    localized: true,
+                    required: false,
+                    defaultCollapsed: false,
+                    helperText: 'Text shown in the pill badge for this option (e.g. "Most Popular")',
+                  },
+                  {
+                    name: 'pillColor',
+                    friendlyName: 'Pill Color',
+                    type: 'color',
+                    required: false,
+                    defaultCollapsed: false,
+                    helperText: 'Background color of the pill badge',
+                  },
+                ],
+              },
+              {
+                name: 'pillLabel',
+                friendlyName: 'Pill Label',
+                type: 'text',
+                localized: true,
+                required: false,
+                helperText: '(Optional) If provided, used to apply a pill on this option (e.g. Most Popular).',
+                defaultCollapsed: false,
+              },
+            ],
           },
           {
             name: 'slides',
@@ -122,7 +232,7 @@ export const createPageModel = (props: PageModelInputProps): ModelShape => {
                 friendlyName: 'Image',
                 type: 'file',
                 required: true,
-                helperText: '',
+                helperText: 'Upload a product slide image',
                 allowedFileTypes: ['jpeg', 'png', 'svg', 'webp'],
                 copyOnAdd: true,
                 defaultCollapsed: false,
@@ -144,7 +254,7 @@ export const createPageModel = (props: PageModelInputProps): ModelShape => {
                 friendlyName: 'Image',
                 type: 'file',
                 required: true,
-                helperText: '',
+                helperText: 'Upload a thumbnail image',
                 allowedFileTypes: ['jpeg', 'png', 'svg', 'webp'],
                 copyOnAdd: true,
                 defaultCollapsed: false,
@@ -158,7 +268,11 @@ export const createPageModel = (props: PageModelInputProps): ModelShape => {
           {
             name: 'sliderComponent',
             type: 'select',
-            enum: [OfferSelectorSliderTypes.SLIDER_A, OfferSelectorSliderTypes.SLIDER_B],
+            enum: [
+              OfferSelectorSliderTypes.SLIDER_A,
+              OfferSelectorSliderTypes.SLIDER_B,
+              OfferSelectorSliderTypes.SLIDER_ZOOM,
+            ],
             friendlyName: 'Slider Component',
             defaultValue: OfferSelectorSliderTypes.SLIDER_A,
             required: false,
@@ -192,6 +306,7 @@ export const createPageModel = (props: PageModelInputProps): ModelShape => {
                   OfferSelectorTypes.VERTICAL,
                   OfferSelectorTypes.VERTICAL__FLAVOR_DROPDOWN__TYPE_TOGGLE,
                   OfferSelectorTypes.STACKED__FLAVOR_BUTTONS__QUANTITY_TOGGLE,
+                  OfferSelectorTypes.BUNDLE_GROUP,
                 ],
                 defaultCollapsed: false,
               },
@@ -200,6 +315,7 @@ export const createPageModel = (props: PageModelInputProps): ModelShape => {
                 friendlyName: 'Features',
                 type: 'object',
                 required: false,
+                helperText: 'Configure behavior and defaults for the offer selector',
                 subFields: [
                   {
                     name: 'defaultPurchaseType',
@@ -230,7 +346,7 @@ export const createPageModel = (props: PageModelInputProps): ModelShape => {
                       Default: true,
                     },
                     required: false,
-                    helperText: '',
+                    helperText: 'Display the savings amount on each offer option',
                     defaultCollapsed: false,
                   },
                   {
@@ -251,7 +367,7 @@ export const createPageModel = (props: PageModelInputProps): ModelShape => {
                       Default: true,
                     },
                     required: false,
-                    helperText: '',
+                    helperText: 'Show the member price message below the offer selector',
                     defaultCollapsed: false,
                   },
                   {
@@ -262,7 +378,7 @@ export const createPageModel = (props: PageModelInputProps): ModelShape => {
                       Default: true,
                     },
                     required: false,
-                    helperText: '',
+                    helperText: 'Show the subscription price message below the offer selector',
                     defaultCollapsed: false,
                   },
                   {
@@ -288,7 +404,6 @@ export const createPageModel = (props: PageModelInputProps): ModelShape => {
                     advanced: true,
                   },
                 ],
-                helperText: '',
                 defaultCollapsed: false,
               },
               {
@@ -296,32 +411,35 @@ export const createPageModel = (props: PageModelInputProps): ModelShape => {
                 friendlyName: 'Labels',
                 type: 'object',
                 defaultValue: {
-                  subscriptionOffer: {
-                    Default: 'Or $PRICE when you subscribe & save',
-                  },
-                  subscriptionToggle: {
-                    Default: 'Subscribe & save',
-                  },
-                  scrollButton: {
-                    Default: '<span class="material-icons">keyboard_arrow_up</span> Back to top',
+                  quantitySelector: {
+                    '@type': '@builder.io/core:LocalizedValue',
                   },
                   actionButton: {
                     Default: 'ADD TO CART',
                   },
-                  outOfStockFormSuccess: {
-                    Default: '<p class="text-center">We will notify you as soon as this item is back in stock.</p>',
-                  },
-                  otpToggle: {
-                    Default: 'Single purchase',
+                  subscriptionOffer: {
+                    Default: 'Or $PRICE when you subscribe & save',
                   },
                   flavorSelector: {
                     Default: 'Choose a flavor',
                   },
-                  outOfStock: {
-                    Default: 'Sorry, we"re currently out of stock',
+                  otpToggle: {
+                    Default: 'Single purchase',
                   },
                   memberOffer: {
                     Default: 'Or pay member price of',
+                  },
+                  scrollButton: {
+                    Default: '<span class="material-icons">keyboard_arrow_up</span> Back to top',
+                  },
+                  outOfStock: {
+                    Default: 'Sorry, we"re currently out of stock',
+                  },
+                  outOfStockFormSuccess: {
+                    Default: '<p class="text-center">We will notify you as soon as this item is back in stock.</p>',
+                  },
+                  subscriptionToggle: {
+                    Default: 'Subscribe & save',
                   },
                 },
                 required: false,
@@ -334,7 +452,7 @@ export const createPageModel = (props: PageModelInputProps): ModelShape => {
                       Default: 'ADD TO CART',
                     },
                     required: false,
-                    helperText: '',
+                    helperText: 'Text on the main call-to-action button (e.g. "ADD TO CART")',
                     defaultCollapsed: false,
                   },
                   {
@@ -356,7 +474,7 @@ export const createPageModel = (props: PageModelInputProps): ModelShape => {
                       Default: 'Or pay member price of',
                     },
                     required: false,
-                    helperText: '',
+                    helperText: 'Message shown for member pricing (e.g. "Or pay member price of")',
                     defaultCollapsed: false,
                   },
                   {
@@ -394,7 +512,7 @@ export const createPageModel = (props: PageModelInputProps): ModelShape => {
                   },
                   {
                     name: 'outOfStockFormSuccess',
-                    friendlyName: 'OOS Form Success Message',
+                    friendlyName: 'Out of Stock Form Success Message',
                     type: 'html',
                     defaultValue: {
                       Default: '<p class="text-center">We will notify you as soon as this item is back in stock.</p>',
@@ -412,7 +530,7 @@ export const createPageModel = (props: PageModelInputProps): ModelShape => {
                       Default: '<span class="material-icons">keyboard_arrow_up</span> Back to top',
                     },
                     required: false,
-                    helperText: '',
+                    helperText: 'Content displayed in the scroll-to-top button',
                     defaultCollapsed: false,
                   },
                   {
@@ -423,7 +541,17 @@ export const createPageModel = (props: PageModelInputProps): ModelShape => {
                       Default: 'Choose a flavor',
                     },
                     required: false,
-                    helperText: '',
+                    helperText: 'Label for the flavor/option dropdown (e.g. "Choose a flavor")',
+                    defaultCollapsed: false,
+                  },
+                  {
+                    name: 'quantitySelector',
+                    friendlyName: 'Quantity Selector',
+                    type: 'text',
+                    localized: true,
+                    required: false,
+                    helperText:
+                      '(Optional) Provide a label for the quantity selection. Only displayed if your selected offer selector supports this feature.',
                     defaultCollapsed: false,
                   },
                 ],
@@ -458,13 +586,14 @@ export const createPageModel = (props: PageModelInputProps): ModelShape => {
                 type: 'object',
                 defaultValue: {},
                 required: false,
+                helperText: 'Advanced CSS customizations for the offer selector',
                 subFields: [
                   {
                     name: 'signupOfferCustomCssProps',
                     friendlyName: 'Signup Offer CSS',
                     type: 'map',
                     required: false,
-                    helperText: '',
+                    helperText: 'Custom CSS properties for the signup offer section',
                     defaultCollapsed: false,
                   },
                   {
@@ -472,11 +601,10 @@ export const createPageModel = (props: PageModelInputProps): ModelShape => {
                     friendlyName: 'Signup Offer Price CSS',
                     type: 'map',
                     required: false,
-                    helperText: '',
+                    helperText: 'Custom CSS properties for the signup offer price',
                     defaultCollapsed: false,
                   },
                 ],
-                helperText: '',
                 defaultCollapsed: true,
               },
             ],
@@ -492,6 +620,17 @@ export const createPageModel = (props: PageModelInputProps): ModelShape => {
             modelId: categoryModelId,
             copyOnAdd: true,
             friendlyName: 'Category',
+            defaultCollapsed: false,
+          },
+          {
+            name: 'desktopSliderOverride',
+            friendlyName: 'Slider Override (Desktop)',
+            type: 'reference',
+            required: false,
+            helperText:
+              "(Optional) Select content to display in place of your PDP's product image slider. Disables the slider on desktop. On mobile, this content is hidden and the standard slider is displayed.",
+            modelId: sectionModelId,
+            copyOnAdd: true,
             defaultCollapsed: false,
           },
         ],
@@ -564,6 +703,7 @@ export const createPageModel = (props: PageModelInputProps): ModelShape => {
             required: false,
             copyOnAdd: true,
             defaultCollapsed: true,
+            helperText: 'Assign blog categories for filtering and navigation',
             subFields: [
               {
                 name: 'category',
@@ -573,6 +713,7 @@ export const createPageModel = (props: PageModelInputProps): ModelShape => {
                 required: true,
                 defaultCollapsed: false,
                 copyOnAdd: false,
+                helperText: 'Select a blog category',
               },
             ],
           },
@@ -784,6 +925,18 @@ export type BuilderPdpPageContent = BuilderContent &
           type: PdpTypes;
           product?: BuilderContentReference<BuilderProductContent['data']>;
           productGroup?: BuilderContentReference<BuilderProductGroupContent['data']>;
+          pdpTitle?: string;
+          pdpDescription?: string;
+          multiProductGroup?: {
+            group: BuilderContentReference<BuilderProductGroupContent['data']>;
+            optionsOverrides?: {
+              quantity?: number;
+              description?: string;
+              pillLabel?: string;
+              pillColor?: string;
+            }[];
+            pillLabel?: string;
+          }[];
           slides?: {
             image: string;
           }[];
@@ -814,6 +967,7 @@ export type BuilderPdpPageContent = BuilderContent &
               outOfStockFormSuccess?: string;
               scrollButton?: string;
               flavorSelector?: string;
+              quantitySelector?: string;
             };
             bestSellerImage?: string;
             bestValueImage?: string;
@@ -823,6 +977,7 @@ export type BuilderPdpPageContent = BuilderContent &
             };
           };
           category?: BuilderContentReference<BuilderProductCategoryContent['data']>;
+          desktopSliderOverride?: BuilderContentReference<BuilderDefaultWebsiteSectionContent['data']>;
         };
       };
   }>;

@@ -70,11 +70,7 @@ async function setHippoModels(currentState: ApplicationContext) {
   const productModelId = await setModel(productModelShape, productModel, currentState);
   if (!productModelId) return;
 
-  // Phase 3: Models that depend on product or are independent
-  const productGroupModelShape = BuilderHelper.productGroupModel(productModelId);
-  const productGroupModel = getModel(productGroupModelShape.name, models);
-  const productGroupModelId = await setModel(productGroupModelShape, productGroupModel, currentState);
-
+  // Phase 3: Independent models + default website section (needed by product group and page)
   const bannerModelShape = BuilderHelper.siteBanner(editUrl);
   const bannerModel = getModel(bannerModelShape.name, models);
   const bannerModelId = await setModel(bannerModelShape, bannerModel, currentState);
@@ -82,15 +78,27 @@ async function setHippoModels(currentState: ApplicationContext) {
   const blogCategoryModel = getModel(BuilderHelper.blogCategoryModel.name, models);
   const blogCategoryModelId = await setModel(BuilderHelper.blogCategoryModel, blogCategoryModel, currentState);
 
-  if (!productGroupModelId || !bannerModelId || !blogCategoryModelId) return;
+  const defaultWebsiteSectionModelShape = BuilderHelper.defaultWebsiteSection(editUrl);
+  const defaultWebsiteSectionModel = getModel(defaultWebsiteSectionModelShape.name, models);
+  const sectionModelId = await setModel(defaultWebsiteSectionModelShape, defaultWebsiteSectionModel, currentState);
 
-  // Phase 4: Page (requires product, productGroup, category, banner, blogCategory)
+  if (!bannerModelId || !blogCategoryModelId || !sectionModelId) return;
+
+  // Phase 3b: Product group (requires product + section)
+  const productGroupModelShape = BuilderHelper.productGroupModel(productModelId, sectionModelId);
+  const productGroupModel = getModel(productGroupModelShape.name, models);
+  const productGroupModelId = await setModel(productGroupModelShape, productGroupModel, currentState);
+
+  if (!productGroupModelId) return;
+
+  // Phase 4: Page (requires product, productGroup, category, banner, blogCategory, section)
   const pageModelShape = BuilderHelper.pageModel({
     productModelId,
     productGroupModelId,
     categoryModelId,
     bannerModelId,
     blogCategoryModelId,
+    sectionModelId,
     editUrl,
   });
   const pageModel = getModel(pageModelShape.name, models);
@@ -117,11 +125,6 @@ async function setHippoModels(currentState: ApplicationContext) {
   const brandConfigModelShape = BuilderHelper.brandConfig(productGridConfigModelId, bannerModelId);
   const brandConfigModel = getModel(brandConfigModelShape.name, models);
   await setModel(brandConfigModelShape, brandConfigModel, currentState);
-
-  // Phase 8: Default website section
-  const defaultWebsiteSectionModelShape = BuilderHelper.defaultWebsiteSection(editUrl);
-  const defaultWebsiteSectionModel = getModel(defaultWebsiteSectionModelShape.name, models);
-  await setModel(defaultWebsiteSectionModelShape, defaultWebsiteSectionModel, currentState);
 
   console.info('[Hippo Commerce - CART] Model setup complete');
 }

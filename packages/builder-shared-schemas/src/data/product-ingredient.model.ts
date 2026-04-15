@@ -15,7 +15,7 @@ export const createIngredientsModel = (): ModelShape => ({
       type: 'text',
       required: true,
       defaultCollapsed: true,
-
+      helperText: 'The display name of this ingredient as it appears on the website',
       localized: true,
       defaultValue: {
         '@type': '@builder.io/core:LocalizedValue',
@@ -28,7 +28,7 @@ export const createIngredientsModel = (): ModelShape => ({
       type: 'longText',
       required: false,
       defaultCollapsed: true,
-
+      helperText: 'A detailed description of this ingredient, shown on product detail pages',
       localized: true,
       defaultValue: {
         '@type': '@builder.io/core:LocalizedValue',
@@ -41,7 +41,7 @@ export const createIngredientsModel = (): ModelShape => ({
       type: 'file',
       showTemplatePicker: true,
       defaultCollapsed: true,
-
+      helperText: 'An image representing this ingredient, used in ingredient spotlights and carousels',
       allowedFileTypes: ['jpeg', 'png', 'svg', 'webp'],
     },
     {
@@ -51,7 +51,7 @@ export const createIngredientsModel = (): ModelShape => ({
       type: 'longText',
       required: false,
       defaultCollapsed: true,
-
+      helperText: 'A brief summary of this ingredient, used in compact displays like product cards',
       localized: true,
       defaultValue: {
         '@type': '@builder.io/core:LocalizedValue',

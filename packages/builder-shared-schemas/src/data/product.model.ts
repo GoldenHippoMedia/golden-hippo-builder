@@ -98,6 +98,7 @@ export const createProductModel = (request: ProductModelProps): ModelShape => {
         friendlyName: 'Packaging Labels',
         defaultCollapsed: true,
         type: 'object',
+        helperText: 'Labels describing the product packaging (e.g. Jar, Bottle, Pouch)',
         subFields: [
           {
             name: 'singular',
@@ -203,6 +204,7 @@ export const createProductModel = (request: ProductModelProps): ModelShape => {
         type: 'list',
         localized: true,
         defaultCollapsed: true,
+        helperText: 'Tags used to cross-reference products and enable filtering (e.g. "New", "Best Seller")',
         subFields: [
           {
             type: 'reference',
@@ -211,6 +213,7 @@ export const createProductModel = (request: ProductModelProps): ModelShape => {
             friendlyName: 'Tag',
             copyOnAdd: false,
             defaultCollapsed: true,
+            helperText: 'Select a product tag',
           },
         ],
       },
@@ -220,6 +223,7 @@ export const createProductModel = (request: ProductModelProps): ModelShape => {
         type: 'list',
         localized: true,
         defaultCollapsed: true,
+        helperText: 'Categories this product belongs to, used for navigation and filtering',
         subFields: [
           {
             type: 'reference',
@@ -228,6 +232,7 @@ export const createProductModel = (request: ProductModelProps): ModelShape => {
             friendlyName: 'Category',
             copyOnAdd: false,
             defaultCollapsed: true,
+            helperText: 'Select a product category',
           },
         ],
       },
@@ -237,6 +242,7 @@ export const createProductModel = (request: ProductModelProps): ModelShape => {
         type: 'list',
         localized: true,
         defaultCollapsed: true,
+        helperText: 'Key ingredients in this product, displayed on product detail pages',
         subFields: [
           {
             type: 'reference',
@@ -245,6 +251,7 @@ export const createProductModel = (request: ProductModelProps): ModelShape => {
             friendlyName: 'Ingredient',
             copyOnAdd: false,
             defaultCollapsed: true,
+            helperText: 'Select an ingredient',
           },
         ],
       },
@@ -254,6 +261,7 @@ export const createProductModel = (request: ProductModelProps): ModelShape => {
         friendlyName: 'Use Cases',
         type: 'list',
         localized: true,
+        helperText: 'Goals or health benefits this product supports, used for filtering and recommendations',
         subFields: [
           {
             type: 'reference',
@@ -262,6 +270,7 @@ export const createProductModel = (request: ProductModelProps): ModelShape => {
             friendlyName: 'Use Case',
             copyOnAdd: false,
             defaultCollapsed: true,
+            helperText: 'Select a use case',
           },
         ],
       },
@@ -285,6 +294,41 @@ export const createProductModel = (request: ProductModelProps): ModelShape => {
         defaultCollapsed: true,
         localized: false,
         helperText: 'Internal name for the product, used for identification in the CMS',
+      },
+      {
+        name: 'components',
+        friendlyName: 'Bundle Components',
+        type: 'list',
+        required: false,
+        defaultCollapsed: false,
+        helperText: 'The individual products included in this bundle',
+        showIf: `return options.get('gh')?.get("type") === 'Bundle'`,
+        subFields: [
+          {
+            name: 'slug',
+            friendlyName: 'Slug',
+            type: 'text',
+            required: true,
+            defaultCollapsed: false,
+            helperText: 'The unique identifier for this bundle component',
+          },
+          {
+            name: 'displayName',
+            friendlyName: 'Display Name',
+            type: 'text',
+            localized: true,
+            defaultCollapsed: false,
+            helperText: 'The name shown for this component on the product page',
+          },
+          {
+            name: 'description',
+            friendlyName: 'Description',
+            type: 'html',
+            required: false,
+            defaultCollapsed: false,
+            helperText: 'Use this to provide a description display beneath this component on the offer selector.',
+          },
+        ],
       },
       {
         name: 'gh',
@@ -322,7 +366,7 @@ export const createProductModel = (request: ProductModelProps): ModelShape => {
             defaultCollapsed: true,
             enum: ['Product', 'Bundle', 'Trial Size'],
             defaultValue: 'Product',
-            helperText: 'Product Type',
+            helperText: 'Determines how this product is handled — Product, Bundle, or Trial Size',
           },
         ],
         defaultCollapsed: true,
@@ -369,6 +413,11 @@ export type BuilderProductContent = BuilderContent &
       }[];
       useCases?: {
         useCase: BuilderContentReference<BuilderProductUseCaseContent['data']>;
+      }[];
+      components?: {
+        slug: string;
+        displayName?: string;
+        description?: string;
       }[];
       gh: {
         slug: string;

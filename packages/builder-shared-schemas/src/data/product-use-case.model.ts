@@ -11,7 +11,7 @@ export const createProductUseCaseModel = (): ModelShape => ({
     {
       name: 'name',
       defaultCollapsed: true,
-
+      helperText: 'The display name of this use case (e.g. "Joint Support", "Weight Management")',
       friendlyName: 'Use Case',
       type: 'text',
       required: true,
@@ -24,6 +24,7 @@ export const createProductUseCaseModel = (): ModelShape => ({
       defaultCollapsed: true,
       required: false,
       localized: true,
+      helperText: 'A detailed description of this use case, shown when users browse by goal',
     },
     {
       name: 'searchKeys',
@@ -41,6 +42,7 @@ export const createProductUseCaseModel = (): ModelShape => ({
       type: 'file',
       showTemplatePicker: true,
       allowedFileTypes: ['jpeg', 'png', 'svg', 'webp'],
+      helperText: 'An image representing this use case, used in grids and carousels',
     },
     {
       name: 'hidden',

@@ -6,6 +6,7 @@ export const createCookieConfig = (): BuilderIOFieldTypes => {
     friendlyName: 'Cookie Configuration',
     type: 'object',
     defaultCollapsed: true,
+    helperText: 'Settings for the cookie consent popup displayed to visitors',
     subFields: [
       {
         name: 'popupBanner',

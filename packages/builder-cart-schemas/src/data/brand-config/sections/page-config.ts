@@ -620,8 +620,7 @@ export const createPageConfig = (): BuilderIOFieldTypes => {
                 type: 'select',
                 required: true,
                 defaultCollapsed: true,
-
-                helperText: '',
+                helperText: 'System identifier for this cancellation reason — used for analytics tracking',
                 enum: [
                   SubscriptionCancelReasons.DoNotLike,
                   SubscriptionCancelReasons.NotWorking,
@@ -662,7 +661,7 @@ export const createPageConfig = (): BuilderIOFieldTypes => {
                     friendlyName: 'Button Link',
                     type: 'url',
                     required: false,
-                    helperText: '',
+                    helperText: 'URL to navigate to when this button is clicked',
                     defaultCollapsed: true,
                   },
                   {
@@ -670,7 +669,8 @@ export const createPageConfig = (): BuilderIOFieldTypes => {
                     type: 'select',
                     friendlyName: 'Button Type',
                     required: false,
-                    helperText: '',
+                    helperText:
+                      'Determines the button behavior — links navigate away, while other types trigger actions',
                     enum: [
                       SubscriptionCancelButtonType.Link,
                       SubscriptionCancelButtonType.Update,
