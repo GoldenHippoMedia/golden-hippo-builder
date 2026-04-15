@@ -1,5 +1,34 @@
 # @goldenhippo/builder-funnel-schemas
 
+## 0.8.0
+
+### Minor Changes
+
+- [#14](https://github.com/GoldenHippoMedia/golden-hippo-builder/pull/14) [`bc767f5`](https://github.com/GoldenHippoMedia/golden-hippo-builder/commit/bc767f52374947ade09722ab3c6f569b5df406de) - Sync Builder.io model definitions with production and improve field usability. — [@steven-t-h](https://github.com/steven-t-h)
+
+  Model sync (production parity):
+  - Product: add `components` list field for Bundle type products (slug, displayName, description)
+  - Product Group: change `shortDescription` to html, add `informationCallout` reference, accept `sectionModelId`
+  - Brand Config: add `LINKLESS` header type, `subscriptionExperience`/`useDefaultFrequencies` features, `seo` object
+  - Page: add `Multi-Group` PDP type with pdpTitle, pdpDescription, multiProductGroup; add `Bundle Group` offer selector type, `Slider Zoom` slider, `quantitySelector` label, `desktopSliderOverride` reference
+
+  Plugin (builder-cart-plugin):
+  - Move default-website-section creation earlier in model provisioning (Phase 3) so product group and page models can reference it
+  - Wire `sectionModelId` through to productGroupModel and pageModel
+
+  helperText & displayName improvements:
+  - Add missing helperText to ~50 fields across all models for non-developer usability
+  - Replace empty helperText values with meaningful guidance
+  - Fix display name casing (Youtube → YouTube, Tiktok → TikTok, Twitter → Twitter / X)
+  - Rename jargon-heavy labels (OOS → Out of Stock, Type → Product Page Type / Footer Type)
+  - Add friendlyName to unlabeled fields (Bundle Components, Product Groups, Offer Options, etc.)
+
+### Patch Changes
+
+- Updated dependencies [[`bc767f5`](https://github.com/GoldenHippoMedia/golden-hippo-builder/commit/bc767f52374947ade09722ab3c6f569b5df406de)]:
+  - @goldenhippo/builder-shared-schemas@0.8.0
+  - @goldenhippo/builder-types@0.8.0
+
 ## 0.7.0
 
 ### Minor Changes
