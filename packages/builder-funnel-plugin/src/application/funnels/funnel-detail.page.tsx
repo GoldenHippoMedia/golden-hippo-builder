@@ -20,7 +20,11 @@ type FunnelStep = HippoFunnel['steps'][number];
 
 /** Builds a Builder.io reference object pointing to the given funnel content entry. */
 function buildFunnelRef(funnelContentId: string) {
-  return { '@type': '@builder.io/core:Reference', id: funnelContentId };
+  return {
+    '@type': '@builder.io/core:Reference',
+    model: 'funnel',
+    id: funnelContentId,
+  };
 }
 
 const FunnelDetailPage: React.FC<FunnelDetailProps> = ({ item, data, context, onBack, onRefresh }) => {
