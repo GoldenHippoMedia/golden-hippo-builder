@@ -1,6 +1,6 @@
 {
   "name": "@goldenhippo/builder-shared-schemas",
-  "version": "0.8.0",
+  "version": "0.9.0",
   "type": "module",
   "description": "Shared Builder.io model definitions (product and dependencies) used by both cart and funnel schemas",
   "main": "./dist/index.cjs",
