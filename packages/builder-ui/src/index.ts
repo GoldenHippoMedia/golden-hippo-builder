@@ -13,3 +13,4 @@ export { StatusBadge, type StatusBadgeProps } from './components/status-badge';
 export { EmptyState, type EmptyStateProps } from './components/empty-state';
 export { ImagePicker, type ImagePickerProps } from './components/image-picker';
 export { HtmlEditor, type HtmlEditorProps } from './components/html-editor';
+export { TagInput, type TagInputProps } from './components/tag-input';

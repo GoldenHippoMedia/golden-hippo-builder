@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { observer } from 'mobx-react';
-import { Section, FormField, ImagePicker, HtmlEditor } from '@goldenhippo/builder-ui';
+import { Section, FormField, ImagePicker, HtmlEditor, TagInput } from '@goldenhippo/builder-ui';
 import {
   HeaderType,
   BasicHeaderCTAType,
@@ -125,21 +125,8 @@ const TagsField: React.FC<{
   value: string[];
   onChange: (v: string[]) => void;
 }> = ({ label, helper, value, onChange }) => (
-  <FormField label={label} helper={helper ?? 'Comma-separated CSS classes'}>
-    <input
-      type="text"
-      className="hippo-input"
-      value={(value || []).join(', ')}
-      placeholder="class-one, class-two"
-      onChange={(e) =>
-        onChange(
-          e.target.value
-            .split(',')
-            .map((s) => s.trim())
-            .filter(Boolean),
-        )
-      }
-    />
+  <FormField label={label} helper={helper ?? 'CSS classes'}>
+    <TagInput value={value || []} onChange={onChange} placeholder="Type a class and press Enter" />
   </FormField>
 );
 
