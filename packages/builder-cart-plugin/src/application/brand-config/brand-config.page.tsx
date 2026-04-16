@@ -133,7 +133,7 @@ const BrandConfigPage: React.FC<BrandConfigPageProps> = ({ context }) => {
     }
 
     const renderSection = () => {
-      const sectionProps = { data: store.data, onChange, onChangeRoot, markDirty };
+      const sectionProps = { data: store.data, onChange, onChangeRoot, markDirty, api };
       switch (store.activeTab) {
         case 'General':
           return <GeneralSection {...sectionProps} />;

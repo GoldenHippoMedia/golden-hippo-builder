@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { BuilderContent } from '@builder.io/sdk';
 import { observer } from 'mobx-react';
 import { Section, FormField, ImagePicker } from '@goldenhippo/builder-ui';
 import { SectionProps } from './section-props';
@@ -34,7 +35,17 @@ const SOCIAL_FIELDS = [
   { key: 'tiktok', label: 'TikTok' },
 ];
 
-const GeneralSection: React.FC<SectionProps> = observer(({ data, onChangeRoot, markDirty }) => {
+const GeneralSection: React.FC<SectionProps> = observer(({ data, onChangeRoot, markDirty, api }) => {
+  const [bannerEntries, setBannerEntries] = useState<BuilderContent[]>([]);
+  const [loadingBanners, setLoadingBanners] = useState(true);
+
+  useEffect(() => {
+    api
+      .getModelEntries('banner')
+      .then((entries) => setBannerEntries(entries))
+      .catch((err) => console.error('[Hippo Commerce] Failed to fetch banner entries:', err))
+      .finally(() => setLoadingBanners(false));
+  }, [api]);
   const images = data.images || {};
   const links = data.links || {};
   const socialMedia = links.socialMedia || {};
@@ -125,12 +136,79 @@ const GeneralSection: React.FC<SectionProps> = observer(({ data, onChangeRoot, m
       </Section>
 
       <Section title="Banners" subtitle="Sitewide banners displayed above page-specific announcements">
-        <div className="rounded-xl border border-dashed border-[var(--border-glass)] p-5 text-center">
-          <p className="text-sm text-[var(--text-muted)]">
-            Banner references are managed through Builder.io's content editor. This will be available here in a future
-            update.
-          </p>
-        </div>
+        {loadingBanners ? (
+          <p className="text-sm text-[var(--text-muted)]">Loading...</p>
+        ) : (
+          <div className="space-y-4">
+            {(data.banners ?? []).map((item: any, index: number) => {
+              const selectedId = item.banner?.value?.id ?? item.banner?.id ?? '';
+              return (
+                <div key={index} className="rounded-lg border border-[var(--border-glass)] p-4 space-y-3">
+                  <FormField label="Banner">
+                    <select
+                      className="hippo-input"
+                      value={selectedId}
+                      onChange={(e) => {
+                        const entry = bannerEntries.find((b) => b.id === e.target.value);
+                        if (entry) {
+                          item.banner = { id: entry.id, value: { id: entry.id, data: entry.data } };
+                        } else {
+                          item.banner = undefined;
+                        }
+                        markDirty();
+                      }}
+                    >
+                      <option value="">Select a banner...</option>
+                      {bannerEntries.map((entry) => (
+                        <option key={entry.id} value={entry.id}>
+                          {entry.name}
+                        </option>
+                      ))}
+                    </select>
+                  </FormField>
+
+                  <div className="flex items-center justify-between py-3.5 border-b border-[var(--border-glass)] last:border-b-0">
+                    <div className="text-sm font-medium text-[var(--text-primary)]">Always Show?</div>
+                    <input
+                      type="checkbox"
+                      className="hippo-toggle"
+                      checked={!!item.alwaysShow}
+                      onChange={(e) => {
+                        item.alwaysShow = e.target.checked;
+                        markDirty();
+                      }}
+                    />
+                  </div>
+
+                  <div className="flex justify-end">
+                    <button
+                      type="button"
+                      className="px-2 py-1 rounded text-[11px] font-medium text-[var(--error)] cursor-pointer hover:bg-[var(--error)]/10 transition-colors"
+                      onClick={() => {
+                        data.banners.splice(index, 1);
+                        markDirty();
+                      }}
+                    >
+                      Remove
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+
+            <button
+              type="button"
+              className="px-3 py-1.5 rounded-lg text-xs font-medium border border-[var(--border-glass)] bg-[var(--bg-glass)] text-[var(--text-secondary)] cursor-pointer hover:bg-[var(--bg-glass-hover)] transition-colors"
+              onClick={() => {
+                if (!data.banners) data.banners = [];
+                data.banners.push({ banner: undefined, alwaysShow: false });
+                markDirty();
+              }}
+            >
+              Add Banner
+            </button>
+          </div>
+        )}
       </Section>
     </div>
   );

@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { BuilderContent } from '@builder.io/sdk';
 import { observer } from 'mobx-react';
 import { Section, FormField } from '@goldenhippo/builder-ui';
 import { ProductGridFilterType, ProductLinkPrefix } from '@goldenhippo/builder-cart-schemas';
@@ -29,8 +30,18 @@ const TOGGLE_FIELDS = [
   },
 ];
 
-const FeaturesSection: React.FC<SectionProps> = observer(({ data, onChange }) => {
+const FeaturesSection: React.FC<SectionProps> = observer(({ data, onChange, markDirty, api }) => {
   const features = data.features || {};
+  const [filterGroupEntries, setFilterGroupEntries] = useState<BuilderContent[]>([]);
+  const [loadingFilterGroups, setLoadingFilterGroups] = useState(true);
+
+  useEffect(() => {
+    api
+      .getModelEntries('product-grid-filter-group')
+      .then((entries) => setFilterGroupEntries(entries))
+      .catch((err) => console.error('[Hippo Commerce] Failed to fetch filter group entries:', err))
+      .finally(() => setLoadingFilterGroups(false));
+  }, [api]);
 
   return (
     <Section title="Features" subtitle="Enable or disable site-wide features and behaviors">
@@ -121,12 +132,74 @@ const FeaturesSection: React.FC<SectionProps> = observer(({ data, onChange }) =>
           <div className="flex-1 h-px bg-[var(--border-glass)]" />
         </div>
 
-        <div className="rounded-xl border border-dashed border-[var(--border-glass)] p-5 text-center">
-          <p className="text-sm text-[var(--text-muted)]">
-            Filter group references are managed through Builder.io's content editor. This will be available here in a
-            future update.
-          </p>
-        </div>
+        {loadingFilterGroups ? (
+          <p className="text-sm text-[var(--text-muted)]">Loading...</p>
+        ) : (
+          <div className="space-y-4">
+            {(features.productGridFilterGroups ?? []).map((item: any, index: number) => {
+              const selectedId = item.filterConfig?.value?.id ?? item.filterConfig?.id ?? '';
+              return (
+                <div key={index} className="rounded-lg border border-[var(--border-glass)] p-4 space-y-3">
+                  <FormField label="Filter Group">
+                    <select
+                      className="hippo-input"
+                      value={selectedId}
+                      onChange={(e) => {
+                        const entry = filterGroupEntries.find((fg) => fg.id === e.target.value);
+                        if (!data.features) data.features = {};
+                        if (!data.features.productGridFilterGroups) data.features.productGridFilterGroups = [];
+                        if (entry) {
+                          data.features.productGridFilterGroups[index].filterConfig = {
+                            id: entry.id,
+                            value: { id: entry.id, data: entry.data },
+                          };
+                        } else {
+                          data.features.productGridFilterGroups[index].filterConfig = undefined;
+                        }
+                        markDirty();
+                      }}
+                    >
+                      <option value="">Select a filter group...</option>
+                      {filterGroupEntries.map((entry) => (
+                        <option key={entry.id} value={entry.id}>
+                          {entry.name}
+                        </option>
+                      ))}
+                    </select>
+                  </FormField>
+
+                  <div className="flex justify-end">
+                    <button
+                      type="button"
+                      className="px-2 py-1 rounded text-[11px] font-medium text-[var(--error)] cursor-pointer hover:bg-[var(--error)]/10 transition-colors"
+                      onClick={() => {
+                        if (!data.features) data.features = {};
+                        if (!data.features.productGridFilterGroups) data.features.productGridFilterGroups = [];
+                        data.features.productGridFilterGroups.splice(index, 1);
+                        markDirty();
+                      }}
+                    >
+                      Remove
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+
+            <button
+              type="button"
+              className="px-3 py-1.5 rounded-lg text-xs font-medium border border-[var(--border-glass)] bg-[var(--bg-glass)] text-[var(--text-secondary)] cursor-pointer hover:bg-[var(--bg-glass-hover)] transition-colors"
+              onClick={() => {
+                if (!data.features) data.features = {};
+                if (!data.features.productGridFilterGroups) data.features.productGridFilterGroups = [];
+                data.features.productGridFilterGroups.push({ filterConfig: undefined });
+                markDirty();
+              }}
+            >
+              Add Filter Group
+            </button>
+          </div>
+        )}
       </div>
     </Section>
   );

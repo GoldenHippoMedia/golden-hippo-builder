@@ -56,6 +56,10 @@ class BuilderApi {
     }
   }
 
+  async getModelEntries(modelName: string): Promise<BuilderContent[]> {
+    return this.fetchContent({ modelName, limit: 100 });
+  }
+
   private async fetchContent<T extends BuilderContent = BuilderContent>(request: FetchContentRequest): Promise<T[]> {
     const { modelName, limit = 20, bustCache = false } = request;
     const content: T[] = [];
