@@ -12,14 +12,14 @@ export interface FormFieldProps {
 
 export function FormField({ label, required, helper, error, children, className }: FormFieldProps) {
   return (
-    <div className={clsx('space-y-1.5', className)}>
-      <label className="text-sm font-medium text-base-content/80">
+    <div className={clsx('space-y-2.5', className)}>
+      <label className="text-xs font-semibold text-[var(--text-secondary)] tracking-wide">
         {label}
-        {required && <span className="text-error ml-0.5">*</span>}
+        {required && <span className="text-[var(--accent)] ml-0.5">*</span>}
       </label>
       {children}
-      {error && <p className="text-xs text-error">{error}</p>}
-      {!error && helper && <p className="text-xs text-base-content/50">{helper}</p>}
+      {error && <p className="text-[11px] text-[var(--error)]">{error}</p>}
+      {!error && helper && <p className="text-[11px] text-[var(--text-muted)] leading-relaxed">{helper}</p>}
     </div>
   );
 }

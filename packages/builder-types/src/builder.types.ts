@@ -107,6 +107,7 @@ interface BaseBuilderIOField {
    */
   defaultValue?:
     | string
+    | boolean
     | {
         '@type'?: string;
         Default?: string | number | boolean;

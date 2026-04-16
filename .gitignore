@@ -6,3 +6,7 @@ dist/
 *.tsbuildinfo
 .env
 .env.local
+docs/
+.superpowers/
+.claude/
+.claire/

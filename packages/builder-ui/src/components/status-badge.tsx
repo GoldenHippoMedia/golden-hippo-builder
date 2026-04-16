@@ -1,25 +1,31 @@
 import React from 'react';
 import clsx from 'clsx';
 
-const STATUS_VARIANT: Record<string, string> = {
-  active: 'badge-success',
-  running: 'badge-info',
-  completed: 'badge-success',
-  success: 'badge-success',
-  draft: 'badge-ghost',
-  inactive: 'badge-ghost',
-  paused: 'badge-warning',
-  cancelled: 'badge-error',
-  archived: 'badge-error',
-  error: 'badge-error',
-};
-
 export interface StatusBadgeProps {
-  status: string;
+  status: 'success' | 'warning' | 'error' | 'info' | 'neutral' | 'active';
+  label: string;
   className?: string;
 }
 
-export function StatusBadge({ status, className }: StatusBadgeProps) {
-  const badgeClass = STATUS_VARIANT[status] ?? 'badge-ghost';
-  return <span className={clsx('badge badge-sm font-medium', badgeClass, className)}>{status}</span>;
+const STATUS_STYLES: Record<StatusBadgeProps['status'], string> = {
+  success: 'bg-[var(--success)]/15 text-[var(--success)]',
+  warning: 'bg-[var(--warning)]/15 text-[var(--warning)]',
+  error: 'bg-[var(--error)]/15 text-[var(--error)]',
+  info: 'bg-[var(--accent)]/15 text-[var(--accent)]',
+  neutral: 'bg-[var(--bg-glass-hover)] text-[var(--text-secondary)]',
+  active: 'bg-[var(--success)]/15 text-[var(--success)]',
+};
+
+export function StatusBadge({ status, label, className }: StatusBadgeProps) {
+  return (
+    <span
+      className={clsx(
+        'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium',
+        STATUS_STYLES[status],
+        className,
+      )}
+    >
+      {label}
+    </span>
+  );
 }

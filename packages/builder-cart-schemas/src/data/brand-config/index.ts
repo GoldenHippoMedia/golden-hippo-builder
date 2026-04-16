@@ -22,6 +22,18 @@ import { BuilderContent } from '@builder.io/sdk';
 import { BuilderProductGridFilterGroupContent } from '../product-grid-filter-group.model';
 import { BuilderSiteBannerModelContent } from '../../section';
 
+export {
+  HeaderType,
+  FooterType,
+  BasicHeaderCTAType,
+  MediumHeaderDropdownType,
+  MediumHeaderDesktopContentType,
+  ProductGridFilterType,
+  ProductLinkPrefix,
+  SubscriptionCancelReasons,
+  SubscriptionCancelButtonType,
+} from './sections';
+
 export const createBrandConfigModel = (gridFilterModelId: string, bannerModelId: string): ModelShape => {
   return {
     name: 'gh-brand-config',

@@ -86,7 +86,7 @@ const DestinationDetailPage: React.FC<DestinationDetailProps> = ({ item, data, c
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <span className="font-medium">{d.splitTest.name ?? 'Untitled'}</span>
-              <StatusBadge status="active" />
+              <StatusBadge status="active" label="Active" />
               <span className="text-sm text-base-content/50">{d.splitTest.options.length ?? 0} variant(s)</span>
             </div>
           </div>

@@ -13,7 +13,19 @@ export {
 } from '@goldenhippo/builder-shared-schemas';
 
 // Cart-specific models
-export { createBrandConfigModel, type BuilderBrandConfigContent } from './brand-config';
+export {
+  createBrandConfigModel,
+  type BuilderBrandConfigContent,
+  HeaderType,
+  FooterType,
+  BasicHeaderCTAType,
+  MediumHeaderDropdownType,
+  MediumHeaderDesktopContentType,
+  ProductGridFilterType,
+  ProductLinkPrefix,
+  SubscriptionCancelReasons,
+  SubscriptionCancelButtonType,
+} from './brand-config';
 export { createBlogCategoryModel, type BuilderBlogCategoryContent } from './blog-category.model';
 export { createBlogCommentModel, type BuilderBlogCommentContent } from './blog-comment.model';
 export { createProductGroupModel, type BuilderProductGroupContent, ProductGroupType } from './product-group.model';
