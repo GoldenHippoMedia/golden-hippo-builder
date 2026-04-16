@@ -57,7 +57,7 @@ export function HtmlEditor({ value, onChange, placeholder, className }: HtmlEdit
       Link.configure({
         openOnClick: false,
         HTMLAttributes: {
-          class: 'text-[var(--accent)] underline',
+          style: 'color: var(--accent); text-decoration: underline; cursor: pointer;',
         },
       }),
       Placeholder.configure({

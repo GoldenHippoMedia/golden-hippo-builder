@@ -56,8 +56,9 @@ class BuilderApi {
     }
   }
 
-  async listAssets(limit = 50): Promise<{ id: string; name: string; url: string; type: string }[]> {
-    const query = `{ assets(query: { type: { $in: ["image/jpeg","image/png","image/webp","image/svg+xml","image/gif"] } }, limit: ${limit}) { id name url type } }`;
+  async listAssets(): Promise<{ id: string; name: string; url: string; type: string }[]> {
+    // First try: introspect the assets field to find correct args
+    const query = `{ assets { id name url type } }`;
     const resp = await fetch('https://cdn.builder.io/api/v2/admin', {
       method: 'POST',
       headers: {
@@ -67,10 +68,17 @@ class BuilderApi {
       body: JSON.stringify({ query }),
     });
     if (!resp.ok) {
-      throw new Error(`Failed to fetch assets: ${resp.status}`);
+      const body = await resp.text();
+      throw new Error(`Failed to fetch assets: ${resp.status} ${body}`);
     }
     const json = await resp.json();
-    return json?.data?.assets ?? [];
+    if (json.errors?.length) {
+      throw new Error(`GraphQL error: ${json.errors[0].message}`);
+    }
+    const assets = json?.data?.assets ?? [];
+    return assets
+      .filter((a: any) => a.type?.startsWith('image/'))
+      .map((a: any) => ({ id: a.id, name: a.name ?? a.id, url: a.url, type: a.type }));
   }
 
   async getModelEntries(modelName: string): Promise<BuilderContent[]> {

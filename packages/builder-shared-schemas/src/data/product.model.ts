@@ -196,6 +196,16 @@ export const createProductModel = (request: ProductModelProps): ModelShape => {
             helperText:
               'The average rating for this product. This value is automatically updated by the review service.',
           },
+          {
+            name: 'globalFiveStarReviews',
+            type: 'number',
+            friendlyName: 'Global Five Star Reviews',
+            required: false,
+            helperText: '',
+            hidden: false,
+            defaultCollapsed: true,
+            defaultValue: 0
+          }
         ],
       },
       {
