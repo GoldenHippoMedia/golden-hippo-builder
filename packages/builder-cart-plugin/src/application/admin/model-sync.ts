@@ -119,7 +119,14 @@ export const MODEL_DEFINITIONS: ModelDefinition[] = [
     name: 'page',
     displayName: 'Page',
     phase: 4,
-    dependencies: ['product', 'product-group', 'product-category', 'banner', 'blog-category', 'default-website-section'],
+    dependencies: [
+      'product',
+      'product-group',
+      'product-category',
+      'banner',
+      'blog-category',
+      'default-website-section',
+    ],
     getShape: (ids, editUrl) =>
       BuilderHelper.pageModel({
         productModelId: ids['product'],
@@ -292,10 +299,7 @@ export async function syncAllModels(
 /**
  * Sync a single model by name. Resolves dependency IDs from existing models.
  */
-export async function syncSingleModel(
-  modelName: string,
-  context: ApplicationContext,
-): Promise<SyncResult> {
+export async function syncSingleModel(modelName: string, context: ApplicationContext): Promise<SyncResult> {
   const def = MODEL_DEFINITIONS.find((d) => d.name === modelName);
   if (!def) {
     return { success: false, modelName, error: `Unknown model: ${modelName}` };

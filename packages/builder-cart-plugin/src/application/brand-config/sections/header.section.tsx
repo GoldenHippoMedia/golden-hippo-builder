@@ -1367,40 +1367,38 @@ const MediumHeaderConfig: React.FC<{ data: Record<string, any>; markDirty: () =>
         {/* Banners Above Header */}
         <Divider text="Banners Above Header" />
         <div className="space-y-3">
-          {(config.bannersAboveHeader || []).map(
-            (banner: { wrapperClasses?: string; content?: string }, i: number) => (
-              <div key={i} className="rounded-lg border border-[var(--border-glass)] p-4 space-y-3">
-                <CardHeader
-                  title="Banner"
-                  index={i}
-                  onRemove={() => {
-                    ensureArray(ensureConfig(), 'bannersAboveHeader').splice(i, 1);
+          {(config.bannersAboveHeader || []).map((banner: { wrapperClasses?: string; content?: string }, i: number) => (
+            <div key={i} className="rounded-lg border border-[var(--border-glass)] p-4 space-y-3">
+              <CardHeader
+                title="Banner"
+                index={i}
+                onRemove={() => {
+                  ensureArray(ensureConfig(), 'bannersAboveHeader').splice(i, 1);
+                  markDirty();
+                }}
+              />
+              <FormField label="Wrapper Classes">
+                <input
+                  type="text"
+                  className="hippo-input"
+                  value={banner.wrapperClasses ?? ''}
+                  onChange={(e) => {
+                    banner.wrapperClasses = e.target.value;
                     markDirty();
                   }}
                 />
-                <FormField label="Wrapper Classes">
-                  <input
-                    type="text"
-                    className="hippo-input"
-                    value={banner.wrapperClasses ?? ''}
-                    onChange={(e) => {
-                      banner.wrapperClasses = e.target.value;
-                      markDirty();
-                    }}
-                  />
-                </FormField>
-                <FormField label="Banner Content (HTML)">
-                  <HtmlEditor
-                    value={banner.content ?? ''}
-                    onChange={(html) => {
-                      banner.content = html;
-                      markDirty();
-                    }}
-                  />
-                </FormField>
-              </div>
-            ),
-          )}
+              </FormField>
+              <FormField label="Banner Content (HTML)">
+                <HtmlEditor
+                  value={banner.content ?? ''}
+                  onChange={(html) => {
+                    banner.content = html;
+                    markDirty();
+                  }}
+                />
+              </FormField>
+            </div>
+          ))}
           <AddButton
             label="+ Add Banner"
             onClick={() => {

@@ -26,10 +26,7 @@ const CookieSection: React.FC<SectionProps> = observer(({ data, markDirty }) => 
     <Section title="Cookie Configuration" subtitle="Settings for the cookie consent popup displayed to visitors">
       <div className="space-y-6">
         <FormField label="Popup Content">
-          <HtmlEditor
-            value={popup.content ?? ''}
-            onChange={(html) => onPopupChange('content', html)}
-          />
+          <HtmlEditor value={popup.content ?? ''} onChange={(html) => onPopupChange('content', html)} />
         </FormField>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

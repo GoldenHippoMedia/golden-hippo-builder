@@ -308,9 +308,10 @@ export const createPageModel = (props: PageModelInputProps): ModelShape => {
                 localized: true,
                 friendlyName: `Global Rating Text`,
                 required: false,
-                helperText: 'This is displayed after the count of global 5-star reviews (e.g. "5,000+ [your text here]")',
+                helperText:
+                  'This is displayed after the count of global 5-star reviews (e.g. "5,000+ [your text here]")',
                 defaultCollapsed: false,
-                showIf: `return !!(options.get('pdp')?.get("reviewSettings")?.get("showGlobalFiveStarRating"))`
+                showIf: `return !!(options.get('pdp')?.get("reviewSettings")?.get("showGlobalFiveStarRating"))`,
               },
               {
                 name: 'globalRatingLink',
@@ -319,8 +320,8 @@ export const createPageModel = (props: PageModelInputProps): ModelShape => {
                 required: false,
                 helperText: 'When provided, the number of reviews will be clickable.',
                 defaultCollapsed: false,
-                showIf: `return !!(options.get('pdp')?.get("reviewSettings")?.get("showGlobalFiveStarRating"))`
-              }
+                showIf: `return !!(options.get('pdp')?.get("reviewSettings")?.get("showGlobalFiveStarRating"))`,
+              },
             ],
             helperText: 'Configure how the reviews are displayed',
             defaultCollapsed: true,

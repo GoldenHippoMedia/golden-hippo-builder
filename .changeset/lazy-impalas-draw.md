@@ -12,6 +12,7 @@
 Complete rebuild of the cart plugin with a custom glassmorphic design system and two full-featured tabs.
 
 **Hippo Config tab — Brand Configuration Management:**
+
 - 8-tab form UI covering the entire `gh-brand-config` model schema (General, Header, Footer, Features, Support, Pages, Cookies, SEO)
 - Header sub-configs (BASIC, MEDIUM, MEGA, DMP) with full list management for links, CTAs, menus, and nested dropdown content
 - Pages sub-sections with all fields including subscription cancel reasons list with nested buttons
@@ -23,6 +24,7 @@ Complete rebuild of the cart plugin with a custom glassmorphic design system and
 - MobX observable store with `useLocalStore`, all section components wrapped in `observer` for proper reactivity
 
 **Hippo Admin tab — Admin Dashboard:**
+
 - Space Info: org name, user email, brand, API key (masked), private key status
 - API Connection Status: test Builder.io CDN, Hippo Commerce API (`/config` with Basic auth + X-Brand), Builder.io Write API (GraphQL Admin)
 - Plugin Settings Overview: read-only display of all settings with quick Open Settings button
@@ -30,6 +32,7 @@ Complete rebuild of the cart plugin with a custom glassmorphic design system and
 - Extracted model sync logic to shared `model-sync.ts` module with `MODEL_DEFINITIONS`, `syncAllModels`, `syncSingleModel`, `getModelStatuses`
 
 **Design System & Infrastructure:**
+
 - Custom glassmorphic CSS variable theme replacing DaisyUI — dark-first with Golden Hippo gold accent (#C8A951)
 - Sticky frosted-glass header with radial gradient background, dark/light theme toggle
 - Glass card sections, gold focus rings, custom toggle pills, pill-style tabs
@@ -42,6 +45,7 @@ Complete rebuild of the cart plugin with a custom glassmorphic design system and
 ### @goldenhippo/builder-ui
 
 **New design system replacing DaisyUI:**
+
 - Custom CSS variables scoped to `#hippo-app` with `data-theme="dark"` (default) and `data-theme="light"` variants
 - Dark theme: `#0a0e1a` base, `rgba(255,255,255,0.05)` glass, `#C8A951` gold accent
 - Light theme: `#f8f9fc` base, `rgba(0,0,0,0.02)` glass, `#B8993D` gold accent
@@ -49,6 +53,7 @@ Complete rebuild of the cart plugin with a custom glassmorphic design system and
 - Base font, antialiasing, and color-scheme scoped to `#hippo-app`
 
 **Restyled existing components:**
+
 - `Section` — glassmorphic card with `backdrop-blur-sm`, increased padding (`p-8`)
 - `FormField` — updated label typography (`text-xs font-semibold tracking-wide`), increased label-to-input spacing (`space-y-2.5`)
 - `EmptyState` — dashed border glass card with accent action button
@@ -57,6 +62,7 @@ Complete rebuild of the cart plugin with a custom glassmorphic design system and
 - `StatusBadge` — new typed interface (`status: 'success' | 'warning' | 'error' | 'info' | 'neutral'`, `label: string`) with CSS variable-based color mapping
 
 **New components:**
+
 - `HtmlEditor` — Tiptap-based rich text editor with bold/italic/underline/link toolbar, glassmorphic styling with gold accent active states, inline link styling for visibility, `value`/`onChange` controlled interface
 - `TagInput` — Enter-to-add tag management with gold-accented badge display, click-to-remove (X button), backspace-to-delete-last, duplicate prevention, `value: string[]`/`onChange` interface
 - `ImagePicker` — Fixed-size thumbnail tiles (w-40 h-32) with hover overlay (Change/Remove buttons), empty state with dashed border and gold plus icon, media library modal with search filter/thumbnail grid/selection highlight/loading/error states, `fetchAssets` prop for API integration, `MediaAsset` type export

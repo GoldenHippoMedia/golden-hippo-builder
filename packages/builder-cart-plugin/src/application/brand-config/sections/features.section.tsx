@@ -82,10 +82,7 @@ const FeaturesSection: React.FC<SectionProps> = observer(({ data, onChange, mark
           </FormField>
         </div>
 
-        <FormField
-          label="Subscription Experience"
-          helper="Select the subscription management experience for customers"
-        >
+        <FormField label="Subscription Experience" helper="Select the subscription management experience for customers">
           <select
             className="hippo-input"
             value={features.subscriptionExperience ?? 'Classic'}

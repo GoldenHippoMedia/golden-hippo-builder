@@ -204,8 +204,8 @@ export const createProductModel = (request: ProductModelProps): ModelShape => {
             helperText: '',
             hidden: false,
             defaultCollapsed: true,
-            defaultValue: 0
-          }
+            defaultValue: 0,
+          },
         ],
       },
       {

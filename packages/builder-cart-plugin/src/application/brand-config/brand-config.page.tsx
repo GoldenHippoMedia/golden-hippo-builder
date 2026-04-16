@@ -116,7 +116,10 @@ const BrandConfigPage: React.FC<BrandConfigPageProps> = ({ context }) => {
       return (
         <div className="text-center py-16">
           <p className="text-[var(--error)] mb-4">{store.error}</p>
-          <button className="px-4 py-2 rounded-lg bg-[var(--error)]/15 text-[var(--error)] font-medium text-sm cursor-pointer hover:bg-[var(--error)]/25 transition-colors" onClick={() => loadConfig()}>
+          <button
+            className="px-4 py-2 rounded-lg bg-[var(--error)]/15 text-[var(--error)] font-medium text-sm cursor-pointer hover:bg-[var(--error)]/25 transition-colors"
+            onClick={() => loadConfig()}
+          >
             Retry
           </button>
         </div>

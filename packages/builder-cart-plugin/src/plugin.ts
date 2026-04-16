@@ -1,12 +1,12 @@
 import { Builder } from '@builder.io/react';
 import appState, { ApplicationContext, Model } from '@builder.io/app-context';
-import HippoCMSBrandConfiguration from "@application/HippoCMSBrandConfiguration";
-import HippoCMSAdmin from "@application/HippoCMSAdmin";
+import HippoCMSBrandConfiguration from '@application/HippoCMSBrandConfiguration';
+import HippoCMSAdmin from '@application/HippoCMSAdmin';
 import { pluginId, configIcon, adminIcon } from './constants';
 import BuilderHelper from '@core/models/builder-helper';
 import { ModelShape, OnSaveActions, AppActions } from '@goldenhippo/builder-types';
-import UserManagementService from "@services/user-management";
-import {ExtendedApplicationContext} from "./interfaces/application-context.interface";
+import UserManagementService from '@services/user-management';
+import { ExtendedApplicationContext } from './interfaces/application-context.interface';
 import { captureTriggerSettingsDialog } from './plugin-actions';
 
 function getModel(name: string, models: Model[]) {
@@ -139,7 +139,15 @@ Builder.register('plugin', {
   settings: [
     {
       type: 'select',
-      enum: ['Badlands Ranch', 'Beverly Hills MD', 'Dr. Marty', 'Driven Entrepreneur', 'Gundry MD', 'Roundhouse Provisions', 'Other'],
+      enum: [
+        'Badlands Ranch',
+        'Beverly Hills MD',
+        'Dr. Marty',
+        'Driven Entrepreneur',
+        'Gundry MD',
+        'Roundhouse Provisions',
+        'Other',
+      ],
       name: 'brand',
       friendlyName: 'Brand',
       helperText: "Select your brand. If you select 'Other', provide your brand under the advanced settings.",
@@ -177,7 +185,8 @@ Builder.register('plugin', {
       type: 'text',
       name: 'privateApiKey',
       friendlyName: 'Private API Key',
-      helperText: 'Your Builder.io private API key. Required for saving content from the plugin. Found in Settings → Space → Developer.',
+      helperText:
+        'Your Builder.io private API key. Required for saving content from the plugin. Found in Settings → Space → Developer.',
       required: true,
     },
     {
@@ -226,7 +235,7 @@ if (user.permissions.admin) {
   });
 }
 
-if (user.permissions.admin){
+if (user.permissions.admin) {
   Builder.register('appTab', {
     name: 'Hippo Admin',
     path: 'gh/admin',

@@ -67,9 +67,11 @@ const Divider: React.FC<{ label: string }> = ({ label }) => (
   </div>
 );
 
-const SmallButton: React.FC<
-  React.ButtonHTMLAttributes<HTMLButtonElement> & { children: React.ReactNode }
-> = ({ children, className, ...props }) => (
+const SmallButton: React.FC<React.ButtonHTMLAttributes<HTMLButtonElement> & { children: React.ReactNode }> = ({
+  children,
+  className,
+  ...props
+}) => (
   <button
     className={`px-3 py-1.5 rounded-lg text-xs font-medium border border-[var(--border-glass)] bg-[var(--bg-glass)] text-[var(--text-secondary)] cursor-pointer hover:bg-[var(--bg-glass-hover)] transition-colors disabled:opacity-40 disabled:cursor-not-allowed ${className ?? ''}`}
     {...props}
@@ -78,9 +80,11 @@ const SmallButton: React.FC<
   </button>
 );
 
-const AccentButton: React.FC<
-  React.ButtonHTMLAttributes<HTMLButtonElement> & { children: React.ReactNode }
-> = ({ children, className, ...props }) => (
+const AccentButton: React.FC<React.ButtonHTMLAttributes<HTMLButtonElement> & { children: React.ReactNode }> = ({
+  children,
+  className,
+  ...props
+}) => (
   <button
     className={`px-5 py-2 rounded-lg bg-[var(--accent)] text-[#1a1a2e] font-semibold text-sm cursor-pointer transition-all hover:brightness-110 hover:shadow-[0_0_20px_var(--accent-glow)] disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:brightness-100 disabled:hover:shadow-none ${className ?? ''}`}
     {...props}
@@ -97,7 +101,12 @@ const InfoRow: React.FC<{ label: string; value: React.ReactNode }> = ({ label, v
 );
 
 const Spinner: React.FC = () => (
-  <svg className="animate-spin h-4 w-4 text-[var(--accent)]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+  <svg
+    className="animate-spin h-4 w-4 text-[var(--accent)]"
+    xmlns="http://www.w3.org/2000/svg"
+    fill="none"
+    viewBox="0 0 24 24"
+  >
     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
   </svg>
@@ -126,7 +135,9 @@ const ConnectionCard: React.FC<{
     )}
 
     {result.error && (
-      <div className="text-xs text-[var(--error)] bg-[var(--error)]/10 rounded-lg px-3 py-2 break-all">{result.error}</div>
+      <div className="text-xs text-[var(--error)] bg-[var(--error)]/10 rounded-lg px-3 py-2 break-all">
+        {result.error}
+      </div>
     )}
 
     <SmallButton onClick={onTest} disabled={result.status === 'testing'}>
@@ -158,10 +169,16 @@ const ModelRow: React.FC<{
         <div className="text-[11px] text-[var(--text-muted)] font-mono">{status.name}</div>
       </td>
       <td className="py-3 pr-4">
-        <span className="text-xs text-[var(--text-muted)]">Phase {status.phase % 1 === 0 ? status.phase : status.phase.toFixed(1)}</span>
+        <span className="text-xs text-[var(--text-muted)]">
+          Phase {status.phase % 1 === 0 ? status.phase : status.phase.toFixed(1)}
+        </span>
       </td>
       <td className="py-3 pr-4">
-        {status.exists ? <StatusBadge variant="success" label="Synced" /> : <StatusBadge variant="warning" label="Missing" />}
+        {status.exists ? (
+          <StatusBadge variant="success" label="Synced" />
+        ) : (
+          <StatusBadge variant="warning" label="Missing" />
+        )}
       </td>
       <td className="py-3 pr-4">
         {status.dependencies.length > 0 ? (
@@ -224,9 +241,7 @@ const AdminPage: React.FC<AdminPageProps> = observer(({ context }) => {
   const [syncResults, setSyncResults] = useState<SyncResult[] | null>(null);
 
   // Space info
-  const currentOrg = context.user.organizations.find(
-    (org) => org.value.id === context.user.currentOrganization,
-  );
+  const currentOrg = context.user.organizations.find((org) => org.value.id === context.user.currentOrganization);
   const orgName = currentOrg?.value.name ?? 'Unknown';
   const apiKey = context.user.apiKey;
   const authHeaders = context.user.authHeaders as Record<string, string>;
@@ -246,10 +261,9 @@ const AdminPage: React.FC<AdminPageProps> = observer(({ context }) => {
     setCdnTest({ status: 'testing' });
     const start = Date.now();
     try {
-      const resp = await fetch(
-        `https://cdn.builder.io/api/v3/content/gh-brand-config?apiKey=${apiKey}&limit=1`,
-        { headers: authHeaders },
-      );
+      const resp = await fetch(`https://cdn.builder.io/api/v3/content/gh-brand-config?apiKey=${apiKey}&limit=1`, {
+        headers: authHeaders,
+      });
       const elapsed = Date.now() - start;
       if (resp.ok) {
         setCdnTest({ status: 'success', time: elapsed });
@@ -283,7 +297,12 @@ const AdminPage: React.FC<AdminPageProps> = observer(({ context }) => {
       const elapsed = Date.now() - start;
       const msg = e instanceof Error ? e.message : String(e);
       if (msg.includes('Failed to fetch') || msg.includes('NetworkError') || msg.includes('CORS')) {
-        setApiTest({ status: 'error', time: elapsed, error: 'CORS blocked — the Commerce API server does not allow requests from this origin. Test from a backend or use the API directly.' });
+        setApiTest({
+          status: 'error',
+          time: elapsed,
+          error:
+            'CORS blocked — the Commerce API server does not allow requests from this origin. Test from a backend or use the API directly.',
+        });
       } else {
         setApiTest({ status: 'error', time: elapsed, error: msg });
       }
@@ -402,10 +421,7 @@ const AdminPage: React.FC<AdminPageProps> = observer(({ context }) => {
             <InfoRow label="API URL" value={settings.apiUrl || 'Not set'} />
             <InfoRow label="API User" value={settings.apiUser || 'Not set'} />
             <InfoRow label="API Password" value={settings.apiPassword ? '••••••' : 'Not set'} />
-            <InfoRow
-              label="Private API Key"
-              value={settings.privateApiKey ? 'Configured' : 'Not set'}
-            />
+            <InfoRow label="Private API Key" value={settings.privateApiKey ? 'Configured' : 'Not set'} />
           </div>
         </Section>
 
@@ -448,8 +464,12 @@ const AdminPage: React.FC<AdminPageProps> = observer(({ context }) => {
                   <th className="pb-3 text-xs font-semibold text-[var(--text-secondary)] tracking-wide">Model</th>
                   <th className="pb-3 text-xs font-semibold text-[var(--text-secondary)] tracking-wide">Phase</th>
                   <th className="pb-3 text-xs font-semibold text-[var(--text-secondary)] tracking-wide">Status</th>
-                  <th className="pb-3 text-xs font-semibold text-[var(--text-secondary)] tracking-wide">Dependencies</th>
-                  <th className="pb-3 text-xs font-semibold text-[var(--text-secondary)] tracking-wide text-right">Action</th>
+                  <th className="pb-3 text-xs font-semibold text-[var(--text-secondary)] tracking-wide">
+                    Dependencies
+                  </th>
+                  <th className="pb-3 text-xs font-semibold text-[var(--text-secondary)] tracking-wide text-right">
+                    Action
+                  </th>
                 </tr>
               </thead>
               <tbody>

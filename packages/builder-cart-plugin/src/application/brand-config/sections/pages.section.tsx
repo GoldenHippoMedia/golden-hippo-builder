@@ -62,7 +62,11 @@ const PagesSection: React.FC<SectionProps> = observer(({ data, markDirty }) => {
   const togglePanel = (id: string) => {
     setOpenPanels((prev) => {
       const next = new Set(prev);
-      if (next.has(id)) { next.delete(id); } else { next.add(id); }
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
       return next;
     });
   };
@@ -130,17 +134,13 @@ const PagesSection: React.FC<SectionProps> = observer(({ data, markDirty }) => {
             <FormField label="Logged Out Banner Content">
               <HtmlEditor
                 value={cart.freeShippingBanner?.loggedOutBannerContent ?? ''}
-                onChange={(html) =>
-                  setNested(['cart', 'freeShippingBanner', 'loggedOutBannerContent'], html)
-                }
+                onChange={(html) => setNested(['cart', 'freeShippingBanner', 'loggedOutBannerContent'], html)}
               />
             </FormField>
             <FormField label="Logged In Banner Content">
               <HtmlEditor
                 value={cart.freeShippingBanner?.loggedInBannerContent ?? ''}
-                onChange={(html) =>
-                  setNested(['cart', 'freeShippingBanner', 'loggedInBannerContent'], html)
-                }
+                onChange={(html) => setNested(['cart', 'freeShippingBanner', 'loggedInBannerContent'], html)}
               />
             </FormField>
             <ColorField
@@ -179,9 +179,7 @@ const PagesSection: React.FC<SectionProps> = observer(({ data, markDirty }) => {
               label="Notice Background Color"
               value={cart.notices?.securePaymentNotice?.styles?.backgroundColor ?? ''}
               fallback="#000000"
-              onChange={(v) =>
-                setNested(['cart', 'notices', 'securePaymentNotice', 'styles', 'backgroundColor'], v)
-              }
+              onChange={(v) => setNested(['cart', 'notices', 'securePaymentNotice', 'styles', 'backgroundColor'], v)}
             />
             <ColorField
               label="Notice Text Color"
@@ -220,17 +218,13 @@ const PagesSection: React.FC<SectionProps> = observer(({ data, markDirty }) => {
             <FormField label="Logged Out Banner Content">
               <HtmlEditor
                 value={checkout.freeShippingBanner?.loggedOutBannerContent ?? ''}
-                onChange={(html) =>
-                  setNested(['checkout', 'freeShippingBanner', 'loggedOutBannerContent'], html)
-                }
+                onChange={(html) => setNested(['checkout', 'freeShippingBanner', 'loggedOutBannerContent'], html)}
               />
             </FormField>
             <FormField label="Logged In Banner Content">
               <HtmlEditor
                 value={checkout.freeShippingBanner?.loggedInBannerContent ?? ''}
-                onChange={(html) =>
-                  setNested(['checkout', 'freeShippingBanner', 'loggedInBannerContent'], html)
-                }
+                onChange={(html) => setNested(['checkout', 'freeShippingBanner', 'loggedInBannerContent'], html)}
               />
             </FormField>
 
@@ -727,10 +721,7 @@ const PagesSection: React.FC<SectionProps> = observer(({ data, markDirty }) => {
               </div>
             </FormField>
             <FormField label="Money Back Guarantee Text (HTML)">
-              <HtmlEditor
-                value={upsell.mbgText ?? ''}
-                onChange={(html) => setNested(['upsell', 'mbgText'], html)}
-              />
+              <HtmlEditor value={upsell.mbgText ?? ''} onChange={(html) => setNested(['upsell', 'mbgText'], html)} />
             </FormField>
           </div>
         )}
@@ -759,9 +750,7 @@ const PagesSection: React.FC<SectionProps> = observer(({ data, markDirty }) => {
             <FormField label="Banner Content">
               <HtmlEditor
                 value={accountDetails.birthdayBannerConfig?.content ?? ''}
-                onChange={(html) =>
-                  setNested(['accountDetails', 'birthdayBannerConfig', 'content'], html)
-                }
+                onChange={(html) => setNested(['accountDetails', 'birthdayBannerConfig', 'content'], html)}
               />
             </FormField>
             <FormField label="Link Text">
@@ -769,9 +758,7 @@ const PagesSection: React.FC<SectionProps> = observer(({ data, markDirty }) => {
                 type="text"
                 className="hippo-input"
                 value={accountDetails.birthdayBannerConfig?.linkText ?? ''}
-                onChange={(e) =>
-                  setNested(['accountDetails', 'birthdayBannerConfig', 'linkText'], e.target.value)
-                }
+                onChange={(e) => setNested(['accountDetails', 'birthdayBannerConfig', 'linkText'], e.target.value)}
               />
             </FormField>
             <FormField label="Link URL">
@@ -780,9 +767,7 @@ const PagesSection: React.FC<SectionProps> = observer(({ data, markDirty }) => {
                 className="hippo-input"
                 placeholder="https://..."
                 value={accountDetails.birthdayBannerConfig?.linkUrl ?? ''}
-                onChange={(e) =>
-                  setNested(['accountDetails', 'birthdayBannerConfig', 'linkUrl'], e.target.value)
-                }
+                onChange={(e) => setNested(['accountDetails', 'birthdayBannerConfig', 'linkUrl'], e.target.value)}
               />
             </FormField>
 
@@ -839,17 +824,13 @@ const PagesSection: React.FC<SectionProps> = observer(({ data, markDirty }) => {
               label="Background Color"
               value={accountDetails.birthdayBannerConfig?.styles?.backgroundColor ?? ''}
               fallback="#ffffff"
-              onChange={(v) =>
-                setNested(['accountDetails', 'birthdayBannerConfig', 'styles', 'backgroundColor'], v)
-              }
+              onChange={(v) => setNested(['accountDetails', 'birthdayBannerConfig', 'styles', 'backgroundColor'], v)}
             />
             <ColorField
               label="Text Color"
               value={accountDetails.birthdayBannerConfig?.styles?.color ?? ''}
               fallback="#000000"
-              onChange={(v) =>
-                setNested(['accountDetails', 'birthdayBannerConfig', 'styles', 'color'], v)
-              }
+              onChange={(v) => setNested(['accountDetails', 'birthdayBannerConfig', 'styles', 'color'], v)}
             />
           </div>
         )}

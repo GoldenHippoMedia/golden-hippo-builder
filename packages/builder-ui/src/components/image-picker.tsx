@@ -55,9 +55,7 @@ export function ImagePicker({ value, label, onChange, fetchAssets, className }: 
     closeModal();
   };
 
-  const filtered = search
-    ? assets.filter((a) => a.name?.toLowerCase().includes(search.toLowerCase()))
-    : assets;
+  const filtered = search ? assets.filter((a) => a.name?.toLowerCase().includes(search.toLowerCase())) : assets;
 
   return (
     <>
@@ -119,9 +117,7 @@ export function ImagePicker({ value, label, onChange, fetchAssets, className }: 
             <div className="flex items-center justify-between mb-4">
               <div>
                 <h3 className="text-base font-semibold text-[var(--text-primary)]">Select Image</h3>
-                <p className="text-xs text-[var(--text-muted)] mt-0.5">
-                  Choose from your Builder.io media library
-                </p>
+                <p className="text-xs text-[var(--text-muted)] mt-0.5">Choose from your Builder.io media library</p>
               </div>
               <button
                 type="button"
@@ -166,9 +162,7 @@ export function ImagePicker({ value, label, onChange, fetchAssets, className }: 
               )}
 
               {!loading && !error && !fetchAssets && (
-                <div className="text-center py-12 text-sm text-[var(--text-muted)]">
-                  Media library not available
-                </div>
+                <div className="text-center py-12 text-sm text-[var(--text-muted)]">Media library not available</div>
               )}
 
               {!loading && !error && fetchAssets && filtered.length === 0 && (
@@ -201,7 +195,14 @@ export function ImagePicker({ value, label, onChange, fetchAssets, className }: 
                         />
                         {isSelected && (
                           <div className="absolute top-1.5 right-1.5 w-5 h-5 rounded-full bg-[var(--accent)] flex items-center justify-center">
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#1a1a2e" strokeWidth="3">
+                            <svg
+                              width="12"
+                              height="12"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="#1a1a2e"
+                              strokeWidth="3"
+                            >
                               <path d="M20 6L9 17l-5-5" />
                             </svg>
                           </div>
