@@ -2,7 +2,7 @@ import React from 'react';
 import clsx from 'clsx';
 
 export interface StatusBadgeProps {
-  status: 'success' | 'warning' | 'error' | 'info' | 'neutral';
+  status: 'success' | 'warning' | 'error' | 'info' | 'neutral' | 'active';
   label: string;
   className?: string;
 }
@@ -13,6 +13,7 @@ const STATUS_STYLES: Record<StatusBadgeProps['status'], string> = {
   error: 'bg-[var(--error)]/15 text-[var(--error)]',
   info: 'bg-[var(--accent)]/15 text-[var(--accent)]',
   neutral: 'bg-[var(--bg-glass-hover)] text-[var(--text-secondary)]',
+  active: 'bg-[var(--success)]/15 text-[var(--success)]',
 };
 
 export function StatusBadge({ status, label, className }: StatusBadgeProps) {
