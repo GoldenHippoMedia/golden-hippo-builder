@@ -56,6 +56,23 @@ class BuilderApi {
     }
   }
 
+  async listAssets(limit = 50): Promise<{ id: string; name: string; url: string; type: string }[]> {
+    const query = `{ assets(query: { type: { $in: ["image/jpeg","image/png","image/webp","image/svg+xml","image/gif"] } }, limit: ${limit}) { id name url type } }`;
+    const resp = await fetch('https://cdn.builder.io/api/v2/admin', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${this.privateApiKey}`,
+      },
+      body: JSON.stringify({ query }),
+    });
+    if (!resp.ok) {
+      throw new Error(`Failed to fetch assets: ${resp.status}`);
+    }
+    const json = await resp.json();
+    return json?.data?.assets ?? [];
+  }
+
   async getModelEntries(modelName: string): Promise<BuilderContent[]> {
     return this.fetchContent({ modelName, limit: 100 });
   }

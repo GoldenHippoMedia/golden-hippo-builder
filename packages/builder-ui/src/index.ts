@@ -11,6 +11,6 @@ export { DetailHeader, type DetailHeaderProps, type DetailHeaderBadge } from './
 export { FormField, type FormFieldProps } from './components/form-field';
 export { StatusBadge, type StatusBadgeProps } from './components/status-badge';
 export { EmptyState, type EmptyStateProps } from './components/empty-state';
-export { ImagePicker, type ImagePickerProps } from './components/image-picker';
+export { ImagePicker, type ImagePickerProps, type MediaAsset } from './components/image-picker';
 export { HtmlEditor, type HtmlEditorProps } from './components/html-editor';
 export { TagInput, type TagInputProps } from './components/tag-input';

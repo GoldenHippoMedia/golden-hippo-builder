@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { BuilderContent } from '@builder.io/sdk';
 import { observer } from 'mobx-react';
 import { Section, FormField, ImagePicker } from '@goldenhippo/builder-ui';
@@ -46,6 +46,9 @@ const GeneralSection: React.FC<SectionProps> = observer(({ data, onChangeRoot, m
       .catch((err) => console.error('[Hippo Commerce] Failed to fetch banner entries:', err))
       .finally(() => setLoadingBanners(false));
   }, [api]);
+
+  const fetchAssets = useCallback(() => api.listAssets(), [api]);
+
   const images = data.images || {};
   const links = data.links || {};
   const socialMedia = links.socialMedia || {};
@@ -90,6 +93,7 @@ const GeneralSection: React.FC<SectionProps> = observer(({ data, onChangeRoot, m
               label={label}
               value={typeof images[key] === 'string' ? images[key] : undefined}
               onChange={(url) => onImageChange(key, url ?? '')}
+              fetchAssets={fetchAssets}
             />
           ))}
         </div>
