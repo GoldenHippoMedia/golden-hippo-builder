@@ -12,7 +12,7 @@ export interface FormFieldProps {
 
 export function FormField({ label, required, helper, error, children, className }: FormFieldProps) {
   return (
-    <div className={clsx('space-y-2', className)}>
+    <div className={clsx('space-y-2.5', className)}>
       <label className="text-xs font-semibold text-[var(--text-secondary)] tracking-wide">
         {label}
         {required && <span className="text-[var(--accent)] ml-0.5">*</span>}
