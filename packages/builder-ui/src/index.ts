@@ -11,3 +11,4 @@ export { DetailHeader, type DetailHeaderProps, type DetailHeaderBadge } from './
 export { FormField, type FormFieldProps } from './components/form-field';
 export { StatusBadge, type StatusBadgeProps } from './components/status-badge';
 export { EmptyState, type EmptyStateProps } from './components/empty-state';
+export { ImagePicker, type ImagePickerProps } from './components/image-picker';
