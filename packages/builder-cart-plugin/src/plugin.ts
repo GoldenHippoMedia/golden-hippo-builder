@@ -2,7 +2,7 @@ import { Builder } from '@builder.io/react';
 import appState, { ApplicationContext, Model } from '@builder.io/app-context';
 import HippoCMSBrandConfiguration from "@application/HippoCMSBrandConfiguration";
 import HippoCMSAdmin from "@application/HippoCMSAdmin";
-import { pluginId, pluginIcon } from './constants';
+import { pluginId, configIcon, adminIcon } from './constants';
 import BuilderHelper from '@core/models/builder-helper';
 import { ModelShape, OnSaveActions, AppActions } from '@goldenhippo/builder-types';
 import UserManagementService from "@services/user-management";
@@ -221,7 +221,7 @@ if ((user.permissions.editCode && user.permissions.editDesigns) || user.permissi
   Builder.register('appTab', {
     name: 'Hippo Config',
     path: 'gh/brand-config',
-    icon: pluginIcon,
+    icon: configIcon,
     component: HippoCMSBrandConfiguration,
   });
 }
@@ -230,7 +230,7 @@ if (user.permissions.admin){
   Builder.register('appTab', {
     name: 'Hippo Admin',
     path: 'gh/admin',
-    icon: pluginIcon,
+    icon: adminIcon,
     component: HippoCMSAdmin,
   });
 }
