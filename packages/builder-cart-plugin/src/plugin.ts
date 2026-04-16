@@ -217,20 +217,20 @@ Builder.register('app.onLoad', async ({ triggerSettingsDialog }: AppActions) => 
 
 const user = UserManagementService.getUserDetails(appState as ExtendedApplicationContext);
 
-if (user.permissions.admin){
-  Builder.register('appTab', {
-    name: 'Hippo Admin',
-    path: 'gh/admin',
-    icon: pluginIcon,
-    component: HippoCMSAdmin,
-  });
-}
-
 if ((user.permissions.editCode && user.permissions.editDesigns) || user.permissions.admin) {
   Builder.register('appTab', {
     name: 'Hippo Config',
     path: 'gh/brand-config',
     icon: pluginIcon,
     component: HippoCMSBrandConfiguration,
+  });
+}
+
+if (user.permissions.admin){
+  Builder.register('appTab', {
+    name: 'Hippo Admin',
+    path: 'gh/admin',
+    icon: pluginIcon,
+    component: HippoCMSAdmin,
   });
 }

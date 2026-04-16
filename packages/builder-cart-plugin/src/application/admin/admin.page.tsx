@@ -280,7 +280,13 @@ const AdminPage: React.FC<AdminPageProps> = observer(({ context }) => {
         setApiTest({ status: 'error', time: elapsed, error: `${resp.status}: ${body.slice(0, 200)}` });
       }
     } catch (e) {
-      setApiTest({ status: 'error', time: Date.now() - start, error: e instanceof Error ? e.message : String(e) });
+      const elapsed = Date.now() - start;
+      const msg = e instanceof Error ? e.message : String(e);
+      if (msg.includes('Failed to fetch') || msg.includes('NetworkError') || msg.includes('CORS')) {
+        setApiTest({ status: 'error', time: elapsed, error: 'CORS blocked — the Commerce API server does not allow requests from this origin. Test from a backend or use the API directly.' });
+      } else {
+        setApiTest({ status: 'error', time: elapsed, error: msg });
+      }
     }
   }, [settings.apiUrl, settings.apiUser, settings.apiPassword, brandDisplay]);
 
@@ -288,21 +294,26 @@ const AdminPage: React.FC<AdminPageProps> = observer(({ context }) => {
     setWriteTest({ status: 'testing' });
     const start = Date.now();
     try {
-      const resp = await fetch(
-        `https://builder.io/api/v1/write/gh-brand-config?apiKey=${apiKey}&limit=0`,
-        { headers: { Authorization: `Bearer ${settings.privateApiKey}` } },
-      );
+      const resp = await fetch('https://cdn.builder.io/api/v2/admin', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${settings.privateApiKey}`,
+        },
+        body: JSON.stringify({ query: '{ settings }' }),
+      });
       const elapsed = Date.now() - start;
-      if (resp.ok) {
+      const json = await resp.json();
+      if (resp.ok && !json.errors?.length) {
         setWriteTest({ status: 'success', time: elapsed });
       } else {
-        const body = await resp.text();
-        setWriteTest({ status: 'error', time: elapsed, error: `${resp.status}: ${body.slice(0, 200)}` });
+        const errMsg = json.errors?.[0]?.message ?? `${resp.status}`;
+        setWriteTest({ status: 'error', time: elapsed, error: errMsg });
       }
     } catch (e) {
       setWriteTest({ status: 'error', time: Date.now() - start, error: e instanceof Error ? e.message : String(e) });
     }
-  }, [apiKey, settings.privateApiKey]);
+  }, [settings.privateApiKey]);
 
   // ---- Model sync ----
 
