@@ -127,38 +127,34 @@ const PagesSection: React.FC<SectionProps> = observer(({ data, markDirty }) => {
               checked={!!cart.freeShippingBanner?.isVisible}
               onChange={(v) => setNested(['cart', 'freeShippingBanner', 'isVisible'], v)}
             />
-            {!!cart.freeShippingBanner?.isVisible && (
-              <>
-                <FormField label="Logged Out Banner Content">
-                  <HtmlEditor
-                    value={cart.freeShippingBanner?.loggedOutBannerContent ?? ''}
-                    onChange={(html) =>
-                      setNested(['cart', 'freeShippingBanner', 'loggedOutBannerContent'], html)
-                    }
-                  />
-                </FormField>
-                <FormField label="Logged In Banner Content">
-                  <HtmlEditor
-                    value={cart.freeShippingBanner?.loggedInBannerContent ?? ''}
-                    onChange={(html) =>
-                      setNested(['cart', 'freeShippingBanner', 'loggedInBannerContent'], html)
-                    }
-                  />
-                </FormField>
-                <ColorField
-                  label="Banner Background Color"
-                  value={cart.freeShippingBanner?.styles?.backgroundColor ?? ''}
-                  fallback="#000000"
-                  onChange={(v) => setNested(['cart', 'freeShippingBanner', 'styles', 'backgroundColor'], v)}
-                />
-                <ColorField
-                  label="Banner Text Color"
-                  value={cart.freeShippingBanner?.styles?.color ?? ''}
-                  fallback="#ffffff"
-                  onChange={(v) => setNested(['cart', 'freeShippingBanner', 'styles', 'color'], v)}
-                />
-              </>
-            )}
+            <FormField label="Logged Out Banner Content">
+              <HtmlEditor
+                value={cart.freeShippingBanner?.loggedOutBannerContent ?? ''}
+                onChange={(html) =>
+                  setNested(['cart', 'freeShippingBanner', 'loggedOutBannerContent'], html)
+                }
+              />
+            </FormField>
+            <FormField label="Logged In Banner Content">
+              <HtmlEditor
+                value={cart.freeShippingBanner?.loggedInBannerContent ?? ''}
+                onChange={(html) =>
+                  setNested(['cart', 'freeShippingBanner', 'loggedInBannerContent'], html)
+                }
+              />
+            </FormField>
+            <ColorField
+              label="Banner Background Color"
+              value={cart.freeShippingBanner?.styles?.backgroundColor ?? ''}
+              fallback="#000000"
+              onChange={(v) => setNested(['cart', 'freeShippingBanner', 'styles', 'backgroundColor'], v)}
+            />
+            <ColorField
+              label="Banner Text Color"
+              value={cart.freeShippingBanner?.styles?.color ?? ''}
+              fallback="#ffffff"
+              onChange={(v) => setNested(['cart', 'freeShippingBanner', 'styles', 'color'], v)}
+            />
 
             {/* Secure Payment Notice */}
             <div className="flex items-center gap-3 my-5">
@@ -173,30 +169,26 @@ const PagesSection: React.FC<SectionProps> = observer(({ data, markDirty }) => {
               checked={!!cart.notices?.securePaymentNotice?.isVisible}
               onChange={(v) => setNested(['cart', 'notices', 'securePaymentNotice', 'isVisible'], v)}
             />
-            {!!cart.notices?.securePaymentNotice?.isVisible && (
-              <>
-                <FormField label="Secure Payment Notice Content">
-                  <HtmlEditor
-                    value={cart.notices?.securePaymentNotice?.text ?? ''}
-                    onChange={(html) => setNested(['cart', 'notices', 'securePaymentNotice', 'text'], html)}
-                  />
-                </FormField>
-                <ColorField
-                  label="Notice Background Color"
-                  value={cart.notices?.securePaymentNotice?.styles?.backgroundColor ?? ''}
-                  fallback="#000000"
-                  onChange={(v) =>
-                    setNested(['cart', 'notices', 'securePaymentNotice', 'styles', 'backgroundColor'], v)
-                  }
-                />
-                <ColorField
-                  label="Notice Text Color"
-                  value={cart.notices?.securePaymentNotice?.styles?.color ?? ''}
-                  fallback="#ffffff"
-                  onChange={(v) => setNested(['cart', 'notices', 'securePaymentNotice', 'styles', 'color'], v)}
-                />
-              </>
-            )}
+            <FormField label="Secure Payment Notice Content">
+              <HtmlEditor
+                value={cart.notices?.securePaymentNotice?.text ?? ''}
+                onChange={(html) => setNested(['cart', 'notices', 'securePaymentNotice', 'text'], html)}
+              />
+            </FormField>
+            <ColorField
+              label="Notice Background Color"
+              value={cart.notices?.securePaymentNotice?.styles?.backgroundColor ?? ''}
+              fallback="#000000"
+              onChange={(v) =>
+                setNested(['cart', 'notices', 'securePaymentNotice', 'styles', 'backgroundColor'], v)
+              }
+            />
+            <ColorField
+              label="Notice Text Color"
+              value={cart.notices?.securePaymentNotice?.styles?.color ?? ''}
+              fallback="#ffffff"
+              onChange={(v) => setNested(['cart', 'notices', 'securePaymentNotice', 'styles', 'color'], v)}
+            />
           </div>
         )}
       </div>
@@ -225,26 +217,22 @@ const PagesSection: React.FC<SectionProps> = observer(({ data, markDirty }) => {
               checked={!!checkout.freeShippingBanner?.isVisible}
               onChange={(v) => setNested(['checkout', 'freeShippingBanner', 'isVisible'], v)}
             />
-            {!!checkout.freeShippingBanner?.isVisible && (
-              <>
-                <FormField label="Logged Out Banner Content">
-                  <HtmlEditor
-                    value={checkout.freeShippingBanner?.loggedOutBannerContent ?? ''}
-                    onChange={(html) =>
-                      setNested(['checkout', 'freeShippingBanner', 'loggedOutBannerContent'], html)
-                    }
-                  />
-                </FormField>
-                <FormField label="Logged In Banner Content">
-                  <HtmlEditor
-                    value={checkout.freeShippingBanner?.loggedInBannerContent ?? ''}
-                    onChange={(html) =>
-                      setNested(['checkout', 'freeShippingBanner', 'loggedInBannerContent'], html)
-                    }
-                  />
-                </FormField>
-              </>
-            )}
+            <FormField label="Logged Out Banner Content">
+              <HtmlEditor
+                value={checkout.freeShippingBanner?.loggedOutBannerContent ?? ''}
+                onChange={(html) =>
+                  setNested(['checkout', 'freeShippingBanner', 'loggedOutBannerContent'], html)
+                }
+              />
+            </FormField>
+            <FormField label="Logged In Banner Content">
+              <HtmlEditor
+                value={checkout.freeShippingBanner?.loggedInBannerContent ?? ''}
+                onChange={(html) =>
+                  setNested(['checkout', 'freeShippingBanner', 'loggedInBannerContent'], html)
+                }
+              />
+            </FormField>
 
             {/* Secure Payment Notice */}
             <div className="flex items-center gap-3 my-5">
@@ -259,16 +247,12 @@ const PagesSection: React.FC<SectionProps> = observer(({ data, markDirty }) => {
               checked={!!checkout.securePaymentNotice?.isVisible}
               onChange={(v) => setNested(['checkout', 'securePaymentNotice', 'isVisible'], v)}
             />
-            {!!checkout.securePaymentNotice?.isVisible && (
-              <>
-                <FormField label="Secure Payment Notice Content">
-                  <HtmlEditor
-                    value={checkout.securePaymentNotice?.content ?? ''}
-                    onChange={(html) => setNested(['checkout', 'securePaymentNotice', 'content'], html)}
-                  />
-                </FormField>
-              </>
-            )}
+            <FormField label="Secure Payment Notice Content">
+              <HtmlEditor
+                value={checkout.securePaymentNotice?.content ?? ''}
+                onChange={(html) => setNested(['checkout', 'securePaymentNotice', 'content'], html)}
+              />
+            </FormField>
 
             {/* Auto Sign-Up */}
             <div className="flex items-center gap-3 my-5">
@@ -283,33 +267,29 @@ const PagesSection: React.FC<SectionProps> = observer(({ data, markDirty }) => {
               checked={!!checkout.autoSignUp?.isVisible}
               onChange={(v) => setNested(['checkout', 'autoSignUp', 'isVisible'], v)}
             />
-            {!!checkout.autoSignUp?.isVisible && (
-              <>
-                <ToggleField
-                  label="Auto Sign-Up Checked by Default"
-                  checked={!!checkout.autoSignUp?.isChecked}
-                  onChange={(v) => setNested(['checkout', 'autoSignUp', 'isChecked'], v)}
-                />
-                <FormField label="Auto Sign-Up Checkbox Label">
-                  <HtmlEditor
-                    value={checkout.autoSignUp?.labelText ?? ''}
-                    onChange={(html) => setNested(['checkout', 'autoSignUp', 'labelText'], html)}
-                  />
-                </FormField>
-                <FormField label="Help Modal Header">
-                  <HtmlEditor
-                    value={checkout.autoSignUp?.helpModal?.header ?? ''}
-                    onChange={(html) => setNested(['checkout', 'autoSignUp', 'helpModal', 'header'], html)}
-                  />
-                </FormField>
-                <FormField label="Help Modal Content">
-                  <HtmlEditor
-                    value={checkout.autoSignUp?.helpModal?.content ?? ''}
-                    onChange={(html) => setNested(['checkout', 'autoSignUp', 'helpModal', 'content'], html)}
-                  />
-                </FormField>
-              </>
-            )}
+            <ToggleField
+              label="Auto Sign-Up Checked by Default"
+              checked={!!checkout.autoSignUp?.isChecked}
+              onChange={(v) => setNested(['checkout', 'autoSignUp', 'isChecked'], v)}
+            />
+            <FormField label="Auto Sign-Up Checkbox Label">
+              <HtmlEditor
+                value={checkout.autoSignUp?.labelText ?? ''}
+                onChange={(html) => setNested(['checkout', 'autoSignUp', 'labelText'], html)}
+              />
+            </FormField>
+            <FormField label="Help Modal Header">
+              <HtmlEditor
+                value={checkout.autoSignUp?.helpModal?.header ?? ''}
+                onChange={(html) => setNested(['checkout', 'autoSignUp', 'helpModal', 'header'], html)}
+              />
+            </FormField>
+            <FormField label="Help Modal Content">
+              <HtmlEditor
+                value={checkout.autoSignUp?.helpModal?.content ?? ''}
+                onChange={(html) => setNested(['checkout', 'autoSignUp', 'helpModal', 'content'], html)}
+              />
+            </FormField>
 
             {/* SMS Opt-In */}
             <div className="flex items-center gap-3 my-5">
@@ -324,24 +304,20 @@ const PagesSection: React.FC<SectionProps> = observer(({ data, markDirty }) => {
               checked={!!checkout.smsOptIn?.isVisible}
               onChange={(v) => setNested(['checkout', 'smsOptIn', 'isVisible'], v)}
             />
-            {!!checkout.smsOptIn?.isVisible && (
-              <>
-                <FormField label="SMS Opt-In Title">
-                  <input
-                    type="text"
-                    className="hippo-input"
-                    value={checkout.smsOptIn?.title ?? ''}
-                    onChange={(e) => setNested(['checkout', 'smsOptIn', 'title'], e.target.value)}
-                  />
-                </FormField>
-                <FormField label="SMS Opt-In CTA Content">
-                  <HtmlEditor
-                    value={checkout.smsOptIn?.content ?? ''}
-                    onChange={(html) => setNested(['checkout', 'smsOptIn', 'content'], html)}
-                  />
-                </FormField>
-              </>
-            )}
+            <FormField label="SMS Opt-In Title">
+              <input
+                type="text"
+                className="hippo-input"
+                value={checkout.smsOptIn?.title ?? ''}
+                onChange={(e) => setNested(['checkout', 'smsOptIn', 'title'], e.target.value)}
+              />
+            </FormField>
+            <FormField label="SMS Opt-In CTA Content">
+              <HtmlEditor
+                value={checkout.smsOptIn?.content ?? ''}
+                onChange={(html) => setNested(['checkout', 'smsOptIn', 'content'], html)}
+              />
+            </FormField>
           </div>
         )}
       </div>
