@@ -150,8 +150,9 @@ const FeaturesSection: React.FC<SectionProps> = observer(({ data, onChange, mark
                         if (!data.features.productGridFilterGroups) data.features.productGridFilterGroups = [];
                         if (entry) {
                           data.features.productGridFilterGroups[index].filterConfig = {
+                            '@type': '@builder.io/core:Reference',
+                            model: 'product-grid-filter-group',
                             id: entry.id,
-                            value: { id: entry.id, data: entry.data },
                           };
                         } else {
                           data.features.productGridFilterGroups[index].filterConfig = undefined;

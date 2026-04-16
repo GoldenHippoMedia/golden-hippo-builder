@@ -151,7 +151,7 @@ const GeneralSection: React.FC<SectionProps> = observer(({ data, onChangeRoot, m
                       onChange={(e) => {
                         const entry = bannerEntries.find((b) => b.id === e.target.value);
                         if (entry) {
-                          item.banner = { id: entry.id, value: { id: entry.id, data: entry.data } };
+                          item.banner = { '@type': '@builder.io/core:Reference', model: 'banner', id: entry.id };
                         } else {
                           item.banner = undefined;
                         }
