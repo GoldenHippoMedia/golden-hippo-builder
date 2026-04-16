@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { observer } from 'mobx-react';
 import { FormField } from '@goldenhippo/builder-ui';
+import { SubscriptionCancelReasons, SubscriptionCancelButtonType } from '@goldenhippo/builder-cart-schemas';
 import { SectionProps } from './section-props';
 
 const ChevronIcon: React.FC<{ open: boolean }> = ({ open }) => (
@@ -77,6 +78,7 @@ const PagesSection: React.FC<SectionProps> = observer(({ data, markDirty }) => {
     markDirty();
   };
 
+  const accountDetails = pageConfig.accountDetails || {};
   const cart = pageConfig.cart || {};
   const checkout = pageConfig.checkout || {};
   const orderDetails = pageConfig.orderDetails || {};
@@ -111,15 +113,87 @@ const PagesSection: React.FC<SectionProps> = observer(({ data, markDirty }) => {
               fallback="#ffffff"
               onChange={(v) => setNested(['cart', 'imageContainerBGColor'], v)}
             />
+
+            {/* Free Shipping Banner */}
+            <div className="flex items-center gap-3 my-5">
+              <div className="flex-1 h-px bg-[var(--border-glass)]" />
+              <span className="text-[11px] font-semibold tracking-widest uppercase text-[var(--text-muted)]">
+                Free Shipping Banner
+              </span>
+              <div className="flex-1 h-px bg-[var(--border-glass)]" />
+            </div>
             <ToggleField
               label="Show Free Shipping Banner"
               checked={!!cart.freeShippingBanner?.isVisible}
               onChange={(v) => setNested(['cart', 'freeShippingBanner', 'isVisible'], v)}
             />
+            <FormField label="Logged Out Banner Content" helper="Accepts HTML">
+              <textarea
+                className="hippo-input"
+                rows={3}
+                value={cart.freeShippingBanner?.loggedOutBannerContent ?? ''}
+                onChange={(e) =>
+                  setNested(['cart', 'freeShippingBanner', 'loggedOutBannerContent'], e.target.value)
+                }
+              />
+            </FormField>
+            <FormField label="Logged In Banner Content" helper="Accepts HTML">
+              <textarea
+                className="hippo-input"
+                rows={3}
+                value={cart.freeShippingBanner?.loggedInBannerContent ?? ''}
+                onChange={(e) =>
+                  setNested(['cart', 'freeShippingBanner', 'loggedInBannerContent'], e.target.value)
+                }
+              />
+            </FormField>
+            <ColorField
+              label="Banner Background Color"
+              value={cart.freeShippingBanner?.styles?.backgroundColor ?? ''}
+              fallback="#000000"
+              onChange={(v) => setNested(['cart', 'freeShippingBanner', 'styles', 'backgroundColor'], v)}
+            />
+            <ColorField
+              label="Banner Text Color"
+              value={cart.freeShippingBanner?.styles?.color ?? ''}
+              fallback="#ffffff"
+              onChange={(v) => setNested(['cart', 'freeShippingBanner', 'styles', 'color'], v)}
+            />
+
+            {/* Secure Payment Notice */}
+            <div className="flex items-center gap-3 my-5">
+              <div className="flex-1 h-px bg-[var(--border-glass)]" />
+              <span className="text-[11px] font-semibold tracking-widest uppercase text-[var(--text-muted)]">
+                Secure Payment Notice
+              </span>
+              <div className="flex-1 h-px bg-[var(--border-glass)]" />
+            </div>
             <ToggleField
               label="Show Secure Payment Notice"
               checked={!!cart.notices?.securePaymentNotice?.isVisible}
               onChange={(v) => setNested(['cart', 'notices', 'securePaymentNotice', 'isVisible'], v)}
+            />
+            <FormField label="Secure Payment Notice Content" helper="Accepts HTML">
+              <textarea
+                className="hippo-input"
+                rows={3}
+                value={cart.notices?.securePaymentNotice?.text ?? ''}
+                onChange={(e) => setNested(['cart', 'notices', 'securePaymentNotice', 'text'], e.target.value)}
+              />
+            </FormField>
+            <ColorField
+              label="Notice Background Color"
+              value={cart.notices?.securePaymentNotice?.styles?.backgroundColor ?? ''}
+              fallback="#000000"
+              onChange={(v) =>
+                setNested(['cart', 'notices', 'securePaymentNotice', 'styles', 'backgroundColor'], v)
+              }
+            />
+            <ColorField
+              label="Notice Text Color"
+              value={cart.notices?.securePaymentNotice?.styles?.color ?? ''}
+              fallback="#ffffff"
+              onChange={(v) => setNested(['cart', 'notices', 'securePaymentNotice', 'styles', 'color'], v)}
             />
           </div>
         )}
@@ -136,16 +210,70 @@ const PagesSection: React.FC<SectionProps> = observer(({ data, markDirty }) => {
         </button>
         {openPanels.has('checkout') && (
           <div className="p-5 pt-0 space-y-5">
+            {/* Free Shipping Banner */}
+            <div className="flex items-center gap-3 my-5">
+              <div className="flex-1 h-px bg-[var(--border-glass)]" />
+              <span className="text-[11px] font-semibold tracking-widest uppercase text-[var(--text-muted)]">
+                Free Shipping Banner
+              </span>
+              <div className="flex-1 h-px bg-[var(--border-glass)]" />
+            </div>
             <ToggleField
               label="Show Free Shipping Banner"
               checked={!!checkout.freeShippingBanner?.isVisible}
               onChange={(v) => setNested(['checkout', 'freeShippingBanner', 'isVisible'], v)}
             />
+            <FormField label="Logged Out Banner Content" helper="Accepts HTML">
+              <textarea
+                className="hippo-input"
+                rows={3}
+                value={checkout.freeShippingBanner?.loggedOutBannerContent ?? ''}
+                onChange={(e) =>
+                  setNested(['checkout', 'freeShippingBanner', 'loggedOutBannerContent'], e.target.value)
+                }
+              />
+            </FormField>
+            <FormField label="Logged In Banner Content" helper="Accepts HTML">
+              <textarea
+                className="hippo-input"
+                rows={3}
+                value={checkout.freeShippingBanner?.loggedInBannerContent ?? ''}
+                onChange={(e) =>
+                  setNested(['checkout', 'freeShippingBanner', 'loggedInBannerContent'], e.target.value)
+                }
+              />
+            </FormField>
+
+            {/* Secure Payment Notice */}
+            <div className="flex items-center gap-3 my-5">
+              <div className="flex-1 h-px bg-[var(--border-glass)]" />
+              <span className="text-[11px] font-semibold tracking-widest uppercase text-[var(--text-muted)]">
+                Secure Payment Notice
+              </span>
+              <div className="flex-1 h-px bg-[var(--border-glass)]" />
+            </div>
             <ToggleField
               label="Show Secure Payment Notice"
               checked={!!checkout.securePaymentNotice?.isVisible}
               onChange={(v) => setNested(['checkout', 'securePaymentNotice', 'isVisible'], v)}
             />
+            <FormField label="Secure Payment Notice Content" helper="Accepts HTML">
+              <textarea
+                className="hippo-input"
+                rows={3}
+                value={checkout.securePaymentNotice?.content ?? ''}
+                onChange={(e) => setNested(['checkout', 'securePaymentNotice', 'content'], e.target.value)}
+              />
+            </FormField>
+
+            {/* Auto Sign-Up */}
+            <div className="flex items-center gap-3 my-5">
+              <div className="flex-1 h-px bg-[var(--border-glass)]" />
+              <span className="text-[11px] font-semibold tracking-widest uppercase text-[var(--text-muted)]">
+                Auto Sign-Up
+              </span>
+              <div className="flex-1 h-px bg-[var(--border-glass)]" />
+            </div>
             <ToggleField
               label="Show Auto Sign-Up"
               checked={!!checkout.autoSignUp?.isVisible}
@@ -156,6 +284,39 @@ const PagesSection: React.FC<SectionProps> = observer(({ data, markDirty }) => {
               checked={!!checkout.autoSignUp?.isChecked}
               onChange={(v) => setNested(['checkout', 'autoSignUp', 'isChecked'], v)}
             />
+            <FormField label="Auto Sign-Up Checkbox Label" helper="Accepts HTML">
+              <textarea
+                className="hippo-input"
+                rows={3}
+                value={checkout.autoSignUp?.labelText ?? ''}
+                onChange={(e) => setNested(['checkout', 'autoSignUp', 'labelText'], e.target.value)}
+              />
+            </FormField>
+            <FormField label="Help Modal Header" helper="Accepts HTML">
+              <textarea
+                className="hippo-input"
+                rows={3}
+                value={checkout.autoSignUp?.helpModal?.header ?? ''}
+                onChange={(e) => setNested(['checkout', 'autoSignUp', 'helpModal', 'header'], e.target.value)}
+              />
+            </FormField>
+            <FormField label="Help Modal Content" helper="Accepts HTML">
+              <textarea
+                className="hippo-input"
+                rows={3}
+                value={checkout.autoSignUp?.helpModal?.content ?? ''}
+                onChange={(e) => setNested(['checkout', 'autoSignUp', 'helpModal', 'content'], e.target.value)}
+              />
+            </FormField>
+
+            {/* SMS Opt-In */}
+            <div className="flex items-center gap-3 my-5">
+              <div className="flex-1 h-px bg-[var(--border-glass)]" />
+              <span className="text-[11px] font-semibold tracking-widest uppercase text-[var(--text-muted)]">
+                SMS Opt-In
+              </span>
+              <div className="flex-1 h-px bg-[var(--border-glass)]" />
+            </div>
             <ToggleField
               label="Show SMS Opt-In"
               checked={!!checkout.smsOptIn?.isVisible}
@@ -167,6 +328,14 @@ const PagesSection: React.FC<SectionProps> = observer(({ data, markDirty }) => {
                 className="hippo-input"
                 value={checkout.smsOptIn?.title ?? ''}
                 onChange={(e) => setNested(['checkout', 'smsOptIn', 'title'], e.target.value)}
+              />
+            </FormField>
+            <FormField label="SMS Opt-In CTA Content" helper="Accepts HTML">
+              <textarea
+                className="hippo-input"
+                rows={3}
+                value={checkout.smsOptIn?.content ?? ''}
+                onChange={(e) => setNested(['checkout', 'smsOptIn', 'content'], e.target.value)}
               />
             </FormField>
           </div>
@@ -192,6 +361,15 @@ const PagesSection: React.FC<SectionProps> = observer(({ data, markDirty }) => {
                 onChange={(e) => setNested(['orderDetails', 'title'], e.target.value)}
               />
             </FormField>
+
+            {/* Table Header Style */}
+            <div className="flex items-center gap-3 my-5">
+              <div className="flex-1 h-px bg-[var(--border-glass)]" />
+              <span className="text-[11px] font-semibold tracking-widest uppercase text-[var(--text-muted)]">
+                Table Header Style
+              </span>
+              <div className="flex-1 h-px bg-[var(--border-glass)]" />
+            </div>
             <ColorField
               label="Table Header Background Color"
               value={orderDetails.tableHeaderStyle?.backgroundColor ?? ''}
@@ -204,6 +382,71 @@ const PagesSection: React.FC<SectionProps> = observer(({ data, markDirty }) => {
               fallback="#ffffff"
               onChange={(v) => setNested(['orderDetails', 'tableHeaderStyle', 'color'], v)}
             />
+
+            {/* Table Content Style */}
+            <div className="flex items-center gap-3 my-5">
+              <div className="flex-1 h-px bg-[var(--border-glass)]" />
+              <span className="text-[11px] font-semibold tracking-widest uppercase text-[var(--text-muted)]">
+                Table Content Style
+              </span>
+              <div className="flex-1 h-px bg-[var(--border-glass)]" />
+            </div>
+            <ColorField
+              label="Table Content Background Color"
+              value={orderDetails.tableContentStyle?.backgroundColor ?? ''}
+              fallback="#ffffff"
+              onChange={(v) => setNested(['orderDetails', 'tableContentStyle', 'backgroundColor'], v)}
+            />
+
+            {/* Buy It Again Button */}
+            <div className="flex items-center gap-3 my-5">
+              <div className="flex-1 h-px bg-[var(--border-glass)]" />
+              <span className="text-[11px] font-semibold tracking-widest uppercase text-[var(--text-muted)]">
+                Buy It Again Button
+              </span>
+              <div className="flex-1 h-px bg-[var(--border-glass)]" />
+            </div>
+            <FormField label="Buy It Again Button Text" helper="Accepts HTML">
+              <textarea
+                className="hippo-input"
+                rows={3}
+                value={orderDetails.buyItAgainButton?.text ?? ''}
+                onChange={(e) => setNested(['orderDetails', 'buyItAgainButton', 'text'], e.target.value)}
+              />
+            </FormField>
+            <FormField label="CSS Classes" helper="CSS classes to apply to the button">
+              <input
+                type="text"
+                className="hippo-input"
+                value={orderDetails.buyItAgainButton?.classes ?? ''}
+                onChange={(e) => setNested(['orderDetails', 'buyItAgainButton', 'classes'], e.target.value)}
+              />
+            </FormField>
+
+            {/* Re-Order All Button */}
+            <div className="flex items-center gap-3 my-5">
+              <div className="flex-1 h-px bg-[var(--border-glass)]" />
+              <span className="text-[11px] font-semibold tracking-widest uppercase text-[var(--text-muted)]">
+                Re-Order All Button
+              </span>
+              <div className="flex-1 h-px bg-[var(--border-glass)]" />
+            </div>
+            <FormField label="Re-Order All Button Text" helper="Accepts HTML">
+              <textarea
+                className="hippo-input"
+                rows={3}
+                value={orderDetails.reOrderAllButton?.text ?? ''}
+                onChange={(e) => setNested(['orderDetails', 'reOrderAllButton', 'text'], e.target.value)}
+              />
+            </FormField>
+            <FormField label="CSS Classes" helper="CSS classes to apply to the button">
+              <input
+                type="text"
+                className="hippo-input"
+                value={orderDetails.reOrderAllButton?.classes ?? ''}
+                onChange={(e) => setNested(['orderDetails', 'reOrderAllButton', 'classes'], e.target.value)}
+              />
+            </FormField>
           </div>
         )}
       </div>
@@ -250,12 +493,192 @@ const PagesSection: React.FC<SectionProps> = observer(({ data, markDirty }) => {
                 onChange={(e) => setNested(['subscriptionCancel', 'cancelText'], e.target.value)}
               />
             </FormField>
-            <div className="rounded-xl border border-dashed border-[var(--border-glass)] p-5 text-center">
-              <p className="text-sm text-[var(--text-muted)]">
-                Cancel reasons and their button configurations are complex list structures best managed through
-                Builder.io's native content editor. Full support here is coming in a future update.
-              </p>
+
+            {/* Cancel Reasons List */}
+            <div className="flex items-center gap-3 my-5">
+              <div className="flex-1 h-px bg-[var(--border-glass)]" />
+              <span className="text-[11px] font-semibold tracking-widest uppercase text-[var(--text-muted)]">
+                Cancel Reasons
+              </span>
+              <div className="flex-1 h-px bg-[var(--border-glass)]" />
             </div>
+
+            {(pageConfig.subscriptionCancel?.cancelReasons ?? []).map((reason: any, ri: number) => (
+              <div key={ri} className="rounded-lg border border-[var(--border-glass)] p-4 space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium text-[var(--text-primary)]">
+                    Reason {ri + 1}
+                    {reason.title ? `: ${reason.title}` : ''}
+                  </span>
+                  <button
+                    className="px-2 py-1 rounded text-[11px] font-medium text-[var(--error)] cursor-pointer hover:bg-[var(--error)]/10 transition-colors"
+                    onClick={() => {
+                      if (!data.pageConfig?.subscriptionCancel?.cancelReasons) return;
+                      data.pageConfig.subscriptionCancel.cancelReasons.splice(ri, 1);
+                      markDirty();
+                    }}
+                  >
+                    Remove
+                  </button>
+                </div>
+
+                <FormField label="Reason" helper="Required">
+                  <input
+                    type="text"
+                    className="hippo-input"
+                    value={reason.title ?? ''}
+                    onChange={(e) => {
+                      if (!data.pageConfig?.subscriptionCancel?.cancelReasons) return;
+                      data.pageConfig.subscriptionCancel.cancelReasons[ri].title = e.target.value;
+                      markDirty();
+                    }}
+                  />
+                </FormField>
+
+                <FormField label="Display Content" helper="Accepts HTML">
+                  <textarea
+                    className="hippo-input"
+                    rows={3}
+                    value={reason.text ?? ''}
+                    onChange={(e) => {
+                      if (!data.pageConfig?.subscriptionCancel?.cancelReasons) return;
+                      data.pageConfig.subscriptionCancel.cancelReasons[ri].text = e.target.value;
+                      markDirty();
+                    }}
+                  />
+                </FormField>
+
+                <FormField label="Identifier" helper="System identifier for analytics tracking">
+                  <select
+                    className="hippo-input"
+                    value={reason.identifier ?? ''}
+                    onChange={(e) => {
+                      if (!data.pageConfig?.subscriptionCancel?.cancelReasons) return;
+                      data.pageConfig.subscriptionCancel.cancelReasons[ri].identifier = e.target.value;
+                      markDirty();
+                    }}
+                  >
+                    <option value="">Select an identifier...</option>
+                    {Object.values(SubscriptionCancelReasons).map((val) => (
+                      <option key={val} value={val}>
+                        {val}
+                      </option>
+                    ))}
+                  </select>
+                </FormField>
+
+                {/* Buttons sub-list */}
+                <div className="flex items-center gap-3 my-3">
+                  <div className="flex-1 h-px bg-[var(--border-glass)]" />
+                  <span className="text-[11px] font-semibold tracking-widest uppercase text-[var(--text-muted)]">
+                    Buttons
+                  </span>
+                  <div className="flex-1 h-px bg-[var(--border-glass)]" />
+                </div>
+
+                {(reason.buttons ?? []).map((btn: any, bi: number) => (
+                  <div key={bi} className="rounded-lg border border-[var(--border-glass)] p-4 space-y-3 ml-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-medium text-[var(--text-secondary)]">Button {bi + 1}</span>
+                      <button
+                        className="px-2 py-1 rounded text-[11px] font-medium text-[var(--error)] cursor-pointer hover:bg-[var(--error)]/10 transition-colors"
+                        onClick={() => {
+                          if (!data.pageConfig?.subscriptionCancel?.cancelReasons?.[ri]?.buttons) return;
+                          data.pageConfig.subscriptionCancel.cancelReasons[ri].buttons.splice(bi, 1);
+                          markDirty();
+                        }}
+                      >
+                        Remove
+                      </button>
+                    </div>
+
+                    <FormField label="Button Text">
+                      <input
+                        type="text"
+                        className="hippo-input"
+                        value={btn.text ?? ''}
+                        onChange={(e) => {
+                          if (!data.pageConfig?.subscriptionCancel?.cancelReasons?.[ri]?.buttons) return;
+                          data.pageConfig.subscriptionCancel.cancelReasons[ri].buttons[bi].text = e.target.value;
+                          markDirty();
+                        }}
+                      />
+                    </FormField>
+
+                    <FormField label="Button Link">
+                      <input
+                        type="text"
+                        className="hippo-input"
+                        placeholder="https://..."
+                        value={btn.link ?? ''}
+                        onChange={(e) => {
+                          if (!data.pageConfig?.subscriptionCancel?.cancelReasons?.[ri]?.buttons) return;
+                          data.pageConfig.subscriptionCancel.cancelReasons[ri].buttons[bi].link = e.target.value;
+                          markDirty();
+                        }}
+                      />
+                    </FormField>
+
+                    <FormField label="Button Type" helper="Determines button behavior">
+                      <select
+                        className="hippo-input"
+                        value={btn.type ?? 'link'}
+                        onChange={(e) => {
+                          if (!data.pageConfig?.subscriptionCancel?.cancelReasons?.[ri]?.buttons) return;
+                          data.pageConfig.subscriptionCancel.cancelReasons[ri].buttons[bi].type = e.target.value;
+                          markDirty();
+                        }}
+                      >
+                        {Object.values(SubscriptionCancelButtonType).map((val) => (
+                          <option key={val} value={val}>
+                            {val}
+                          </option>
+                        ))}
+                      </select>
+                    </FormField>
+                  </div>
+                ))}
+
+                <button
+                  className="px-3 py-1.5 rounded-lg text-xs font-medium border border-[var(--border-glass)] bg-[var(--bg-glass)] text-[var(--text-secondary)] cursor-pointer hover:bg-[var(--bg-glass-hover)] transition-colors"
+                  onClick={() => {
+                    if (!data.pageConfig) data.pageConfig = {};
+                    if (!data.pageConfig.subscriptionCancel) data.pageConfig.subscriptionCancel = {};
+                    if (!data.pageConfig.subscriptionCancel.cancelReasons)
+                      data.pageConfig.subscriptionCancel.cancelReasons = [];
+                    if (!data.pageConfig.subscriptionCancel.cancelReasons[ri].buttons)
+                      data.pageConfig.subscriptionCancel.cancelReasons[ri].buttons = [];
+                    data.pageConfig.subscriptionCancel.cancelReasons[ri].buttons.push({
+                      text: '',
+                      link: '',
+                      type: 'link',
+                    });
+                    markDirty();
+                  }}
+                >
+                  + Add Button
+                </button>
+              </div>
+            ))}
+
+            <button
+              className="px-3 py-1.5 rounded-lg text-xs font-medium border border-[var(--border-glass)] bg-[var(--bg-glass)] text-[var(--text-secondary)] cursor-pointer hover:bg-[var(--bg-glass-hover)] transition-colors"
+              onClick={() => {
+                if (!data.pageConfig) data.pageConfig = {};
+                if (!data.pageConfig.subscriptionCancel) data.pageConfig.subscriptionCancel = {};
+                if (!data.pageConfig.subscriptionCancel.cancelReasons)
+                  data.pageConfig.subscriptionCancel.cancelReasons = [];
+                data.pageConfig.subscriptionCancel.cancelReasons.push({
+                  title: '',
+                  text: '',
+                  identifier: '',
+                  buttons: [],
+                });
+                markDirty();
+              }}
+            >
+              + Add Reason
+            </button>
           </div>
         )}
       </div>
@@ -362,12 +785,112 @@ const PagesSection: React.FC<SectionProps> = observer(({ data, markDirty }) => {
         </button>
         {openPanels.has('accountDetails') && (
           <div className="p-5 pt-0 space-y-5">
-            <div className="rounded-xl border border-dashed border-[var(--border-glass)] p-5 text-center">
-              <p className="text-sm text-[var(--text-muted)]">
-                Birthday banner configuration with HTML content and inline styles is best managed through Builder.io's
-                native content editor. Full support here is coming in a future update.
-              </p>
+            {/* Birthday Banner Configuration */}
+            <div className="flex items-center gap-3 my-5">
+              <div className="flex-1 h-px bg-[var(--border-glass)]" />
+              <span className="text-[11px] font-semibold tracking-widest uppercase text-[var(--text-muted)]">
+                Birthday Banner
+              </span>
+              <div className="flex-1 h-px bg-[var(--border-glass)]" />
             </div>
+
+            <FormField label="Banner Content" helper="Accepts HTML">
+              <textarea
+                className="hippo-input"
+                rows={3}
+                value={accountDetails.birthdayBannerConfig?.content ?? ''}
+                onChange={(e) =>
+                  setNested(['accountDetails', 'birthdayBannerConfig', 'content'], e.target.value)
+                }
+              />
+            </FormField>
+            <FormField label="Link Text">
+              <input
+                type="text"
+                className="hippo-input"
+                value={accountDetails.birthdayBannerConfig?.linkText ?? ''}
+                onChange={(e) =>
+                  setNested(['accountDetails', 'birthdayBannerConfig', 'linkText'], e.target.value)
+                }
+              />
+            </FormField>
+            <FormField label="Link URL">
+              <input
+                type="text"
+                className="hippo-input"
+                placeholder="https://..."
+                value={accountDetails.birthdayBannerConfig?.linkUrl ?? ''}
+                onChange={(e) =>
+                  setNested(['accountDetails', 'birthdayBannerConfig', 'linkUrl'], e.target.value)
+                }
+              />
+            </FormField>
+
+            {/* Banner Styles */}
+            <div className="flex items-center gap-3 my-5">
+              <div className="flex-1 h-px bg-[var(--border-glass)]" />
+              <span className="text-[11px] font-semibold tracking-widest uppercase text-[var(--text-muted)]">
+                Banner Styles
+              </span>
+              <div className="flex-1 h-px bg-[var(--border-glass)]" />
+            </div>
+
+            <FormField label="Display" helper="CSS display value (e.g. flex, block)">
+              <input
+                type="text"
+                className="hippo-input"
+                value={accountDetails.birthdayBannerConfig?.styles?.display ?? ''}
+                onChange={(e) =>
+                  setNested(['accountDetails', 'birthdayBannerConfig', 'styles', 'display'], e.target.value)
+                }
+              />
+            </FormField>
+            <FormField label="Align Items" helper="CSS align-items value (e.g. center, flex-start)">
+              <input
+                type="text"
+                className="hippo-input"
+                value={accountDetails.birthdayBannerConfig?.styles?.alignItems ?? ''}
+                onChange={(e) =>
+                  setNested(['accountDetails', 'birthdayBannerConfig', 'styles', 'alignItems'], e.target.value)
+                }
+              />
+            </FormField>
+            <FormField label="Margin" helper="CSS margin value (e.g. 10px, 0 auto)">
+              <input
+                type="text"
+                className="hippo-input"
+                value={accountDetails.birthdayBannerConfig?.styles?.margin ?? ''}
+                onChange={(e) =>
+                  setNested(['accountDetails', 'birthdayBannerConfig', 'styles', 'margin'], e.target.value)
+                }
+              />
+            </FormField>
+            <FormField label="Padding" helper="CSS padding value (e.g. 16px, 10px 20px)">
+              <input
+                type="text"
+                className="hippo-input"
+                value={accountDetails.birthdayBannerConfig?.styles?.padding ?? ''}
+                onChange={(e) =>
+                  setNested(['accountDetails', 'birthdayBannerConfig', 'styles', 'padding'], e.target.value)
+                }
+              />
+            </FormField>
+            <ColorField
+              label="Background Color"
+              value={accountDetails.birthdayBannerConfig?.styles?.backgroundColor ?? ''}
+              fallback="#ffffff"
+              onChange={(v) =>
+                setNested(['accountDetails', 'birthdayBannerConfig', 'styles', 'backgroundColor'], v)
+              }
+            />
+            <ColorField
+              label="Text Color"
+              value={accountDetails.birthdayBannerConfig?.styles?.color ?? ''}
+              fallback="#000000"
+              onChange={(v) =>
+                setNested(['accountDetails', 'birthdayBannerConfig', 'styles', 'color'], v)
+              }
+            />
           </div>
         )}
       </div>
