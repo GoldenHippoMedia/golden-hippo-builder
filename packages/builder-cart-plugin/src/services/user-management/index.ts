@@ -25,9 +25,11 @@ class UserManagementService {
     console.info('[Hippo Commerce] USER', JSON.parse(JSON.stringify(user)));
     const currentOrg = user.organizations.find((org) => org.value.id === user.currentOrganization);
     const appSettings = currentOrg?.value.settings.plugins.toJSON()[pluginId];
+    const brand = (appSettings?.brand as string) ?? 'Brand not configured';
+    const otherBrand = (appSettings?.otherBrand as string) ?? '';
     return {
       id: user.id,
-      brand: (appSettings?.brand as string) ?? '',
+      brand: brand === 'Other' ? otherBrand : brand,
       email: user.data.email,
       name: user.data.displayName,
       permissions: {

@@ -65,12 +65,11 @@ const BrandConfigPage: React.FC<BrandConfigPageProps> = ({ context }) => {
   }, [api, brand, loadConfig, store]);
 
   const saveConfig = useCallback(async () => {
-    if (!store.config || !store.dirty) return;
+    if (!store.config?.id || !store.dirty) return;
     store.saving = true;
     try {
-      const updated = { ...store.config, data: { ...store.data } };
-      await api.saveContent(updated as any);
-      store.config = updated;
+      const cleanData = JSON.parse(JSON.stringify(store.data));
+      await api.saveBrandConfig(store.config.id, cleanData);
       store.dirty = false;
       await context.dialogs.alert('Brand configuration saved.', 'Success');
     } catch (err: any) {
@@ -116,8 +115,8 @@ const BrandConfigPage: React.FC<BrandConfigPageProps> = ({ context }) => {
     if (store.error && !store.config) {
       return (
         <div className="text-center py-16">
-          <p className="text-error mb-4">{store.error}</p>
-          <button className="btn btn-error btn-sm" onClick={() => loadConfig()}>
+          <p className="text-[var(--error)] mb-4">{store.error}</p>
+          <button className="px-4 py-2 rounded-lg bg-[var(--error)]/15 text-[var(--error)] font-medium text-sm cursor-pointer hover:bg-[var(--error)]/25 transition-colors" onClick={() => loadConfig()}>
             Retry
           </button>
         </div>
@@ -163,7 +162,7 @@ const BrandConfigPage: React.FC<BrandConfigPageProps> = ({ context }) => {
           title="Brand Configuration"
           actions={
             <button
-              className={`btn btn-primary btn-sm ${store.saving ? 'loading' : ''}`}
+              className="px-5 py-2 rounded-lg bg-[var(--accent)] text-[#1a1a2e] font-semibold text-sm cursor-pointer transition-all hover:brightness-110 hover:shadow-[0_0_20px_var(--accent-glow)] disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:brightness-100 disabled:hover:shadow-none"
               disabled={!store.dirty || store.saving}
               onClick={saveConfig}
             >
@@ -172,12 +171,15 @@ const BrandConfigPage: React.FC<BrandConfigPageProps> = ({ context }) => {
           }
         />
 
-        <div role="tablist" className="tabs tabs-bordered mb-6">
+        <div className="flex gap-0.5 p-1 bg-[var(--bg-glass)] border border-[var(--border-glass)] rounded-xl mb-7 overflow-x-auto">
           {TABS.map((tab) => (
             <button
               key={tab}
-              role="tab"
-              className={`tab ${store.activeTab === tab ? 'tab-active' : ''}`}
+              className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap cursor-pointer transition-all ${
+                store.activeTab === tab
+                  ? 'text-[var(--accent)] bg-[var(--accent-subtle)] font-semibold'
+                  : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-glass-hover)]'
+              }`}
               onClick={() => (store.activeTab = tab)}
             >
               {tab}

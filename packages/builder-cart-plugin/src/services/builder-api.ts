@@ -1,6 +1,7 @@
 import { BuilderContent } from '@builder.io/sdk';
 import { BuilderBrandConfigContent } from '@goldenhippo/builder-cart-schemas';
 import { ExtendedApplicationContext } from '../interfaces/application-context.interface';
+import { pluginId } from '../constants';
 
 interface FetchContentRequest {
   modelName: string;
@@ -11,12 +12,17 @@ interface FetchContentRequest {
 class BuilderApi {
   private readonly authHeaders: Record<string, string>;
   private readonly apiKey: string;
+  private readonly privateApiKey: string;
   private readonly context: ExtendedApplicationContext;
 
   constructor(context: ExtendedApplicationContext) {
     this.authHeaders = context.user.authHeaders as Record<string, string>;
     this.apiKey = context.user.apiKey;
     this.context = context;
+
+    // @ts-expect-error incomplete types — organization is a MobX observable, plugins is a Map
+    const pluginSettings = context.user.organization?.value?.settings?.plugins?.get(pluginId);
+    this.privateApiKey = (pluginSettings?.get('privateApiKey') as string) ?? '';
   }
 
   async getBrandConfig(): Promise<BuilderBrandConfigContent[]> {
@@ -35,15 +41,26 @@ class BuilderApi {
     } as Partial<BuilderContent>);
   }
 
-  async saveContent(content: BuilderContent): Promise<void> {
-    await this.context.content.update(content);
+  async saveBrandConfig(entryId: string, data: Record<string, any>): Promise<void> {
+    const resp = await fetch(`https://builder.io/api/v1/write/gh-brand-config/${entryId}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${this.privateApiKey}`,
+      },
+      body: JSON.stringify({ data }),
+    });
+    if (!resp.ok) {
+      const body = await resp.text();
+      throw new Error(`Failed to save brand config: ${resp.status} ${body}`);
+    }
   }
 
   private async fetchContent<T extends BuilderContent = BuilderContent>(request: FetchContentRequest): Promise<T[]> {
     const { modelName, limit = 20, bustCache = false } = request;
     const content: T[] = [];
     let offset = 0;
-    let baseUrl = `https://cdn.builder.io/api/v3/content/${modelName}?apiKey=${this.apiKey}&includeUnpublished=true&omit=data.blocks&limit=${Math.min(limit, 100)}`;
+    let baseUrl = `https://cdn.builder.io/api/v3/content/${modelName}?apiKey=${this.apiKey}&includeUnpublished=true&omit=data.blocks&limit=${Math.min(limit, 100)}&locale=en-US`;
     if (bustCache) {
       baseUrl += `&cachebust=true`;
     }
