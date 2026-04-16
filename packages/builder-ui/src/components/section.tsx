@@ -14,7 +14,7 @@ export function Section({ title, subtitle, actions, children, className, variant
   return (
     <div
       className={clsx(
-        'rounded-2xl p-7 backdrop-blur-sm border',
+        'rounded-2xl p-8 backdrop-blur-sm border',
         variant === 'danger'
           ? 'border-[var(--error)]/20 bg-[var(--error)]/5'
           : 'bg-[var(--bg-glass)] border-[var(--border-glass)]',

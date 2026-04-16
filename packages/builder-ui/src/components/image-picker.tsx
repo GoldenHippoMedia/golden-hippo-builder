@@ -14,17 +14,17 @@ export function ImagePicker({ value, label, onChange, className }: ImagePickerPr
 
   return (
     <>
-      <div className={clsx('flex flex-col gap-2', className)}>
+      <div className={clsx('w-40 flex flex-col gap-1.5', className)}>
         {hasImage ? (
           <div
-            className="relative aspect-square rounded-xl border border-[var(--border-glass)] bg-[var(--input-bg)] cursor-pointer overflow-hidden group"
+            className="relative w-40 h-32 rounded-xl border border-[var(--border-glass)] bg-[var(--input-bg)] cursor-pointer overflow-hidden group"
             onClick={() => setShowModal(true)}
           >
             <img src={value} alt={label} className="w-full h-full object-contain p-3" />
-            <div className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+            <div className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
               <button
                 type="button"
-                className="px-3.5 py-1.5 rounded-md text-[11px] font-semibold bg-[var(--accent)] text-[#1a1a2e] cursor-pointer"
+                className="px-3 py-1 rounded-md text-[11px] font-semibold bg-[var(--accent)] text-[#1a1a2e] cursor-pointer"
                 onClick={(e) => {
                   e.stopPropagation();
                   setShowModal(true);
@@ -34,7 +34,7 @@ export function ImagePicker({ value, label, onChange, className }: ImagePickerPr
               </button>
               <button
                 type="button"
-                className="px-3.5 py-1.5 rounded-md text-[11px] font-semibold bg-white/10 text-white/80 cursor-pointer"
+                className="px-3 py-1 rounded-md text-[11px] font-semibold bg-white/10 text-white/80 cursor-pointer"
                 onClick={(e) => {
                   e.stopPropagation();
                   onChange(undefined);
@@ -46,18 +46,18 @@ export function ImagePicker({ value, label, onChange, className }: ImagePickerPr
           </div>
         ) : (
           <div
-            className="aspect-square rounded-xl border border-dashed border-[var(--border-glass)] bg-[var(--input-bg)] cursor-pointer flex flex-col items-center justify-center gap-2 hover:border-[var(--border-glass-focus)] hover:bg-[var(--bg-glass-hover)] transition-all"
+            className="w-40 h-32 rounded-xl border border-dashed border-[var(--border-glass)] bg-[var(--input-bg)] cursor-pointer flex flex-col items-center justify-center gap-2 hover:border-[var(--border-glass-focus)] hover:bg-[var(--bg-glass-hover)] transition-all"
             onClick={() => setShowModal(true)}
           >
             <div className="w-8 h-8 rounded-full bg-[var(--accent-subtle)] flex items-center justify-center">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="2">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="2">
                 <path d="M12 5v14M5 12h14" />
               </svg>
             </div>
             <span className="text-xs font-medium text-[var(--text-muted)]">Select Image</span>
           </div>
         )}
-        <span className="text-xs font-medium text-[var(--text-secondary)] text-center">{label}</span>
+        <span className="text-[11px] font-medium text-[var(--text-secondary)] text-center leading-tight">{label}</span>
       </div>
 
       {showModal && (

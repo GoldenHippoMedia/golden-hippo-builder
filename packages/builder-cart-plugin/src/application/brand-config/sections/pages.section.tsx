@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { observer } from 'mobx-react';
-import { FormField } from '@goldenhippo/builder-ui';
+import { FormField, HtmlEditor } from '@goldenhippo/builder-ui';
 import { SubscriptionCancelReasons, SubscriptionCancelButtonType } from '@goldenhippo/builder-cart-schemas';
 import { SectionProps } from './section-props';
 
@@ -127,23 +127,19 @@ const PagesSection: React.FC<SectionProps> = observer(({ data, markDirty }) => {
               checked={!!cart.freeShippingBanner?.isVisible}
               onChange={(v) => setNested(['cart', 'freeShippingBanner', 'isVisible'], v)}
             />
-            <FormField label="Logged Out Banner Content" helper="Accepts HTML">
-              <textarea
-                className="hippo-input"
-                rows={3}
+            <FormField label="Logged Out Banner Content">
+              <HtmlEditor
                 value={cart.freeShippingBanner?.loggedOutBannerContent ?? ''}
-                onChange={(e) =>
-                  setNested(['cart', 'freeShippingBanner', 'loggedOutBannerContent'], e.target.value)
+                onChange={(html) =>
+                  setNested(['cart', 'freeShippingBanner', 'loggedOutBannerContent'], html)
                 }
               />
             </FormField>
-            <FormField label="Logged In Banner Content" helper="Accepts HTML">
-              <textarea
-                className="hippo-input"
-                rows={3}
+            <FormField label="Logged In Banner Content">
+              <HtmlEditor
                 value={cart.freeShippingBanner?.loggedInBannerContent ?? ''}
-                onChange={(e) =>
-                  setNested(['cart', 'freeShippingBanner', 'loggedInBannerContent'], e.target.value)
+                onChange={(html) =>
+                  setNested(['cart', 'freeShippingBanner', 'loggedInBannerContent'], html)
                 }
               />
             </FormField>
@@ -173,12 +169,10 @@ const PagesSection: React.FC<SectionProps> = observer(({ data, markDirty }) => {
               checked={!!cart.notices?.securePaymentNotice?.isVisible}
               onChange={(v) => setNested(['cart', 'notices', 'securePaymentNotice', 'isVisible'], v)}
             />
-            <FormField label="Secure Payment Notice Content" helper="Accepts HTML">
-              <textarea
-                className="hippo-input"
-                rows={3}
+            <FormField label="Secure Payment Notice Content">
+              <HtmlEditor
                 value={cart.notices?.securePaymentNotice?.text ?? ''}
-                onChange={(e) => setNested(['cart', 'notices', 'securePaymentNotice', 'text'], e.target.value)}
+                onChange={(html) => setNested(['cart', 'notices', 'securePaymentNotice', 'text'], html)}
               />
             </FormField>
             <ColorField
@@ -223,23 +217,19 @@ const PagesSection: React.FC<SectionProps> = observer(({ data, markDirty }) => {
               checked={!!checkout.freeShippingBanner?.isVisible}
               onChange={(v) => setNested(['checkout', 'freeShippingBanner', 'isVisible'], v)}
             />
-            <FormField label="Logged Out Banner Content" helper="Accepts HTML">
-              <textarea
-                className="hippo-input"
-                rows={3}
+            <FormField label="Logged Out Banner Content">
+              <HtmlEditor
                 value={checkout.freeShippingBanner?.loggedOutBannerContent ?? ''}
-                onChange={(e) =>
-                  setNested(['checkout', 'freeShippingBanner', 'loggedOutBannerContent'], e.target.value)
+                onChange={(html) =>
+                  setNested(['checkout', 'freeShippingBanner', 'loggedOutBannerContent'], html)
                 }
               />
             </FormField>
-            <FormField label="Logged In Banner Content" helper="Accepts HTML">
-              <textarea
-                className="hippo-input"
-                rows={3}
+            <FormField label="Logged In Banner Content">
+              <HtmlEditor
                 value={checkout.freeShippingBanner?.loggedInBannerContent ?? ''}
-                onChange={(e) =>
-                  setNested(['checkout', 'freeShippingBanner', 'loggedInBannerContent'], e.target.value)
+                onChange={(html) =>
+                  setNested(['checkout', 'freeShippingBanner', 'loggedInBannerContent'], html)
                 }
               />
             </FormField>
@@ -257,12 +247,10 @@ const PagesSection: React.FC<SectionProps> = observer(({ data, markDirty }) => {
               checked={!!checkout.securePaymentNotice?.isVisible}
               onChange={(v) => setNested(['checkout', 'securePaymentNotice', 'isVisible'], v)}
             />
-            <FormField label="Secure Payment Notice Content" helper="Accepts HTML">
-              <textarea
-                className="hippo-input"
-                rows={3}
+            <FormField label="Secure Payment Notice Content">
+              <HtmlEditor
                 value={checkout.securePaymentNotice?.content ?? ''}
-                onChange={(e) => setNested(['checkout', 'securePaymentNotice', 'content'], e.target.value)}
+                onChange={(html) => setNested(['checkout', 'securePaymentNotice', 'content'], html)}
               />
             </FormField>
 
@@ -284,28 +272,22 @@ const PagesSection: React.FC<SectionProps> = observer(({ data, markDirty }) => {
               checked={!!checkout.autoSignUp?.isChecked}
               onChange={(v) => setNested(['checkout', 'autoSignUp', 'isChecked'], v)}
             />
-            <FormField label="Auto Sign-Up Checkbox Label" helper="Accepts HTML">
-              <textarea
-                className="hippo-input"
-                rows={3}
+            <FormField label="Auto Sign-Up Checkbox Label">
+              <HtmlEditor
                 value={checkout.autoSignUp?.labelText ?? ''}
-                onChange={(e) => setNested(['checkout', 'autoSignUp', 'labelText'], e.target.value)}
+                onChange={(html) => setNested(['checkout', 'autoSignUp', 'labelText'], html)}
               />
             </FormField>
-            <FormField label="Help Modal Header" helper="Accepts HTML">
-              <textarea
-                className="hippo-input"
-                rows={3}
+            <FormField label="Help Modal Header">
+              <HtmlEditor
                 value={checkout.autoSignUp?.helpModal?.header ?? ''}
-                onChange={(e) => setNested(['checkout', 'autoSignUp', 'helpModal', 'header'], e.target.value)}
+                onChange={(html) => setNested(['checkout', 'autoSignUp', 'helpModal', 'header'], html)}
               />
             </FormField>
-            <FormField label="Help Modal Content" helper="Accepts HTML">
-              <textarea
-                className="hippo-input"
-                rows={3}
+            <FormField label="Help Modal Content">
+              <HtmlEditor
                 value={checkout.autoSignUp?.helpModal?.content ?? ''}
-                onChange={(e) => setNested(['checkout', 'autoSignUp', 'helpModal', 'content'], e.target.value)}
+                onChange={(html) => setNested(['checkout', 'autoSignUp', 'helpModal', 'content'], html)}
               />
             </FormField>
 
@@ -330,12 +312,10 @@ const PagesSection: React.FC<SectionProps> = observer(({ data, markDirty }) => {
                 onChange={(e) => setNested(['checkout', 'smsOptIn', 'title'], e.target.value)}
               />
             </FormField>
-            <FormField label="SMS Opt-In CTA Content" helper="Accepts HTML">
-              <textarea
-                className="hippo-input"
-                rows={3}
+            <FormField label="SMS Opt-In CTA Content">
+              <HtmlEditor
                 value={checkout.smsOptIn?.content ?? ''}
-                onChange={(e) => setNested(['checkout', 'smsOptIn', 'content'], e.target.value)}
+                onChange={(html) => setNested(['checkout', 'smsOptIn', 'content'], html)}
               />
             </FormField>
           </div>
@@ -354,11 +334,9 @@ const PagesSection: React.FC<SectionProps> = observer(({ data, markDirty }) => {
         {openPanels.has('orderDetails') && (
           <div className="p-5 pt-0 space-y-5">
             <FormField label="Title (HTML)">
-              <textarea
-                className="hippo-input"
-                rows={2}
+              <HtmlEditor
                 value={orderDetails.title ?? ''}
-                onChange={(e) => setNested(['orderDetails', 'title'], e.target.value)}
+                onChange={(html) => setNested(['orderDetails', 'title'], html)}
               />
             </FormField>
 
@@ -406,12 +384,10 @@ const PagesSection: React.FC<SectionProps> = observer(({ data, markDirty }) => {
               </span>
               <div className="flex-1 h-px bg-[var(--border-glass)]" />
             </div>
-            <FormField label="Buy It Again Button Text" helper="Accepts HTML">
-              <textarea
-                className="hippo-input"
-                rows={3}
+            <FormField label="Buy It Again Button Text">
+              <HtmlEditor
                 value={orderDetails.buyItAgainButton?.text ?? ''}
-                onChange={(e) => setNested(['orderDetails', 'buyItAgainButton', 'text'], e.target.value)}
+                onChange={(html) => setNested(['orderDetails', 'buyItAgainButton', 'text'], html)}
               />
             </FormField>
             <FormField label="CSS Classes" helper="CSS classes to apply to the button">
@@ -431,12 +407,10 @@ const PagesSection: React.FC<SectionProps> = observer(({ data, markDirty }) => {
               </span>
               <div className="flex-1 h-px bg-[var(--border-glass)]" />
             </div>
-            <FormField label="Re-Order All Button Text" helper="Accepts HTML">
-              <textarea
-                className="hippo-input"
-                rows={3}
+            <FormField label="Re-Order All Button Text">
+              <HtmlEditor
                 value={orderDetails.reOrderAllButton?.text ?? ''}
-                onChange={(e) => setNested(['orderDetails', 'reOrderAllButton', 'text'], e.target.value)}
+                onChange={(html) => setNested(['orderDetails', 'reOrderAllButton', 'text'], html)}
               />
             </FormField>
             <FormField label="CSS Classes" helper="CSS classes to apply to the button">
@@ -463,11 +437,9 @@ const PagesSection: React.FC<SectionProps> = observer(({ data, markDirty }) => {
         {openPanels.has('resetPassword') && (
           <div className="p-5 pt-0 space-y-5">
             <FormField label="Page Title (HTML)">
-              <textarea
-                className="hippo-input"
-                rows={2}
+              <HtmlEditor
                 value={resetPassword.title ?? ''}
-                onChange={(e) => setNested(['resetPassword', 'title'], e.target.value)}
+                onChange={(html) => setNested(['resetPassword', 'title'], html)}
               />
             </FormField>
           </div>
@@ -486,11 +458,9 @@ const PagesSection: React.FC<SectionProps> = observer(({ data, markDirty }) => {
         {openPanels.has('subscriptionCancel') && (
           <div className="p-5 pt-0 space-y-5">
             <FormField label="Cancel Text (HTML)" helper="Text displayed on the subscription cancellation page">
-              <textarea
-                className="hippo-input"
-                rows={3}
+              <HtmlEditor
                 value={pageConfig.subscriptionCancel?.cancelText ?? ''}
-                onChange={(e) => setNested(['subscriptionCancel', 'cancelText'], e.target.value)}
+                onChange={(html) => setNested(['subscriptionCancel', 'cancelText'], html)}
               />
             </FormField>
 
@@ -535,14 +505,12 @@ const PagesSection: React.FC<SectionProps> = observer(({ data, markDirty }) => {
                   />
                 </FormField>
 
-                <FormField label="Display Content" helper="Accepts HTML">
-                  <textarea
-                    className="hippo-input"
-                    rows={3}
+                <FormField label="Display Content">
+                  <HtmlEditor
                     value={reason.text ?? ''}
-                    onChange={(e) => {
+                    onChange={(html) => {
                       if (!data.pageConfig?.subscriptionCancel?.cancelReasons) return;
-                      data.pageConfig.subscriptionCancel.cancelReasons[ri].text = e.target.value;
+                      data.pageConfig.subscriptionCancel.cancelReasons[ri].text = html;
                       markDirty();
                     }}
                   />
@@ -714,19 +682,15 @@ const PagesSection: React.FC<SectionProps> = observer(({ data, markDirty }) => {
               </div>
             </FormField>
             <FormField label="Ship Now Modal Headline (HTML)">
-              <textarea
-                className="hippo-input"
-                rows={2}
+              <HtmlEditor
                 value={subscriptionEdit.shipNow?.modalHeadlineContent ?? ''}
-                onChange={(e) => setNested(['subscriptionEdit', 'shipNow', 'modalHeadlineContent'], e.target.value)}
+                onChange={(html) => setNested(['subscriptionEdit', 'shipNow', 'modalHeadlineContent'], html)}
               />
             </FormField>
             <FormField label="Ship Now Modal Content (HTML)" helper="Use $FREQUENCY for the subscription frequency">
-              <textarea
-                className="hippo-input"
-                rows={3}
+              <HtmlEditor
                 value={subscriptionEdit.shipNow?.modalContent ?? ''}
-                onChange={(e) => setNested(['subscriptionEdit', 'shipNow', 'modalContent'], e.target.value)}
+                onChange={(html) => setNested(['subscriptionEdit', 'shipNow', 'modalContent'], html)}
               />
             </FormField>
           </div>
@@ -763,11 +727,9 @@ const PagesSection: React.FC<SectionProps> = observer(({ data, markDirty }) => {
               </div>
             </FormField>
             <FormField label="Money Back Guarantee Text (HTML)">
-              <textarea
-                className="hippo-input"
-                rows={3}
+              <HtmlEditor
                 value={upsell.mbgText ?? ''}
-                onChange={(e) => setNested(['upsell', 'mbgText'], e.target.value)}
+                onChange={(html) => setNested(['upsell', 'mbgText'], html)}
               />
             </FormField>
           </div>
@@ -794,13 +756,11 @@ const PagesSection: React.FC<SectionProps> = observer(({ data, markDirty }) => {
               <div className="flex-1 h-px bg-[var(--border-glass)]" />
             </div>
 
-            <FormField label="Banner Content" helper="Accepts HTML">
-              <textarea
-                className="hippo-input"
-                rows={3}
+            <FormField label="Banner Content">
+              <HtmlEditor
                 value={accountDetails.birthdayBannerConfig?.content ?? ''}
-                onChange={(e) =>
-                  setNested(['accountDetails', 'birthdayBannerConfig', 'content'], e.target.value)
+                onChange={(html) =>
+                  setNested(['accountDetails', 'birthdayBannerConfig', 'content'], html)
                 }
               />
             </FormField>

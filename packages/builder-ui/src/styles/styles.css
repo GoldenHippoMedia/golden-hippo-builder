@@ -10,9 +10,9 @@
 #hippo-app[data-theme='dark'] {
   --bg-primary: #0a0e1a;
   --bg-secondary: #111827;
-  --bg-glass: rgba(255, 255, 255, 0.03);
-  --bg-glass-hover: rgba(255, 255, 255, 0.06);
-  --border-glass: rgba(255, 255, 255, 0.06);
+  --bg-glass: rgba(255, 255, 255, 0.05);
+  --bg-glass-hover: rgba(255, 255, 255, 0.08);
+  --border-glass: rgba(255, 255, 255, 0.10);
   --border-glass-focus: rgba(200, 169, 81, 0.3);
   --text-primary: rgba(255, 255, 255, 0.92);
   --text-secondary: rgba(255, 255, 255, 0.55);

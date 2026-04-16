@@ -1,6 +1,6 @@
 import React from 'react';
 import { observer } from 'mobx-react';
-import { Section, FormField } from '@goldenhippo/builder-ui';
+import { Section, FormField, HtmlEditor } from '@goldenhippo/builder-ui';
 import { SectionProps } from './section-props';
 
 const CookieSection: React.FC<SectionProps> = observer(({ data, markDirty }) => {
@@ -25,12 +25,10 @@ const CookieSection: React.FC<SectionProps> = observer(({ data, markDirty }) => 
   return (
     <Section title="Cookie Configuration" subtitle="Settings for the cookie consent popup displayed to visitors">
       <div className="space-y-6">
-        <FormField label="Popup Content" helper="Content for the cookie policy popup banner (HTML)">
-          <textarea
-            className="hippo-input"
-            rows={4}
+        <FormField label="Popup Content">
+          <HtmlEditor
             value={popup.content ?? ''}
-            onChange={(e) => onPopupChange('content', e.target.value)}
+            onChange={(html) => onPopupChange('content', html)}
           />
         </FormField>
 

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { observer } from 'mobx-react';
-import { Section, FormField, ImagePicker } from '@goldenhippo/builder-ui';
+import { Section, FormField, ImagePicker, HtmlEditor } from '@goldenhippo/builder-ui';
 import {
   HeaderType,
   BasicHeaderCTAType,
@@ -625,12 +625,10 @@ const MediumDropdownLinkCard: React.FC<{
     <CardHeader title="Link" index={index} onRemove={onRemove} />
     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
       <FormField label="Link Text (HTML)">
-        <textarea
-          className="hippo-input"
-          rows={2}
+        <HtmlEditor
           value={item.text ?? ''}
-          onChange={(e) => {
-            item.text = e.target.value;
+          onChange={(html) => {
+            item.text = html;
             onChange();
           }}
         />
@@ -760,12 +758,10 @@ const MediumDropdownItemCard: React.FC<{
 
     {(item.type === MediumHeaderDropdownType.HTML || item.type === MediumHeaderDropdownType.TIMED_HTML) && (
       <FormField label="HTML Content">
-        <textarea
-          className="hippo-input"
-          rows={3}
+        <HtmlEditor
           value={item.htmlContent ?? ''}
-          onChange={(e) => {
-            item.htmlContent = e.target.value;
+          onChange={(html) => {
+            item.htmlContent = html;
             onChange();
           }}
         />
@@ -775,25 +771,21 @@ const MediumDropdownItemCard: React.FC<{
     {item.type === MediumHeaderDropdownType.TIMED_HTML && (
       <CollapsibleSection title="Timed HTML Inputs">
         <FormField label="Default HTML">
-          <textarea
-            className="hippo-input"
-            rows={2}
+          <HtmlEditor
             value={item.inputs?.defaultHtml ?? ''}
-            onChange={(e) => {
+            onChange={(html) => {
               if (!item.inputs) item.inputs = {};
-              item.inputs.defaultHtml = e.target.value;
+              item.inputs.defaultHtml = html;
               onChange();
             }}
           />
         </FormField>
         <FormField label="Temporary HTML">
-          <textarea
-            className="hippo-input"
-            rows={2}
+          <HtmlEditor
             value={item.inputs?.temporaryHtml ?? ''}
-            onChange={(e) => {
+            onChange={(html) => {
               if (!item.inputs) item.inputs = {};
-              item.inputs.temporaryHtml = e.target.value;
+              item.inputs.temporaryHtml = html;
               onChange();
             }}
           />
@@ -891,12 +883,10 @@ const MediumDesktopLinkCard: React.FC<{
     <CardHeader title="Link" index={index} onRemove={onRemove} />
     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
       <FormField label="Link Text (HTML)">
-        <textarea
-          className="hippo-input"
-          rows={2}
+        <HtmlEditor
           value={item.text ?? ''}
-          onChange={(e) => {
-            item.text = e.target.value;
+          onChange={(html) => {
+            item.text = html;
             onChange();
           }}
         />
@@ -1041,12 +1031,10 @@ const MediumDesktopLinkCard: React.FC<{
           )}
           {col.columnContentType === 'html' && (
             <FormField label="HTML Content">
-              <textarea
-                className="hippo-input"
-                rows={2}
+              <HtmlEditor
                 value={col.content ?? ''}
-                onChange={(e) => {
-                  col.content = e.target.value;
+                onChange={(html) => {
+                  col.content = html;
                   onChange();
                 }}
               />
@@ -1055,25 +1043,21 @@ const MediumDesktopLinkCard: React.FC<{
           {col.columnContentType === 'timedHtml' && (
             <div className="space-y-2">
               <FormField label="Default HTML">
-                <textarea
-                  className="hippo-input"
-                  rows={2}
+                <HtmlEditor
                   value={col.inputs?.defaultHtml ?? ''}
-                  onChange={(e) => {
+                  onChange={(html) => {
                     if (!col.inputs) col.inputs = {};
-                    col.inputs.defaultHtml = e.target.value;
+                    col.inputs.defaultHtml = html;
                     onChange();
                   }}
                 />
               </FormField>
               <FormField label="Temporary HTML">
-                <textarea
-                  className="hippo-input"
-                  rows={2}
+                <HtmlEditor
                   value={col.inputs?.temporaryHtml ?? ''}
-                  onChange={(e) => {
+                  onChange={(html) => {
                     if (!col.inputs) col.inputs = {};
-                    col.inputs.temporaryHtml = e.target.value;
+                    col.inputs.temporaryHtml = html;
                     onChange();
                   }}
                 />
@@ -1134,12 +1118,10 @@ const MediumDesktopContentCard: React.FC<{
 
     {item.type === MediumHeaderDesktopContentType.HTML && (
       <FormField label="HTML Content">
-        <textarea
-          className="hippo-input"
-          rows={3}
+        <HtmlEditor
           value={item.htmlContent ?? ''}
-          onChange={(e) => {
-            item.htmlContent = e.target.value;
+          onChange={(html) => {
+            item.htmlContent = html;
             onChange();
           }}
         />
@@ -1421,12 +1403,10 @@ const MediumHeaderConfig: React.FC<{ data: Record<string, any>; markDirty: () =>
                   />
                 </FormField>
                 <FormField label="Banner Content (HTML)">
-                  <textarea
-                    className="hippo-input"
-                    rows={3}
+                  <HtmlEditor
                     value={banner.content ?? ''}
-                    onChange={(e) => {
-                      banner.content = e.target.value;
+                    onChange={(html) => {
+                      banner.content = html;
                       markDirty();
                     }}
                   />

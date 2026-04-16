@@ -72,7 +72,7 @@ const GeneralSection: React.FC<SectionProps> = observer(({ data, onChangeRoot, m
       </Section>
 
       <Section title="Brand Images" subtitle="Logo and brand images used throughout the website">
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+        <div className="flex flex-wrap gap-5">
           {IMAGE_FIELDS.map(({ key, label }) => (
             <ImagePicker
               key={key}
@@ -86,7 +86,7 @@ const GeneralSection: React.FC<SectionProps> = observer(({ data, onChangeRoot, m
 
       <Section title="General Links" subtitle="Links to legal pages and external profiles">
         <div className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
             {LINK_FIELDS.map(({ key, label }) => (
               <FormField key={key} label={label}>
                 <input
@@ -108,7 +108,7 @@ const GeneralSection: React.FC<SectionProps> = observer(({ data, onChangeRoot, m
             <div className="flex-1 h-px bg-[var(--border-glass)]" />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-5">
             {SOCIAL_FIELDS.map(({ key, label }) => (
               <FormField key={key} label={label}>
                 <input
