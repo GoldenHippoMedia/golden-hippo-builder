@@ -1,5 +1,11 @@
 # @goldenhippo/builder-cart-schemas
 
+## 0.9.1
+
+### Patch Changes
+
+- [#19](https://github.com/GoldenHippoMedia/golden-hippo-builder/pull/19) [`c4b5504`](https://github.com/GoldenHippoMedia/golden-hippo-builder/commit/c4b5504d741f4eee4b862f212e1f5057cf1426ca) - Fixes the dynamic show/hide of global review settings on the page model and updates the related types. — [@steven-t-h](https://github.com/steven-t-h)
+
 ## 0.9.0
 
 ### Minor Changes
