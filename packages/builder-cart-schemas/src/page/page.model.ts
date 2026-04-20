@@ -311,7 +311,7 @@ export const createPageModel = (props: PageModelInputProps): ModelShape => {
                 helperText:
                   'This is displayed after the count of global 5-star reviews (e.g. "5,000+ [your text here]")',
                 defaultCollapsed: false,
-                showIf: `return !!(options.get('pdp')?.get("reviewSettings")?.get("showGlobalFiveStarRating"))`,
+                showIf: `return !!(options.get("showGlobalFiveStarRating"))`,
               },
               {
                 name: 'globalRatingLink',
@@ -320,7 +320,7 @@ export const createPageModel = (props: PageModelInputProps): ModelShape => {
                 required: false,
                 helperText: 'When provided, the number of reviews will be clickable.',
                 defaultCollapsed: false,
-                showIf: `return !!(options.get('pdp')?.get("reviewSettings")?.get("showGlobalFiveStarRating"))`,
+                showIf: `return !!(options.get("showGlobalFiveStarRating"))`,
               },
             ],
             helperText: 'Configure how the reviews are displayed',
@@ -991,6 +991,12 @@ export type BuilderPdpPageContent = BuilderContent &
             image: string;
           }[];
           sliderComponent?: OfferSelectorSliderTypes;
+          reviewSettings?: {
+            showStarRating?: boolean;
+            showGlobalFiveStarRating?: boolean;
+            globalRatingText?: string;
+            globalRatingLink?: string;
+          };
           hideNativeOfferSelector?: boolean;
           offerSelector: {
             osType: OfferSelectorTypes;
