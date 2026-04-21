@@ -1,5 +1,12 @@
 # @goldenhippo/builder-shared-schemas
 
+## 0.9.2
+
+### Patch Changes
+
+- [`5155f49`](https://github.com/GoldenHippoMedia/golden-hippo-builder/commit/5155f4993ca8c84e9f7a4c40ac16469554a80a1e) - - adds a new field `globalFiveStarReviews` to the product schema in `@goldenhippo/builder-shared-schemas`. This field is intended to store the total count of five-star reviews for a brand, aggregated across all platforms. — [@steven-t-h](https://github.com/steven-t-h)
+  - updates the funnel plugin to allow setting the brand properly
+
 ## 0.9.0
 
 ### Minor Changes
