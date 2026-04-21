@@ -14,6 +14,13 @@ Builder.register('plugin', {
   settings: [
     {
       type: 'text',
+      name: 'brand',
+      friendlyName: 'Brand',
+      helperText: 'Brand name for this application',
+      required: true,
+    },
+    {
+      type: 'text',
       name: 'editUrl',
       friendlyName: 'Funnel Site URL',
       helperText: 'Provide the URL to your funnel site.',

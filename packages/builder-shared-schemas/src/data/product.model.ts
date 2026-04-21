@@ -411,6 +411,7 @@ export type BuilderProductContent = BuilderContent &
         id: string;
         count: number;
         averageRating: number;
+        globalFiveStarReviews: number;
       };
       tags?: {
         tag: BuilderContentReference<BuilderProductTagContent['data']>;
