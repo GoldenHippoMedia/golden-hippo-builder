@@ -1,5 +1,11 @@
 # @goldenhippo/builder-funnel-schemas
 
+## 0.9.3
+
+### Patch Changes
+
+- [`787e6cc`](https://github.com/GoldenHippoMedia/golden-hippo-builder/commit/787e6cc8b34ec0b564146a1a48f8a73f2f39a941) - bump to latest shared schemas — [@steven-t-h](https://github.com/steven-t-h)
+
 ## 0.8.0
 
 ### Minor Changes
