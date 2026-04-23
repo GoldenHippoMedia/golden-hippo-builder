@@ -159,6 +159,23 @@ export const createPageConfig = (): BuilderIOFieldTypes => {
                 defaultCollapsed: true,
               },
               {
+                name: 'groupCartContentsByPurchaseType',
+                friendlyName:
+                  'Indicates whether cart contents should be grouped by subscription and one-time purchases',
+                type: 'boolean',
+                required: true,
+                localized: true,
+                defaultCollapsed: true,
+              },
+              {
+                name: 'enabledCartFrequencyToggle',
+                friendlyName: 'Determine whether we show a frequency toggle on the cart page and on the cart drawer',
+                type: 'boolean',
+                required: true,
+                localized: true,
+                defaultCollapsed: true,
+              },
+              {
                 name: 'loggedOutBannerContent',
                 friendlyName: 'Logged Out Banner Content',
                 type: 'html',
