@@ -1,5 +1,16 @@
 # @goldenhippo/builder-cart-plugin
 
+## 0.4.0
+
+### Minor Changes
+
+- [#24](https://github.com/GoldenHippoMedia/golden-hippo-builder/pull/24) [`870c21c`](https://github.com/GoldenHippoMedia/golden-hippo-builder/commit/870c21cdfc3f25cb583562e62e8d70f5d730b391) - Adds feature flags for groupCartContentsByPurchaseType and enabledCartFrequencyToggle — [@dkidwell999](https://github.com/dkidwell999)
+
+### Patch Changes
+
+- Updated dependencies [[`870c21c`](https://github.com/GoldenHippoMedia/golden-hippo-builder/commit/870c21cdfc3f25cb583562e62e8d70f5d730b391)]:
+  - @goldenhippo/builder-cart-schemas@0.10.0
+
 ## 0.3.1
 
 ### Patch Changes
