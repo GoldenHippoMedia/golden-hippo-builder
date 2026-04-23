@@ -288,11 +288,11 @@ export type BuilderBrandConfigContent = BuilderContent &
         };
         cart: {
           continueShoppingUrl: string;
+          groupCartContentsByPurchaseType: boolean;
+          enabledCartFrequencyToggle: boolean;
           imageContainerBGColor: string;
           freeShippingBanner: {
             isVisible: boolean;
-            groupCartContentsByPurchaseType: boolean;
-            enabledCartFrequencyToggle: boolean;
             loggedOutBannerContent: string;
             loggedInBannerContent: string;
             styles: {
