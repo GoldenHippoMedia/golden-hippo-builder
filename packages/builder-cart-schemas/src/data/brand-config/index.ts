@@ -291,6 +291,8 @@ export type BuilderBrandConfigContent = BuilderContent &
           imageContainerBGColor: string;
           freeShippingBanner: {
             isVisible: boolean;
+            groupCartContentsByPurchaseType: boolean;
+            enabledCartFrequencyToggle: boolean;
             loggedOutBannerContent: string;
             loggedInBannerContent: string;
             styles: {
