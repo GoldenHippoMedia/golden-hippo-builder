@@ -30,7 +30,6 @@ class FunnelBuilderHelper {
   funnelPageModel(editUrl: string, funnelModelId: string): ModelShape {
     return createFunnelPageModel(editUrl, funnelModelId);
   }
-
 }
 
 export default new FunnelBuilderHelper();

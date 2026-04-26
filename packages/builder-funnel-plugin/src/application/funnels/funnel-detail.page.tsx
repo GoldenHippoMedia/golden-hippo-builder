@@ -338,9 +338,7 @@ const FunnelDetailPage: React.FC<FunnelDetailProps> = ({ item, funnelPages, cont
           <InfoRow
             label="Builder Pages"
             value={
-              <span
-                className={`font-semibold ${hasMissingPages ? 'text-[var(--warning)]' : 'text-[var(--success)]'}`}
-              >
+              <span className={`font-semibold ${hasMissingPages ? 'text-[var(--warning)]' : 'text-[var(--success)]'}`}>
                 {createdCount} / {sortedSteps.length}
               </span>
             }
@@ -461,9 +459,7 @@ const FunnelDetailPage: React.FC<FunnelDetailProps> = ({ item, funnelPages, cont
                     </td>
                     <td className="py-3 pr-4">
                       <div className="text-sm font-medium text-[var(--text-primary)]">{step.name}</div>
-                      {step.gep && (
-                        <div className="text-xs font-mono text-[var(--text-muted)] mt-0.5">{step.gep}</div>
-                      )}
+                      {step.gep && <div className="text-xs font-mono text-[var(--text-muted)] mt-0.5">{step.gep}</div>}
                     </td>
                     <td className="py-3 pr-4">
                       <StatusBadge variant="ghost" label={step.pageType} />

@@ -110,10 +110,10 @@ const FunnelsPage: React.FC<FunnelsPageProps> = observer(({ context }) => {
   }
 
   const activeFunnelCount = selectedBrand
-    ? brandSummaries.find((b) => b.name === selectedBrand)?.active ?? 0
+    ? (brandSummaries.find((b) => b.name === selectedBrand)?.active ?? 0)
     : prePurchaseFunnels.filter((f) => f.data?.active).length;
   const totalFunnelCount = selectedBrand
-    ? brandSummaries.find((b) => b.name === selectedBrand)?.total ?? 0
+    ? (brandSummaries.find((b) => b.name === selectedBrand)?.total ?? 0)
     : prePurchaseFunnels.length;
 
   return (
@@ -171,9 +171,7 @@ const FunnelsPage: React.FC<FunnelsPageProps> = observer(({ context }) => {
               <div className="text-sm font-semibold text-[var(--text-primary)] mb-2">{brand.name}</div>
               <div className="flex items-baseline gap-3">
                 <span className="text-2xl font-bold text-[var(--text-primary)]">{brand.total}</span>
-                <span className="text-xs text-[var(--text-muted)]">
-                  funnel{brand.total !== 1 ? 's' : ''}
-                </span>
+                <span className="text-xs text-[var(--text-muted)]">funnel{brand.total !== 1 ? 's' : ''}</span>
               </div>
               <div className="text-xs text-[var(--text-secondary)] mt-1">
                 {brand.active} active · {brand.total - brand.active} inactive

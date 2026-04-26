@@ -134,7 +134,6 @@ class BuilderApi {
     });
   }
 
-
   async fetchContent<T extends BuilderContent = BuilderContent>(request: FetchContentRequest): Promise<T[]> {
     const { modelName, limit = 20, additionalParamsString, bustCache = false, enrich = true } = request;
     const content: T[] = [];

@@ -71,7 +71,7 @@ class HippoApi {
     }
     throw new Error(`Failed to retrieve destination - GEP: ${gep}. Check your plugin settings!`);
   }
-  
+
   private headersWithBrand(brandName: string): Headers {
     const credentials = btoa(`${this.apiUser}:${this.apiPassword}`);
     return new Headers({
