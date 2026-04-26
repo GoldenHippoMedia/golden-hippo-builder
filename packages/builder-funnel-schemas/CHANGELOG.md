@@ -1,5 +1,11 @@
 # @goldenhippo/builder-funnel-schemas
 
+## 0.11.0
+
+### Minor Changes
+
+- [#28](https://github.com/GoldenHippoMedia/golden-hippo-builder/pull/28) [`4eb0759`](https://github.com/GoldenHippoMedia/golden-hippo-builder/commit/4eb07596a2caba2e2d59bd7cf4bf7037fc506e26) - Update funnel model with required brand field, funnel-destination model updates, funnel-page model improvements, and new resolve-destination-config utility — [@steven-t-h](https://github.com/steven-t-h)
+
 ## 0.9.3
 
 ### Patch Changes

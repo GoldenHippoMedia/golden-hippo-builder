@@ -1,5 +1,16 @@
 # @goldenhippo/builder-funnel-plugin
 
+## 0.4.0
+
+### Minor Changes
+
+- [#28](https://github.com/GoldenHippoMedia/golden-hippo-builder/pull/28) [`4eb0759`](https://github.com/GoldenHippoMedia/golden-hippo-builder/commit/4eb07596a2caba2e2d59bd7cf4bf7037fc506e26) - Refactor funnel plugin to match cart plugin architecture: separate Builder.io tabs (Funnels + Admin), shared AppShell with theme support, MobX singleton data store, brand-aware funnels page with filter bar and summary cards, and full CSS variable styling migration — [@steven-t-h](https://github.com/steven-t-h)
+
+### Patch Changes
+
+- Updated dependencies [[`4eb0759`](https://github.com/GoldenHippoMedia/golden-hippo-builder/commit/4eb07596a2caba2e2d59bd7cf4bf7037fc506e26)]:
+  - @goldenhippo/builder-funnel-schemas@0.11.0
+
 ## 0.3.1
 
 ### Patch Changes
