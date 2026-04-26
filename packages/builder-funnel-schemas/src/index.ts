@@ -13,16 +13,10 @@ export {
 } from '@goldenhippo/builder-shared-schemas';
 
 // Data models
-export {
-  createFunnelModel,
-  type BuilderFunnelContent,
-} from './data';
+export { createFunnelModel, type BuilderFunnelContent } from './data';
 
 // Page models
 export { createFunnelPageModel, type BuilderFunnelPageContent } from './page';
 
 // Utilities
-export {
-  getFunnelProductionIdFromPage,
-  getFunnelSlugFromPage,
-} from './utils';
+export { getFunnelProductionIdFromPage, getFunnelSlugFromPage } from './utils';
