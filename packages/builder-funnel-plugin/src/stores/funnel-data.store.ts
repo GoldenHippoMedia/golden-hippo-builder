@@ -1,47 +1,50 @@
-import { makeAutoObservable, runInAction } from 'mobx';
+import { observable } from 'mobx';
 import { BuilderFunnelContent, BuilderFunnelPageContent } from '@goldenhippo/builder-funnel-schemas';
 import type { ExtendedApplicationContext } from '../interfaces/application-context.interface';
 import BuilderApi from '../services/builder-api';
 
-class FunnelDataStore {
-  funnels: BuilderFunnelContent[] = [];
-  funnelPages: BuilderFunnelPageContent[] = [];
-  loading = true;
-  error: string | null = null;
-  private loaded = false;
+const state = observable({
+  funnels: [] as BuilderFunnelContent[],
+  funnelPages: [] as BuilderFunnelPageContent[],
+  loading: true,
+  error: null as string | null,
+  loaded: false,
+});
 
-  constructor() {
-    makeAutoObservable(this);
-  }
+export const funnelDataStore = {
+  get funnels() {
+    return state.funnels;
+  },
+  get funnelPages() {
+    return state.funnelPages;
+  },
+  get loading() {
+    return state.loading;
+  },
+  get error() {
+    return state.error;
+  },
 
   async load(context: ExtendedApplicationContext): Promise<void> {
-    if (this.loaded) return;
-    this.loading = true;
-    this.error = null;
+    if (state.loaded) return;
+    state.loading = true;
+    state.error = null;
     try {
       const api = new BuilderApi(context);
       const [funnels, funnelPages] = await Promise.all([api.getFunnels(true), api.getFunnelPages(true)]);
-      runInAction(() => {
-        this.funnels = funnels;
-        this.funnelPages = funnelPages;
-        this.loaded = true;
-      });
+      state.funnels = funnels;
+      state.funnelPages = funnelPages;
+      state.loaded = true;
     } catch (err: any) {
-      runInAction(() => {
-        this.error = err.message ?? 'An error occurred loading data.';
-      });
+      state.error = err.message ?? 'An error occurred loading data.';
       console.error('[Hippo Funnels] Error loading data', err);
     } finally {
-      runInAction(() => {
-        this.loading = false;
-      });
+      state.loading = false;
     }
-  }
+  },
 
   async refresh(context: ExtendedApplicationContext): Promise<void> {
-    this.loaded = false;
-    await this.load(context);
-  }
-}
-
-export const funnelDataStore = new FunnelDataStore();
+    state.loaded = false;
+    await funnelDataStore.load(context);
+  },
+};
