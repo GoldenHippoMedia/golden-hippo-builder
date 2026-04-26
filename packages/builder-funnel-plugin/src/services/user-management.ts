@@ -3,7 +3,6 @@ import { ExtendedApplicationContext } from '../interfaces/application-context.in
 
 export interface HippoUser {
   id: string;
-  brand: string;
   email: string;
   name: string;
   permissions: {
@@ -27,7 +26,6 @@ class UserManagementService {
     const appSettings = currentOrg?.value.settings.plugins.toJSON()[pluginId];
     return {
       id: user.id,
-      brand: (appSettings?.brand as string) ?? '',
       email: user.data.email,
       name: user.data.displayName,
       permissions: {

@@ -16,8 +16,6 @@ export {
 export {
   createFunnelModel,
   type BuilderFunnelContent,
-  createFunnelDestinationModel,
-  type BuilderFunnelDestinationContent,
 } from './data';
 
 // Page models
@@ -25,8 +23,6 @@ export { createFunnelPageModel, type BuilderFunnelPageContent } from './page';
 
 // Utilities
 export {
-  resolveDestinationConfig,
-  type DestinationConfig,
   getFunnelProductionIdFromPage,
   getFunnelSlugFromPage,
 } from './utils';

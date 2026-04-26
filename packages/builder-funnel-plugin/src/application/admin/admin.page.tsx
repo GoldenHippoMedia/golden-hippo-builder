@@ -31,7 +31,6 @@ const AdminPage: React.FC<AdminPageProps> = ({ data, context, onRefresh }) => {
 
   const [deleteSelection, setDeleteSelection] = useState<Record<string, boolean>>({
     funnels: false,
-    destinations: false,
     funnelPages: false,
   });
 
@@ -43,7 +42,6 @@ const AdminPage: React.FC<AdminPageProps> = ({ data, context, onRefresh }) => {
 
   const handleDeleteSelected = useCallback(async () => {
     const modelLabels: Record<string, string> = {
-      destinations: 'destinations',
       funnels: 'funnels',
       funnelPages: 'funnel pages',
     };
@@ -71,13 +69,6 @@ const AdminPage: React.FC<AdminPageProps> = ({ data, context, onRefresh }) => {
           log(`Deleted funnel page "${item.data?.title ?? item.id}"`, 'info');
         }
       }
-      if (deleteSelection.destinations) {
-        log('Deleting destinations...', 'info');
-        for (const item of data.destinations) {
-          await api.removeContent(item);
-          log(`Deleted destination "${item.data?.name ?? item.id}"`, 'info');
-        }
-      }
       if (deleteSelection.funnels) {
         log('Deleting funnels...', 'info');
         for (const item of data.funnels) {
@@ -86,7 +77,7 @@ const AdminPage: React.FC<AdminPageProps> = ({ data, context, onRefresh }) => {
         }
       }
 
-      setDeleteSelection({ funnels: false, destinations: false, funnelPages: false });
+      setDeleteSelection({ funnels: false, funnelPages: false });
       await onRefresh();
       log(`--- Deleted all ${selected.join(', ')}. ---`, 'success');
     } catch {
@@ -125,7 +116,6 @@ const AdminPage: React.FC<AdminPageProps> = ({ data, context, onRefresh }) => {
 
   const counts = {
     funnels: data.funnels.length,
-    destinations: data.destinations.length,
     funnelPages: data.funnelPages.length,
   };
 
@@ -139,10 +129,6 @@ const AdminPage: React.FC<AdminPageProps> = ({ data, context, onRefresh }) => {
             <span>
               <span className="text-2xl font-bold">{counts.funnels}</span>{' '}
               <span className="text-base-content/60">funnels</span>
-            </span>
-            <span>
-              <span className="text-2xl font-bold">{counts.destinations}</span>{' '}
-              <span className="text-base-content/60">destinations</span>
             </span>
             <span>
               <span className="text-2xl font-bold">{counts.funnelPages}</span>{' '}
@@ -188,15 +174,11 @@ const AdminPage: React.FC<AdminPageProps> = ({ data, context, onRefresh }) => {
         <Section title="Danger Zone" variant="danger">
           <p className="text-sm text-base-content/60 mb-4">
             Select model(s) to delete all their entries. Deletions are permanent.
-            <br />
-            <strong>Note:</strong> Funnels and destinations are managed by the ERP sync job — deleting them here will
-            cause them to be re-created on the next sync.
           </p>
           <div className="space-y-2 mb-4">
             {(
               [
                 { key: 'funnelPages', label: 'Funnel Pages', count: counts.funnelPages },
-                { key: 'destinations', label: 'Destinations (sync-managed)', count: counts.destinations },
                 { key: 'funnels', label: 'Funnels (sync-managed)', count: counts.funnels },
               ] as const
             ).map(({ key, label, count }) => (

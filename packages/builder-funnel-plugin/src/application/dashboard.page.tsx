@@ -10,7 +10,6 @@ interface DashboardPageProps {
 const DashboardPage: React.FC<DashboardPageProps> = ({ data, setPage }) => {
   const prePurchaseFunnels = data.funnels.filter((f) => !f.data?.type || f.data.type === 'Pre-purchase');
   const activeFunnels = prePurchaseFunnels.filter((f) => f.data?.active).length;
-  const activeDestinations = data.destinations.filter((d) => d.data?.active).length;
 
   return (
     <div className="max-w-6xl mx-auto">
@@ -22,12 +21,6 @@ const DashboardPage: React.FC<DashboardPageProps> = ({ data, setPage }) => {
           metric={`${activeFunnels} active / ${prePurchaseFunnels.length} total`}
           actionLabel="View"
           onActionClick={() => setPage(PageOption.FUNNELS)}
-        />
-        <StatGridCard
-          title="Destinations"
-          metric={`${activeDestinations} active / ${data.destinations.length} total`}
-          actionLabel="View"
-          onActionClick={() => setPage(PageOption.DESTINATIONS)}
         />
         <StatGridCard
           title="Funnel Pages"
@@ -59,30 +52,6 @@ const DashboardPage: React.FC<DashboardPageProps> = ({ data, setPage }) => {
             </ul>
           ) : (
             <p className="text-base-content/50 italic">No funnels yet. Make sure the sync job has run.</p>
-          )}
-        </Section>
-
-        <Section title="Recent Destinations">
-          {data.destinations.length > 0 ? (
-            <ul className="space-y-3">
-              {data.destinations.slice(0, 6).map((dest) => (
-                <li key={dest.id} className="flex items-center justify-between">
-                  <div>
-                    <span className="font-medium">{dest.data?.name ?? 'Untitled'}</span>
-                    {dest.data?.slug && (
-                      <code className="ml-2 text-xs bg-base-300 px-1.5 py-0.5 rounded text-base-content/60">
-                        /d/{dest.data.slug}
-                      </code>
-                    )}
-                  </div>
-                  <span className={`badge badge-sm ${dest.data?.active ? 'badge-success' : 'badge-ghost'}`}>
-                    {dest.data?.active ? 'Active' : 'Inactive'}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="text-base-content/50 italic">No destinations yet.</p>
           )}
         </Section>
       </div>

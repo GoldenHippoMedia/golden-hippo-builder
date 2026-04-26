@@ -4,7 +4,6 @@ import { useCookies } from 'react-cookie';
 import appState from '@builder.io/app-context';
 import {
   BuilderFunnelContent,
-  BuilderFunnelDestinationContent,
   BuilderFunnelPageContent,
 } from '@goldenhippo/builder-funnel-schemas';
 import './styles.css';
@@ -13,20 +12,17 @@ import { ExtendedApplicationContext } from './interfaces/application-context.int
 import BuilderApi from './services/builder-api';
 import DashboardPage from './application/dashboard.page';
 import FunnelsPage from './application/funnels/funnels.page';
-import DestinationsPage from './application/destinations/destinations.page';
 import AdminPage from './application/admin/admin.page';
 
 export enum PageOption {
   DASHBOARD = 'dashboard',
   FUNNELS = 'funnels',
-  DESTINATIONS = 'destinations',
   ADMIN = 'admin',
 }
 
 export interface FunnelAppData {
   funnels: BuilderFunnelContent[];
   funnelPages: BuilderFunnelPageContent[];
-  destinations: BuilderFunnelDestinationContent[];
 }
 
 const App: React.FC = () => {
@@ -37,7 +33,6 @@ const App: React.FC = () => {
   const store = useLocalStore(() => ({
     funnels: [] as BuilderFunnelContent[],
     funnelPages: [] as BuilderFunnelPageContent[],
-    destinations: [] as BuilderFunnelDestinationContent[],
     loading: true,
     error: null as string | null,
   }));
@@ -54,14 +49,12 @@ const App: React.FC = () => {
       if (showLoading) store.loading = true;
       try {
         const builderApi = new BuilderApi(context);
-        const [funnels, funnelPages, destinations] = await Promise.all([
+        const [funnels, funnelPages] = await Promise.all([
           builderApi.getFunnels(true),
           builderApi.getFunnelPages(true),
-          builderApi.getDestinations(true),
         ]);
         store.funnels = funnels;
         store.funnelPages = funnelPages;
-        store.destinations = destinations;
         store.error = null;
       } catch (err: any) {
         console.error('[Hippo Funnels] Error loading data', err);
@@ -114,15 +107,12 @@ const App: React.FC = () => {
     const data: FunnelAppData = {
       funnels: store.funnels,
       funnelPages: store.funnelPages,
-      destinations: store.destinations,
     };
 
     const renderPage = () => {
       switch (currentPage) {
         case PageOption.FUNNELS:
           return <FunnelsPage data={data} context={context} onRefresh={refresh} />;
-        case PageOption.DESTINATIONS:
-          return <DestinationsPage data={data} context={context} onRefresh={refresh} />;
         case PageOption.ADMIN:
           return <AdminPage data={data} context={context} onRefresh={refresh} />;
         case PageOption.DASHBOARD:
@@ -147,12 +137,6 @@ const App: React.FC = () => {
               onClick={() => setPage(PageOption.FUNNELS)}
             >
               Funnels
-            </button>
-            <button
-              className={`btn btn-sm ${currentPage === PageOption.DESTINATIONS ? 'btn-primary' : 'btn-ghost'}`}
-              onClick={() => setPage(PageOption.DESTINATIONS)}
-            >
-              Destinations
             </button>
           </div>
           <div className="navbar-end gap-2">

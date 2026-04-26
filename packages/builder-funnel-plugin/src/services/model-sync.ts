@@ -99,24 +99,19 @@ export async function syncFunnelModels(
   report('Product');
   if (!productModelId) throw new Error('Failed to create Product model');
 
+  // Phase 3: Funnel data model
   const funnelModelShape = FunnelBuilderHelper.funnelModel;
   const funnelModel = getModel(funnelModelShape.name, models);
   const funnelModelId = await setModel(funnelModelShape, funnelModel, context);
   report('Funnel');
   if (!funnelModelId) throw new Error('Failed to create Funnel model');
 
+  // Phase 4: Funnel Page model
   const funnelPageModelShape = FunnelBuilderHelper.funnelPageModel(editUrl, funnelModelId);
   const funnelPageModel = getModel(funnelPageModelShape.name, models);
   const funnelPageModelId = await setModel(funnelPageModelShape, funnelPageModel, context);
   report('Funnel Page');
   if (!funnelPageModelId) throw new Error('Failed to create Funnel Page model');
-
-  // Phase 6: Destination (depends on offer + funnel, optionally split test)
-  const destinationModelShape = FunnelBuilderHelper.funnelDestinationModel(funnelModelId);
-  const destinationModel = getModel(destinationModelShape.name, models);
-  const destinationModelId = await setModel(destinationModelShape, destinationModel, context);
-  report('Destination');
-  if (!destinationModelId) throw new Error('Failed to create Destination model');
 
   console.info('[Hippo Commerce - FUNNEL] Model sync complete');
 }
