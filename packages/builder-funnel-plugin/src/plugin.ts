@@ -1,4 +1,3 @@
-import React from 'react';
 import { Builder } from '@builder.io/react';
 import appState from '@builder.io/app-context';
 import { pluginId, funnelsIcon, adminIcon } from './constants';
