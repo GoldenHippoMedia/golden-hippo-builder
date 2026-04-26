@@ -91,17 +91,13 @@ Builder.register('appTab', {
   component: HippoFunnels,
 });
 
-try {
-  const user = UserManagementService.getUserDetails(appState as ExtendedApplicationContext);
-  if (user.permissions.admin) {
-    Builder.register('appTab', {
-      name: 'Hippo Admin',
-      path: 'hippo-funnels/admin',
-      icon: adminIcon,
-      component: HippoFunnelAdmin,
-    });
-  }
-} catch {
-  // appState may not be ready at module init — admin tab will be unavailable
-  // but the main Funnels tab still registers above
+const user = UserManagementService.getUserDetails(appState as ExtendedApplicationContext);
+
+if (user.permissions.admin) {
+  Builder.register('appTab', {
+    name: 'Hippo Admin',
+    path: 'hippo-funnels/admin',
+    icon: adminIcon,
+    component: HippoFunnelAdmin,
+  });
 }
