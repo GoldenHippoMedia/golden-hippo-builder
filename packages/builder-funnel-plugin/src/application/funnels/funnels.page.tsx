@@ -1,74 +1,192 @@
 import React, { useMemo, useState } from 'react';
+import { observer } from 'mobx-react';
 import { EmptyState, PageHeader, Section } from '@goldenhippo/builder-ui';
-import { FunnelAppData } from '../../App';
 import { ExtendedApplicationContext } from '../../interfaces/application-context.interface';
+import { funnelDataStore } from '../../stores/funnel-data.store';
 import FunnelDetailPage from './funnel-detail.page';
 
 interface FunnelsPageProps {
-  data: FunnelAppData;
   context: ExtendedApplicationContext;
-  onRefresh: () => Promise<void>;
 }
 
-const FunnelsPage: React.FC<FunnelsPageProps> = ({ data, context, onRefresh }) => {
+const StatusBadge: React.FC<{ variant: 'success' | 'warning' | 'error' | 'ghost'; label: string }> = ({
+  variant,
+  label,
+}) => {
+  const cls: Record<string, string> = {
+    success: 'bg-[var(--success)]/15 text-[var(--success)]',
+    warning: 'bg-[var(--warning)]/15 text-[var(--warning)]',
+    error: 'bg-[var(--error)]/15 text-[var(--error)]',
+    ghost: 'bg-[var(--bg-glass)] text-[var(--text-muted)]',
+  };
+  return <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${cls[variant]}`}>{label}</span>;
+};
+
+const SmallButton: React.FC<React.ButtonHTMLAttributes<HTMLButtonElement> & { children: React.ReactNode }> = ({
+  children,
+  className,
+  ...props
+}) => (
+  <button
+    className={`px-3 py-1.5 rounded-lg text-xs font-medium border border-[var(--border-glass)] bg-[var(--bg-glass)] text-[var(--text-secondary)] cursor-pointer hover:bg-[var(--bg-glass-hover)] transition-colors disabled:opacity-40 disabled:cursor-not-allowed ${className ?? ''}`}
+    {...props}
+  >
+    {children}
+  </button>
+);
+
+interface BrandSummary {
+  name: string;
+  total: number;
+  active: number;
+}
+
+const FunnelsPage: React.FC<FunnelsPageProps> = observer(({ context }) => {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [search, setSearch] = useState('');
+  const [selectedBrand, setSelectedBrand] = useState<string | null>(null);
 
-  const selectedItem = useMemo(() => {
-    if (!selectedId) return null;
-    return data.funnels.find((f) => f.id === selectedId) ?? null;
-  }, [data.funnels, selectedId]);
+  const { funnels, funnelPages } = funnelDataStore;
 
-  // Only show Pre-purchase funnels — post-purchase flow not yet decided
   const prePurchaseFunnels = useMemo(
-    () => data.funnels.filter((f) => !f.data?.type || f.data.type === 'Pre-purchase'),
-    [data.funnels],
+    () => funnels.filter((f) => !f.data?.type || f.data.type === 'Pre-purchase'),
+    [funnels],
+  );
+
+  const brands = useMemo(() => {
+    const names = [...new Set(prePurchaseFunnels.map((f) => f.data?.brand).filter(Boolean))] as string[];
+    return names.sort();
+  }, [prePurchaseFunnels]);
+
+  const brandSummaries = useMemo<BrandSummary[]>(
+    () =>
+      brands.map((name) => {
+        const brandFunnels = prePurchaseFunnels.filter((f) => f.data?.brand === name);
+        return {
+          name,
+          total: brandFunnels.length,
+          active: brandFunnels.filter((f) => f.data?.active).length,
+        };
+      }),
+    [brands, prePurchaseFunnels],
   );
 
   const filteredFunnels = useMemo(() => {
-    if (!search.trim()) return prePurchaseFunnels;
-    const q = search.toLowerCase();
-    return prePurchaseFunnels.filter(
-      (f) =>
-        f.data?.name?.toLowerCase().includes(q) ||
-        f.data?.slug?.toLowerCase().includes(q) ||
-        f.data?.productionId?.toLowerCase().includes(q),
-    );
-  }, [prePurchaseFunnels, search]);
+    let result = prePurchaseFunnels;
+    if (selectedBrand) {
+      result = result.filter((f) => f.data?.brand === selectedBrand);
+    }
+    if (search.trim()) {
+      const q = search.toLowerCase();
+      result = result.filter(
+        (f) =>
+          f.data?.name?.toLowerCase().includes(q) ||
+          f.data?.slug?.toLowerCase().includes(q) ||
+          f.data?.productionId?.toLowerCase().includes(q),
+      );
+    }
+    return result;
+  }, [prePurchaseFunnels, selectedBrand, search]);
+
+  const selectedItem = useMemo(() => {
+    if (!selectedId) return null;
+    return funnels.find((f) => f.id === selectedId) ?? null;
+  }, [funnels, selectedId]);
+
+  const handleRefresh = () => funnelDataStore.refresh(context);
 
   if (selectedItem) {
     return (
       <ErrorBoundary onBack={() => setSelectedId(null)}>
         <FunnelDetailPage
           item={selectedItem}
-          data={data}
+          funnelPages={funnelPages}
           context={context}
           onBack={() => setSelectedId(null)}
-          onRefresh={onRefresh}
+          onRefresh={handleRefresh}
         />
       </ErrorBoundary>
     );
   }
 
-  const activeFunnelCount = prePurchaseFunnels.filter((f) => f.data?.active).length;
+  const activeFunnelCount = selectedBrand
+    ? (brandSummaries.find((b) => b.name === selectedBrand)?.active ?? 0)
+    : prePurchaseFunnels.filter((f) => f.data?.active).length;
+  const totalFunnelCount = selectedBrand
+    ? (brandSummaries.find((b) => b.name === selectedBrand)?.total ?? 0)
+    : prePurchaseFunnels.length;
 
   return (
-    <div className="max-w-6xl mx-auto">
+    <div>
       <PageHeader
         title="Pre-Purchase Funnels"
-        subtitle={`${activeFunnelCount} active · ${prePurchaseFunnels.length} total synced from Hippo`}
-        actions={
-          <button className="btn btn-ghost btn-sm" onClick={onRefresh}>
-            Refresh
-          </button>
-        }
+        subtitle={`${activeFunnelCount} active · ${totalFunnelCount} total`}
+        actions={<SmallButton onClick={handleRefresh}>Refresh</SmallButton>}
       />
 
+      {/* Brand filter bar */}
+      {brands.length > 0 && (
+        <div className="flex gap-0.5 p-1 bg-[var(--bg-glass)] border border-[var(--border-glass)] rounded-xl mb-6 overflow-x-auto">
+          <button
+            className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap cursor-pointer transition-all ${
+              !selectedBrand
+                ? 'text-[var(--accent)] bg-[var(--accent-subtle)] font-semibold'
+                : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-glass-hover)]'
+            }`}
+            onClick={() => setSelectedBrand(null)}
+          >
+            All Brands
+          </button>
+          {brands.map((brand) => (
+            <button
+              key={brand}
+              className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap cursor-pointer transition-all ${
+                selectedBrand === brand
+                  ? 'text-[var(--accent)] bg-[var(--accent-subtle)] font-semibold'
+                  : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-glass-hover)]'
+              }`}
+              onClick={() => setSelectedBrand(brand)}
+            >
+              {brand}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* Brand summary cards — visible when "All" is selected */}
+      {!selectedBrand && brandSummaries.length > 0 && (
+        <div
+          className={`grid gap-4 mb-6 ${
+            brandSummaries.length <= 3
+              ? `grid-cols-${brandSummaries.length}`
+              : 'grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
+          }`}
+        >
+          {brandSummaries.map((brand) => (
+            <button
+              key={brand.name}
+              className="rounded-xl border border-[var(--border-glass)] bg-[var(--bg-glass)] p-5 text-left cursor-pointer hover:bg-[var(--bg-glass-hover)] hover:border-[var(--border-glass-focus)] transition-all"
+              onClick={() => setSelectedBrand(brand.name)}
+            >
+              <div className="text-sm font-semibold text-[var(--text-primary)] mb-2">{brand.name}</div>
+              <div className="flex items-baseline gap-3">
+                <span className="text-2xl font-bold text-[var(--text-primary)]">{brand.total}</span>
+                <span className="text-xs text-[var(--text-muted)]">funnel{brand.total !== 1 ? 's' : ''}</span>
+              </div>
+              <div className="text-xs text-[var(--text-secondary)] mt-1">
+                {brand.active} active · {brand.total - brand.active} inactive
+              </div>
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* Search + Table */}
       <Section>
         <div className="mb-5">
           <input
             type="text"
-            className="input input-bordered w-full max-w-sm"
+            className="hippo-input max-w-sm"
             placeholder="Search by name, slug, or production ID…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -80,41 +198,59 @@ const FunnelsPage: React.FC<FunnelsPageProps> = ({ data, context, onRefresh }) =
             message={
               search
                 ? `No funnels match "${search}". Try a different name, slug, or ID.`
-                : 'No pre-purchase funnels found. Make sure the sync job has run.'
+                : selectedBrand
+                  ? `No pre-purchase funnels found for ${selectedBrand}.`
+                  : 'No pre-purchase funnels found. Make sure the sync job has run.'
             }
           />
         ) : (
           <div className="overflow-x-auto">
-            <table className="table">
+            <table className="w-full text-left">
               <thead>
-                <tr>
-                  <th>Name</th>
-                  <th>Slug</th>
-                  <th>Production ID</th>
-                  <th>Status</th>
+                <tr className="border-b border-[var(--border-glass)]">
+                  <th className="pb-3 text-xs font-semibold text-[var(--text-secondary)] tracking-wide">Name</th>
+                  <th className="pb-3 text-xs font-semibold text-[var(--text-secondary)] tracking-wide">Slug</th>
+                  {!selectedBrand && (
+                    <th className="pb-3 text-xs font-semibold text-[var(--text-secondary)] tracking-wide">Brand</th>
+                  )}
+                  <th className="pb-3 text-xs font-semibold text-[var(--text-secondary)] tracking-wide">
+                    Production ID
+                  </th>
+                  <th className="pb-3 text-xs font-semibold text-[var(--text-secondary)] tracking-wide">Status</th>
                 </tr>
               </thead>
               <tbody>
                 {filteredFunnels.map((funnel) => (
                   <tr
                     key={funnel.id}
-                    className="hover:bg-base-300/30 cursor-pointer transition-colors"
+                    className="border-b border-[var(--border-glass)] last:border-b-0 hover:bg-[var(--bg-glass-hover)] cursor-pointer transition-colors"
                     onClick={() => setSelectedId(funnel.id ?? null)}
                   >
-                    <td>
-                      <span className="font-medium">{funnel.data?.name ?? 'Untitled'}</span>
+                    <td className="py-3 pr-4">
+                      <span className="text-sm font-medium text-[var(--text-primary)]">
+                        {funnel.data?.name ?? 'Untitled'}
+                      </span>
                     </td>
-                    <td>
-                      <code className="text-xs bg-base-300 px-2 py-1 rounded">{funnel.data?.slug ?? '—'}</code>
+                    <td className="py-3 pr-4">
+                      <code className="text-xs font-mono px-2 py-0.5 rounded bg-[var(--bg-glass)] text-[var(--text-secondary)]">
+                        {funnel.data?.slug ?? '—'}
+                      </code>
                     </td>
-                    <td>
-                      <span className="text-sm font-mono text-base-content/60">{funnel.data?.productionId ?? '—'}</span>
+                    {!selectedBrand && (
+                      <td className="py-3 pr-4">
+                        <span className="text-xs text-[var(--text-secondary)]">{funnel.data?.brand ?? '—'}</span>
+                      </td>
+                    )}
+                    <td className="py-3 pr-4">
+                      <span className="text-xs font-mono text-[var(--text-muted)]">
+                        {funnel.data?.productionId ?? '—'}
+                      </span>
                     </td>
-                    <td>
+                    <td className="py-3">
                       {funnel.data?.active ? (
-                        <span className="badge badge-success badge-sm">Active</span>
+                        <StatusBadge variant="success" label="Active" />
                       ) : (
-                        <span className="badge badge-ghost badge-sm">Inactive</span>
+                        <StatusBadge variant="ghost" label="Inactive" />
                       )}
                     </td>
                   </tr>
@@ -126,7 +262,7 @@ const FunnelsPage: React.FC<FunnelsPageProps> = ({ data, context, onRefresh }) =
       </Section>
     </div>
   );
-};
+});
 
 class ErrorBoundary extends React.Component<
   { onBack: () => void; children: React.ReactNode },
@@ -145,13 +281,16 @@ class ErrorBoundary extends React.Component<
   render() {
     if (this.state.error) {
       return (
-        <div className="max-w-2xl mx-auto py-12 text-center">
-          <h2 className="text-xl font-bold text-error mb-2">Failed to load funnel</h2>
-          <p className="text-base-content/60 mb-1 text-sm">{this.state.error.message}</p>
-          <pre className="text-xs text-base-content/40 mb-4 max-h-32 overflow-auto bg-base-300 rounded p-3 text-left">
+        <div className="py-12 text-center">
+          <h2 className="text-xl font-bold text-[var(--error)] mb-2">Failed to load funnel</h2>
+          <p className="text-[var(--text-secondary)] mb-1 text-sm">{this.state.error.message}</p>
+          <pre className="text-xs text-[var(--text-muted)] mb-4 max-h-32 overflow-auto bg-[var(--bg-glass)] rounded-xl p-3 text-left max-w-2xl mx-auto">
             {this.state.error.stack}
           </pre>
-          <button className="btn btn-primary" onClick={this.props.onBack}>
+          <button
+            className="px-5 py-2 rounded-lg bg-[var(--accent)] text-[#1a1a2e] font-semibold text-sm cursor-pointer transition-all hover:brightness-110 hover:shadow-[0_0_20px_var(--accent-glow)]"
+            onClick={this.props.onBack}
+          >
             Back to Funnels
           </button>
         </div>

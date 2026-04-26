@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { BuilderFunnelContent, BuilderFunnelPageContent } from '@goldenhippo/builder-funnel-schemas';
 import { DetailHeader, LoadingSection, Section } from '@goldenhippo/builder-ui';
-import { FunnelAppData } from '../../App';
 import { ExtendedApplicationContext } from '../../interfaces/application-context.interface';
 import { HippoFunnel } from '../../services/hippo-api/types';
 import HippoApi from '../../services/hippo-api';
@@ -10,7 +9,7 @@ import UserManagementService from '../../services/user-management';
 
 interface FunnelDetailProps {
   item: BuilderFunnelContent;
-  data: FunnelAppData;
+  funnelPages: BuilderFunnelPageContent[];
   context: ExtendedApplicationContext;
   onBack: () => void;
   onRefresh: () => Promise<void>;
@@ -18,7 +17,53 @@ interface FunnelDetailProps {
 
 type FunnelStep = HippoFunnel['steps'][number];
 
-/** Builds a Builder.io reference object pointing to the given funnel content entry. */
+const StatusBadge: React.FC<{ variant: 'success' | 'warning' | 'error' | 'ghost' | 'info'; label: string }> = ({
+  variant,
+  label,
+}) => {
+  const cls: Record<string, string> = {
+    success: 'bg-[var(--success)]/15 text-[var(--success)]',
+    warning: 'bg-[var(--warning)]/15 text-[var(--warning)]',
+    error: 'bg-[var(--error)]/15 text-[var(--error)]',
+    ghost: 'bg-[var(--bg-glass)] text-[var(--text-muted)]',
+    info: 'bg-[var(--accent)]/15 text-[var(--accent)]',
+  };
+  return <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${cls[variant]}`}>{label}</span>;
+};
+
+const AccentButton: React.FC<React.ButtonHTMLAttributes<HTMLButtonElement> & { children: React.ReactNode }> = ({
+  children,
+  className,
+  ...props
+}) => (
+  <button
+    className={`px-5 py-2 rounded-lg bg-[var(--accent)] text-[#1a1a2e] font-semibold text-sm cursor-pointer transition-all hover:brightness-110 hover:shadow-[0_0_20px_var(--accent-glow)] disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:brightness-100 disabled:hover:shadow-none ${className ?? ''}`}
+    {...props}
+  >
+    {children}
+  </button>
+);
+
+const SmallButton: React.FC<React.ButtonHTMLAttributes<HTMLButtonElement> & { children: React.ReactNode }> = ({
+  children,
+  className,
+  ...props
+}) => (
+  <button
+    className={`px-3 py-1.5 rounded-lg text-xs font-medium border border-[var(--border-glass)] bg-[var(--bg-glass)] text-[var(--text-secondary)] cursor-pointer hover:bg-[var(--bg-glass-hover)] transition-colors disabled:opacity-40 disabled:cursor-not-allowed ${className ?? ''}`}
+    {...props}
+  >
+    {children}
+  </button>
+);
+
+const InfoRow: React.FC<{ label: string; value: React.ReactNode }> = ({ label, value }) => (
+  <div>
+    <div className="text-xs font-semibold text-[var(--text-secondary)] tracking-wide mb-1">{label}</div>
+    <div className="text-sm text-[var(--text-primary)]">{value}</div>
+  </div>
+);
+
 function buildFunnelRef(funnelContentId: string) {
   return {
     '@type': '@builder.io/core:Reference',
@@ -27,7 +72,7 @@ function buildFunnelRef(funnelContentId: string) {
   };
 }
 
-const FunnelDetailPage: React.FC<FunnelDetailProps> = ({ item, data, context, onBack, onRefresh }) => {
+const FunnelDetailPage: React.FC<FunnelDetailProps> = ({ item, funnelPages, context, onBack, onRefresh }) => {
   const [hippoFunnel, setHippoFunnel] = useState<HippoFunnel | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -40,36 +85,64 @@ const FunnelDetailPage: React.FC<FunnelDetailProps> = ({ item, data, context, on
   const canEdit = isAdmin || !isFunnelActive;
 
   const productionId = item.data?.productionId;
+  const slug = item.data?.slug;
+  const brand = item.data?.brand ?? '';
 
   const findPageForStep = useCallback(
-    (slug: string): BuilderFunnelPageContent | undefined => {
-      const targetUrl = `/fp/${slug}`;
-      return data.funnelPages.find((p) =>
+    (stepSlug: string): BuilderFunnelPageContent | undefined => {
+      const targetUrl = `/fp/${stepSlug}`;
+      return funnelPages.find((p) =>
         (p as any).query?.some((q: any) => q.property === 'urlPath' && q.value === targetUrl),
       );
     },
-    [data.funnelPages],
+    [funnelPages],
   );
 
   useEffect(() => {
-    if (!productionId) {
-      setError('This funnel has no Production ID set. Cannot fetch from Hippo API.');
+    if (!productionId && !slug) {
+      setError('This funnel has no Production ID or slug set. Cannot fetch from Hippo API.');
       setLoading(false);
       return;
     }
     const user = UserManagementService.getUserDetails(context);
     const api = new HippoApi(user);
-    api
-      .getFunnelById(productionId)
-      .then((f) => {
-        setHippoFunnel(f);
-        setLoading(false);
-      })
-      .catch((err: Error) => {
-        setError(err.message ?? 'Failed to load funnel from Hippo API.');
-        setLoading(false);
-      });
-  }, [productionId, context]);
+    if (productionId) {
+      api
+        .getFunnelById(productionId, brand)
+        .then((f) => {
+          setHippoFunnel(f);
+          setLoading(false);
+        })
+        .catch(() => {
+          if (slug) {
+            api
+              .getFunnelByGEP(slug, brand)
+              .then((f) => {
+                setHippoFunnel(f);
+                setLoading(false);
+              })
+              .catch((err: Error) => {
+                setError(err.message ?? 'Failed to load funnel from Hippo API.');
+                setLoading(false);
+              });
+          } else {
+            setError('Failed to load funnel from Hippo API.');
+            setLoading(false);
+          }
+        });
+    } else if (slug) {
+      api
+        .getFunnelByGEP(slug, brand)
+        .then((f) => {
+          setHippoFunnel(f);
+          setLoading(false);
+        })
+        .catch((err: Error) => {
+          setError(err.message ?? 'Failed to load funnel from Hippo API.');
+          setLoading(false);
+        });
+    }
+  }, [productionId, slug, brand, context]);
 
   const sortedSteps = useMemo(
     () => (hippoFunnel ? [...hippoFunnel.steps].sort((a, b) => a.stepNumber - b.stepNumber) : []),
@@ -81,14 +154,12 @@ const FunnelDetailPage: React.FC<FunnelDetailProps> = ({ item, data, context, on
     [sortedSteps, findPageForStep],
   );
 
-  // All pages that correspond to a step in this funnel
   const stepPages = useMemo(
     () => sortedSteps.map((s) => findPageForStep(s.slug)).filter((p): p is BuilderFunnelPageContent => !!p),
     [sortedSteps, findPageForStep],
   );
 
   const hasMissingPages = missingSteps.length > 0;
-  // Show "Publish All" only when every step has a page and at least one isn't published yet
   const showPublishAll =
     canEdit && !hasMissingPages && stepPages.length > 0 && stepPages.some((p) => p.published !== 'published');
 
@@ -175,7 +246,7 @@ const FunnelDetailPage: React.FC<FunnelDetailProps> = ({ item, data, context, on
 
   if (loading) {
     return (
-      <div className="max-w-5xl mx-auto flex items-center justify-center py-24">
+      <div className="flex items-center justify-center py-24">
         <LoadingSection message="Loading funnel from Hippo API…" size="md" />
       </div>
     );
@@ -183,11 +254,11 @@ const FunnelDetailPage: React.FC<FunnelDetailProps> = ({ item, data, context, on
 
   if (error) {
     return (
-      <div className="max-w-5xl mx-auto">
+      <div>
         <DetailHeader title={item.data?.name ?? 'Funnel'} onBack={onBack} backLabel="Funnels" />
         <Section variant="danger">
-          <h3 className="font-semibold text-error mb-1">Error loading funnel data</h3>
-          <p className="text-sm text-base-content/70">{error}</p>
+          <h3 className="font-semibold text-[var(--error)] mb-1">Error loading funnel data</h3>
+          <p className="text-sm text-[var(--text-secondary)]">{error}</p>
         </Section>
       </div>
     );
@@ -198,7 +269,7 @@ const FunnelDetailPage: React.FC<FunnelDetailProps> = ({ item, data, context, on
   const createdCount = stepPages.length;
 
   return (
-    <div className="max-w-5xl mx-auto space-y-6">
+    <div className="space-y-6">
       <DetailHeader
         title={hippoFunnel.name}
         onBack={onBack}
@@ -210,34 +281,30 @@ const FunnelDetailPage: React.FC<FunnelDetailProps> = ({ item, data, context, on
         actions={
           <>
             {canEdit && hasMissingPages && (
-              <button
-                className="btn btn-primary btn-sm"
-                onClick={handleCreateAllPages}
-                disabled={creatingAll || publishingAll}
-              >
+              <AccentButton onClick={handleCreateAllPages} disabled={creatingAll || publishingAll}>
                 {creatingAll
                   ? 'Creating…'
                   : `Create ${missingSteps.length} Missing Page${missingSteps.length !== 1 ? 's' : ''}`}
-              </button>
+              </AccentButton>
             )}
             {showPublishAll && (
-              <button
-                className="btn btn-success btn-sm"
+              <SmallButton
                 onClick={handlePublishAll}
                 disabled={publishingAll || creatingAll}
+                className="!bg-[var(--success)]/15 !text-[var(--success)] !border-[var(--success)]/20"
               >
                 {publishingAll ? 'Publishing…' : 'Publish All Pages'}
-              </button>
+              </SmallButton>
             )}
           </>
         }
       />
 
       {!isAdmin && isFunnelActive && (
-        <div className="alert alert-warning">
+        <div className="rounded-xl border border-[var(--warning)]/20 bg-[var(--warning)]/10 px-5 py-4 flex items-start gap-3">
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            className="h-4 w-4 shrink-0"
+            className="h-4 w-4 shrink-0 mt-0.5 text-[var(--warning)]"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -249,78 +316,77 @@ const FunnelDetailPage: React.FC<FunnelDetailProps> = ({ item, data, context, on
               d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
             />
           </svg>
-          <span className="text-sm">
+          <span className="text-sm text-[var(--warning)]">
             This funnel is <strong>active in production</strong>. Pages are shown in read-only mode. Contact an admin to
             create or modify pages.
           </span>
         </div>
       )}
 
-      {/* Funnel summary */}
       <Section title="Funnel Details">
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-6">
-          <div>
-            <p className="text-xs text-base-content/50 uppercase tracking-wide mb-1">Slug</p>
-            <code className="text-sm bg-base-300 px-2 py-0.5 rounded">{hippoFunnel.slug ?? '—'}</code>
-          </div>
-          <div>
-            <p className="text-xs text-base-content/50 uppercase tracking-wide mb-1">Production ID</p>
-            <span className="text-sm font-mono text-base-content/70">{hippoFunnel.id}</span>
-          </div>
-          <div>
-            <p className="text-xs text-base-content/50 uppercase tracking-wide mb-1">Steps</p>
-            <span className="text-sm font-semibold">{hippoFunnel.steps.length}</span>
-          </div>
-          <div>
-            <p className="text-xs text-base-content/50 uppercase tracking-wide mb-1">Builder Pages</p>
-            <span className={`text-sm font-semibold ${hasMissingPages ? 'text-warning' : 'text-success'}`}>
-              {createdCount} / {sortedSteps.length}
-            </span>
-          </div>
+          <InfoRow
+            label="Slug"
+            value={
+              <code className="text-sm font-mono px-2 py-0.5 rounded bg-[var(--bg-glass)]">
+                {hippoFunnel.slug ?? '—'}
+              </code>
+            }
+          />
+          <InfoRow label="Production ID" value={<span className="font-mono text-xs">{hippoFunnel.id}</span>} />
+          <InfoRow label="Steps" value={<span className="font-semibold">{hippoFunnel.steps.length}</span>} />
+          <InfoRow
+            label="Builder Pages"
+            value={
+              <span className={`font-semibold ${hasMissingPages ? 'text-[var(--warning)]' : 'text-[var(--success)]'}`}>
+                {createdCount} / {sortedSteps.length}
+              </span>
+            }
+          />
         </div>
       </Section>
 
-      {/* Pre-purchase options (pricing) */}
       {hippoFunnel.prePurchaseOptions && hippoFunnel.prePurchaseOptions.length > 0 && (
         <Section title="Purchase Options">
           <div className="overflow-x-auto">
-            <table className="table table-sm">
+            <table className="w-full text-left">
               <thead>
-                <tr>
-                  <th>SKU</th>
-                  <th>Product</th>
-                  <th>Price</th>
-                  <th>List Price</th>
-                  <th>Qty</th>
-                  <th>Type</th>
+                <tr className="border-b border-[var(--border-glass)]">
+                  <th className="pb-3 text-xs font-semibold text-[var(--text-secondary)] tracking-wide">SKU</th>
+                  <th className="pb-3 text-xs font-semibold text-[var(--text-secondary)] tracking-wide">Product</th>
+                  <th className="pb-3 text-xs font-semibold text-[var(--text-secondary)] tracking-wide">Price</th>
+                  <th className="pb-3 text-xs font-semibold text-[var(--text-secondary)] tracking-wide">List Price</th>
+                  <th className="pb-3 text-xs font-semibold text-[var(--text-secondary)] tracking-wide">Qty</th>
+                  <th className="pb-3 text-xs font-semibold text-[var(--text-secondary)] tracking-wide">Type</th>
                 </tr>
               </thead>
               <tbody>
                 {[...hippoFunnel.prePurchaseOptions]
                   .sort((a, b) => {
                     if (a.quantity !== b.quantity) return a.quantity - b.quantity;
-                    // subscription before one-time
                     const aType = a.subscription ? 0 : 1;
                     const bType = b.subscription ? 0 : 1;
                     if (aType !== bType) return aType - bType;
                     return a.productName.localeCompare(b.productName);
                   })
                   .map((opt) => (
-                    <tr key={opt.orderFormId}>
-                      <td>
-                        <code className="text-xs">{opt.sku}</code>
+                    <tr key={opt.orderFormId} className="border-b border-[var(--border-glass)] last:border-b-0">
+                      <td className="py-3 pr-4">
+                        <code className="text-xs font-mono text-[var(--text-secondary)]">{opt.sku}</code>
                       </td>
-                      <td className="font-medium text-sm">{opt.productName}</td>
-                      <td className="font-semibold">${opt.purchasePrice.toFixed(2)}</td>
-                      <td className="text-base-content/50">
+                      <td className="py-3 pr-4 text-sm font-medium text-[var(--text-primary)]">{opt.productName}</td>
+                      <td className="py-3 pr-4 font-semibold text-[var(--text-primary)]">
+                        ${opt.purchasePrice.toFixed(2)}
+                      </td>
+                      <td className="py-3 pr-4 text-[var(--text-muted)]">
                         {opt.listPrice != null ? `$${opt.listPrice.toFixed(2)}` : '—'}
                       </td>
-                      <td>{opt.quantity}</td>
-                      <td>
+                      <td className="py-3 pr-4 text-[var(--text-primary)]">{opt.quantity}</td>
+                      <td className="py-3">
                         {opt.subscription ? (
-                          <span className="badge badge-info badge-xs">Subscription</span>
+                          <StatusBadge variant="info" label="Subscription" />
                         ) : (
-                          <span className="text-base-content/40 text-xs">One-time</span>
+                          <span className="text-xs text-[var(--text-muted)]">One-time</span>
                         )}
                       </td>
                     </tr>
@@ -331,7 +397,6 @@ const FunnelDetailPage: React.FC<FunnelDetailProps> = ({ item, data, context, on
         </Section>
       )}
 
-      {/* Funnel Steps */}
       <Section
         title="Funnel Steps"
         subtitle={
@@ -344,36 +409,38 @@ const FunnelDetailPage: React.FC<FunnelDetailProps> = ({ item, data, context, on
         actions={
           <>
             {canEdit && missingSteps.length > 1 && (
-              <button
-                className="btn btn-primary btn-xs"
+              <AccentButton
                 onClick={handleCreateAllPages}
                 disabled={creatingAll || publishingAll}
+                className="!text-xs !px-3 !py-1.5"
               >
                 {creatingAll ? 'Creating…' : 'Create All Missing'}
-              </button>
+              </AccentButton>
             )}
             {showPublishAll && (
-              <button
-                className="btn btn-success btn-xs"
+              <SmallButton
                 onClick={handlePublishAll}
                 disabled={publishingAll || creatingAll}
+                className="!bg-[var(--success)]/15 !text-[var(--success)] !border-[var(--success)]/20"
               >
                 {publishingAll ? 'Publishing…' : 'Publish All'}
-              </button>
+              </SmallButton>
             )}
           </>
         }
       >
         <div className="overflow-x-auto">
-          <table className="table">
+          <table className="w-full text-left">
             <thead>
-              <tr>
-                <th className="w-10">#</th>
-                <th>Step</th>
-                <th>Page Type</th>
-                <th>URL</th>
-                <th>Status</th>
-                <th className="text-right">Action</th>
+              <tr className="border-b border-[var(--border-glass)]">
+                <th className="pb-3 w-10 text-xs font-semibold text-[var(--text-secondary)] tracking-wide">#</th>
+                <th className="pb-3 text-xs font-semibold text-[var(--text-secondary)] tracking-wide">Step</th>
+                <th className="pb-3 text-xs font-semibold text-[var(--text-secondary)] tracking-wide">Page Type</th>
+                <th className="pb-3 text-xs font-semibold text-[var(--text-secondary)] tracking-wide">URL</th>
+                <th className="pb-3 text-xs font-semibold text-[var(--text-secondary)] tracking-wide">Status</th>
+                <th className="pb-3 text-xs font-semibold text-[var(--text-secondary)] tracking-wide text-right">
+                  Action
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -383,44 +450,49 @@ const FunnelDetailPage: React.FC<FunnelDetailProps> = ({ item, data, context, on
                 const pageStatus = existingPage?.published ?? null;
 
                 return (
-                  <tr key={step.slug} className="hover:bg-base-300/20">
-                    <td className="text-base-content/40 font-mono text-sm tabular-nums">{step.stepNumber}</td>
-                    <td>
-                      <div className="font-medium">{step.name}</div>
-                      {step.gep && <div className="text-xs font-mono text-base-content/40 mt-0.5">{step.gep}</div>}
+                  <tr
+                    key={step.slug}
+                    className="border-b border-[var(--border-glass)] last:border-b-0 hover:bg-[var(--bg-glass-hover)] transition-colors"
+                  >
+                    <td className="py-3 pr-4 text-[var(--text-muted)] font-mono text-sm tabular-nums">
+                      {step.stepNumber}
                     </td>
-                    <td>
-                      <span className="badge badge-ghost badge-sm">{step.pageType}</span>
+                    <td className="py-3 pr-4">
+                      <div className="text-sm font-medium text-[var(--text-primary)]">{step.name}</div>
+                      {step.gep && <div className="text-xs font-mono text-[var(--text-muted)] mt-0.5">{step.gep}</div>}
                     </td>
-                    <td>
-                      <code className="text-xs text-base-content/60">/fp/{step.slug}</code>
+                    <td className="py-3 pr-4">
+                      <StatusBadge variant="ghost" label={step.pageType} />
                     </td>
-                    <td>
+                    <td className="py-3 pr-4">
+                      <code className="text-xs font-mono text-[var(--text-secondary)]">/fp/{step.slug}</code>
+                    </td>
+                    <td className="py-3 pr-4">
                       {pageStatus === 'published' ? (
-                        <span className="badge badge-success badge-sm">Published</span>
+                        <StatusBadge variant="success" label="Published" />
                       ) : pageStatus === 'draft' ? (
-                        <span className="badge badge-ghost badge-sm">Draft</span>
+                        <StatusBadge variant="ghost" label="Draft" />
                       ) : pageStatus != null ? (
-                        <span className="badge badge-ghost badge-sm">{pageStatus}</span>
+                        <StatusBadge variant="ghost" label={pageStatus} />
                       ) : (
-                        <span className="badge badge-warning badge-sm">Missing</span>
+                        <StatusBadge variant="warning" label="Missing" />
                       )}
                     </td>
-                    <td className="text-right">
+                    <td className="py-3 text-right">
                       {existingPage ? (
-                        <button className="btn btn-ghost btn-xs" onClick={() => handleEditPage(existingPage)}>
+                        <SmallButton onClick={() => handleEditPage(existingPage)}>
                           {canEdit ? 'Edit Page' : 'View Page'}
-                        </button>
+                        </SmallButton>
                       ) : canEdit ? (
-                        <button
-                          className="btn btn-primary btn-xs"
+                        <AccentButton
                           onClick={() => handleCreatePage(step)}
                           disabled={isCreatingThis || creatingAll}
+                          className="!text-xs !px-3 !py-1.5"
                         >
                           {isCreatingThis ? 'Creating…' : 'Create Page'}
-                        </button>
+                        </AccentButton>
                       ) : (
-                        <span className="text-base-content/30 text-xs">—</span>
+                        <span className="text-[var(--text-muted)] text-xs">—</span>
                       )}
                     </td>
                   </tr>

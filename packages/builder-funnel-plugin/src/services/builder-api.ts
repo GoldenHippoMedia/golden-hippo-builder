@@ -1,7 +1,6 @@
 import { BuilderContent } from '@builder.io/sdk';
 import {
   BuilderFunnelContent,
-  BuilderFunnelDestinationContent,
   BuilderFunnelPageContent,
   BuilderProductContent,
 } from '@goldenhippo/builder-funnel-schemas';
@@ -132,14 +131,6 @@ class BuilderApi {
       modelName: 'funnel-page',
       bustCache: !!bustCache,
       limit: 5000,
-    });
-  }
-
-  async getDestinations(bustCache?: boolean): Promise<BuilderFunnelDestinationContent[]> {
-    return this.fetchContent<BuilderFunnelDestinationContent>({
-      modelName: 'funnel-destination',
-      bustCache: !!bustCache,
-      limit: 1000,
     });
   }
 

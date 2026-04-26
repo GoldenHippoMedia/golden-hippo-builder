@@ -15,6 +15,15 @@ export const createFunnelModel = (): ModelShape => {
     contentTitleField: 'name',
     fields: [
       {
+        name: 'brand',
+        friendlyName: 'Brand',
+        type: 'text',
+        required: true,
+        defaultCollapsed: false,
+        localized: false,
+        helperText: 'The brand for this funnel (must match the API value)',
+      },
+      {
         name: 'name',
         friendlyName: 'Name',
         type: 'text',
@@ -68,6 +77,7 @@ export const createFunnelModel = (): ModelShape => {
 export type BuilderFunnelContent = BuilderContent &
   Partial<{
     data: {
+      brand: string;
       name: string;
       type?: 'Pre-purchase' | 'Post-purchase';
       active?: boolean;

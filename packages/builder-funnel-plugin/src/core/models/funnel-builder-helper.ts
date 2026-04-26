@@ -1,7 +1,6 @@
 import { ModelShape } from '@goldenhippo/builder-types';
 import {
   createCategoryModel,
-  createFunnelDestinationModel,
   createFunnelModel,
   createFunnelPageModel,
   createIngredientsModel,
@@ -30,10 +29,6 @@ class FunnelBuilderHelper {
 
   funnelPageModel(editUrl: string, funnelModelId: string): ModelShape {
     return createFunnelPageModel(editUrl, funnelModelId);
-  }
-
-  funnelDestinationModel(funnelModelId: string): ModelShape {
-    return createFunnelDestinationModel(funnelModelId);
   }
 }
 
