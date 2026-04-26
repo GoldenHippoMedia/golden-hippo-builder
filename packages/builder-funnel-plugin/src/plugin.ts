@@ -1,12 +1,14 @@
 import React from 'react';
 import { Builder } from '@builder.io/react';
 import appState from '@builder.io/app-context';
-import { CookiesProvider } from 'react-cookie';
-import App from './App';
-import { pluginId, pluginIcon } from './constants';
+import { pluginId, funnelsIcon, adminIcon } from './constants';
 import { OnSaveActions, AppActions } from '@goldenhippo/builder-types';
 import { ExtendedApplicationContext } from './interfaces/application-context.interface';
 import { syncFunnelModels } from './services/model-sync';
+import { captureTriggerSettingsDialog } from './plugin-actions';
+import HippoFunnels from './application/HippoFunnels';
+import HippoFunnelAdmin from './application/HippoFunnelAdmin';
+import UserManagementService from './services/user-management';
 
 Builder.register('plugin', {
   id: pluginId,
@@ -68,17 +70,8 @@ Builder.register('plugin', {
   },
 });
 
-let _triggerSettingsDialog: ((pluginId: string) => Promise<void>) | null = null;
-
-export function openPluginSettings(): Promise<void> {
-  if (!_triggerSettingsDialog) {
-    return Promise.reject(new Error('Settings dialog not available yet'));
-  }
-  return _triggerSettingsDialog(pluginId);
-}
-
 Builder.register('app.onLoad', async ({ triggerSettingsDialog }: AppActions) => {
-  _triggerSettingsDialog = triggerSettingsDialog;
+  captureTriggerSettingsDialog(triggerSettingsDialog);
   // @ts-expect-error incomplete types
   const pluginSettings = appState.user.organization.value.settings.plugins?.get(pluginId);
   const hasConnected = pluginSettings?.get('hasConnected');
@@ -87,14 +80,25 @@ Builder.register('app.onLoad', async ({ triggerSettingsDialog }: AppActions) => 
   const apiUrl = pluginSettings?.get('apiUrl');
   const editUrl = pluginSettings?.get('editUrl');
   const privateApiKey = pluginSettings?.get('privateApiKey');
-  if (!hasConnected || !apiUser || !apiPassword || !apiUrl || editUrl || !privateApiKey) {
+  if (!hasConnected || !apiUser || !apiPassword || !apiUrl || !editUrl || !privateApiKey) {
     await triggerSettingsDialog(pluginId);
   }
 });
 
 Builder.register('appTab', {
   name: 'Hippo Funnels',
-  path: 'hippo-funnels',
-  icon: pluginIcon,
-  component: () => React.createElement(CookiesProvider, null, React.createElement(App)),
+  path: 'hippo-funnels/funnels',
+  icon: funnelsIcon,
+  component: HippoFunnels,
 });
+
+const user = UserManagementService.getUserDetails(appState as ExtendedApplicationContext);
+
+if (user.permissions.admin) {
+  Builder.register('appTab', {
+    name: 'Hippo Admin',
+    path: 'hippo-funnels/admin',
+    icon: adminIcon,
+    component: HippoFunnelAdmin,
+  });
+}
