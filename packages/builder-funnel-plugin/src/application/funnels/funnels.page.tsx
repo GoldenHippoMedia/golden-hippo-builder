@@ -125,7 +125,7 @@ const FunnelsPage: React.FC<FunnelsPageProps> = observer(({ context }) => {
       />
 
       {/* Brand filter bar */}
-      {brands.length > 1 && (
+      {brands.length > 0 && (
         <div className="flex gap-0.5 p-1 bg-[var(--bg-glass)] border border-[var(--border-glass)] rounded-xl mb-6 overflow-x-auto">
           <button
             className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap cursor-pointer transition-all ${
@@ -154,7 +154,7 @@ const FunnelsPage: React.FC<FunnelsPageProps> = observer(({ context }) => {
       )}
 
       {/* Brand summary cards — visible when "All" is selected */}
-      {!selectedBrand && brandSummaries.length > 1 && (
+      {!selectedBrand && brandSummaries.length > 0 && (
         <div
           className={`grid gap-4 mb-6 ${
             brandSummaries.length <= 3
