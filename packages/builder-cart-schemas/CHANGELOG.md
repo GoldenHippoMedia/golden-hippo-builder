@@ -1,5 +1,11 @@
 # @goldenhippo/builder-cart-schemas
 
+## 0.11.0
+
+### Patch Changes
+
+- [#26](https://github.com/GoldenHippoMedia/golden-hippo-builder/pull/26) [`b93cbbc`](https://github.com/GoldenHippoMedia/golden-hippo-builder/commit/b93cbbcec16d7d29dcb183c469b937d4dbad89a8) - move two new cart settings up one level in the schema — [@dkidwell999](https://github.com/dkidwell999)
+
 ## 0.10.0
 
 ### Minor Changes
