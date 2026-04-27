@@ -69,6 +69,7 @@ module.exports = {
       'Access-Control-Allow-Private-Network': 'true',
       'Access-Control-Allow-Origin': '*',
     },
+    client: false,
   },
   performance: {
     maxAssetSize: 1000000,
