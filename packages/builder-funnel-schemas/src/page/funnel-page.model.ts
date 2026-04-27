@@ -105,8 +105,7 @@ export const createFunnelPageModel = (editUrl: string, funnelModelId: string): M
     helperText: 'A visual page within a funnel',
     contentTitleField: undefined,
     fields: [...fields],
-    editingUrlLogic:
-      'return `' + editUrl + '${targeting.urlPath}?builder.preview=true&builder.frameEditing=true`',
+    editingUrlLogic: 'return `' + editUrl + '${targeting.urlPath}?builder.preview=true&builder.frameEditing=true`',
   };
 };
 
