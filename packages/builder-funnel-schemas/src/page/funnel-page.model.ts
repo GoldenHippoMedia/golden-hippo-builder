@@ -106,7 +106,7 @@ export const createFunnelPageModel = (editUrl: string, funnelModelId: string): M
     contentTitleField: undefined,
     fields: [...fields],
     editingUrlLogic:
-      'return `' + editUrl + '/fp/preview${targeting.urlPath}?builder.preview=true&builder.frameEditing=true`',
+      'return `' + editUrl + '${targeting.urlPath}?builder.preview=true&builder.frameEditing=true`',
   };
 };
 
