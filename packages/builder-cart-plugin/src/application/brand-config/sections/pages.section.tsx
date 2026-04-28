@@ -114,14 +114,14 @@ const PagesSection: React.FC<SectionProps> = observer(({ data, markDirty }) => {
             <ToggleField
               label="Group Cart Contents by Purchase Type"
               helper="Group cart contents by subscription and one-time purchases"
-              checked={!!cart.freeShippingBanner?.groupCartContentsByPurchaseType}
-              onChange={(v) => setNested(['cart', 'freeShippingBanner', 'groupCartContentsByPurchaseType'], v)}
+              checked={!!cart?.groupCartContentsByPurchaseType}
+              onChange={(v) => setNested(['cart', 'groupCartContentsByPurchaseType'], v)}
             />
             <ToggleField
               label="Enable Cart Frequency Toggle"
               helper="Show a frequency toggle on the cart page and in the cart drawer"
-              checked={!!cart.freeShippingBanner?.enabledCartFrequencyToggle}
-              onChange={(v) => setNested(['cart', 'freeShippingBanner', 'enabledCartFrequencyToggle'], v)}
+              checked={!!cart?.enabledCartFrequencyToggle}
+              onChange={(v) => setNested(['cart', 'enabledCartFrequencyToggle'], v)}
             />
             <ColorField
               label="Image Container Background Color"
