@@ -1,5 +1,11 @@
 # @goldenhippo/builder-cart-plugin
 
+## 0.4.2
+
+### Patch Changes
+
+- [#29](https://github.com/GoldenHippoMedia/golden-hippo-builder/pull/29) [`b46249f`](https://github.com/GoldenHippoMedia/golden-hippo-builder/commit/b46249fe89053d5ca770f5dede876ff87a04bf63) - fix form binding for two feature flags - group cart by purchase type and enable cart freq toggle — [@dkidwell999](https://github.com/dkidwell999)
+
 ## 0.4.1
 
 ### Patch Changes

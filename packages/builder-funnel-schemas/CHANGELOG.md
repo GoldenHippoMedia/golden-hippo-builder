@@ -1,5 +1,11 @@
 # @goldenhippo/builder-funnel-schemas
 
+## 0.12.0
+
+### Minor Changes
+
+- [#30](https://github.com/GoldenHippoMedia/golden-hippo-builder/pull/30) [`6d5448e`](https://github.com/GoldenHippoMedia/golden-hippo-builder/commit/6d5448e1cf2e8ff25ded85cfba77721d016dbff2) - Support for page level meta pixel tracking — [@steven-t-h](https://github.com/steven-t-h)
+
 ## 0.11.0
 
 ### Minor Changes
