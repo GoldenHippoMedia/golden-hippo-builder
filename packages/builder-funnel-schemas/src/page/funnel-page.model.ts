@@ -11,7 +11,7 @@ export const createFunnelPageModel = (editUrl: string, funnelModelId: string): M
       required: true,
       localized: true,
       defaultCollapsed: true,
-      helperText: 'Page title',
+      helperText: 'Internal Title of this page, typically the same as the funnel setting.',
     },
     {
       name: 'funnel',
@@ -70,6 +70,22 @@ export const createFunnelPageModel = (editUrl: string, funnelModelId: string): M
       ],
     },
     {
+      name: 'tracking',
+      friendlyName: 'Tracking',
+      type: 'object',
+      subFields: [
+        {
+          name: 'metaPixel',
+          friendlyName: 'Meta Pixel ID',
+          type: 'text',
+          required: false,
+          defaultCollapsed: false,
+          helperText: 'Meta Pixel ID',
+        }
+      ],
+      defaultCollapsed: true,
+    },
+    {
       name: 'robotsMeta',
       friendlyName: 'Robots Meta',
       type: 'object',
@@ -120,6 +136,9 @@ export type BuilderFunnelPageContent = BuilderContent &
         description?: string;
         image?: string;
       };
+      tracking?: {
+        metaPixel?: string;
+      },
       robotsMeta?: {
         noIndex?: boolean;
         noFollow?: boolean;
