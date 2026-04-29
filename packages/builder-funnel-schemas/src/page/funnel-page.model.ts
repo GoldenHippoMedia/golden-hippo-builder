@@ -81,7 +81,7 @@ export const createFunnelPageModel = (editUrl: string, funnelModelId: string): M
           required: false,
           defaultCollapsed: false,
           helperText: 'Meta Pixel ID',
-        }
+        },
       ],
       defaultCollapsed: true,
     },
@@ -138,7 +138,7 @@ export type BuilderFunnelPageContent = BuilderContent &
       };
       tracking?: {
         metaPixel?: string;
-      },
+      };
       robotsMeta?: {
         noIndex?: boolean;
         noFollow?: boolean;
