@@ -31,6 +31,7 @@ export enum OfferSelectorTypes {
   VERTICAL__FLAVOR_DROPDOWN__TYPE_TOGGLE = 'Vertical - Flavor Dropdown - Type Toggle',
   STACKED__FLAVOR_BUTTONS__QUANTITY_TOGGLE = 'Stacked - Flavor Buttons - Quantity Toggle',
   BUNDLE_GROUP = 'Bundle Group',
+  VERTICAL_FLAVOR_BUTTONS_TOGGLE = 'Vertical - Flavor Buttons - Type Toggle',
 }
 
 export enum OfferSelectorSliderTypes {
@@ -354,6 +355,7 @@ export const createPageModel = (props: PageModelInputProps): ModelShape => {
                   OfferSelectorTypes.VERTICAL__FLAVOR_DROPDOWN__TYPE_TOGGLE,
                   OfferSelectorTypes.STACKED__FLAVOR_BUTTONS__QUANTITY_TOGGLE,
                   OfferSelectorTypes.BUNDLE_GROUP,
+                  OfferSelectorTypes.VERTICAL_FLAVOR_BUTTONS_TOGGLE,
                 ],
                 defaultCollapsed: false,
               },
