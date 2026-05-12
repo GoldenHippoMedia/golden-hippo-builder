@@ -342,6 +342,43 @@ export const createProductModel = (request: ProductModelProps): ModelShape => {
         ],
       },
       {
+        name: 'whatsInside',
+        friendlyName: "What's Inside Accordion Items",
+        type: 'object',
+        required: false,
+        defaultCollapsed: true,
+        helperText: "Accordion items detailing what's inside the product (ingredients, components, etc.)",
+        subFields: [
+          {
+            name: 'whatsInsideItems',
+            friendlyName: "What's Inside Accordion Items",
+            type: 'list',
+            required: false,
+            copyOnAdd: true,
+            defaultCollapsed: true,
+            subFields: [
+              {
+                name: 'title',
+                friendlyName: 'Title',
+                type: 'text',
+                required: false,
+                localized: true,
+                defaultCollapsed: true,
+                helperText: 'The title shown in the accordion header',
+              },
+              {
+                name: 'description',
+                type: 'html',
+                required: false,
+                localized: true,
+                defaultCollapsed: true,
+                helperText: 'The content shown when the accordion is expanded',
+              },
+            ],
+          },
+        ],
+      },
+      {
         name: 'faqs',
         friendlyName: 'FAQ Accordion Items',
         type: 'object',
@@ -529,6 +566,12 @@ export type BuilderProductContent = BuilderContent &
           featuredIngredientImage?: string;
           featuredIngredientTitle?: string;
           featuredIngredientDescription?: string;
+        }[];
+      };
+      whatsInside?: {
+        whatsInsideItems?: {
+          title?: string;
+          description?: string;
         }[];
       };
       faqs?: {
