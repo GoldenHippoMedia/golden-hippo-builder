@@ -1,5 +1,16 @@
 # @goldenhippo/builder-cart-plugin
 
+## 0.5.0
+
+### Minor Changes
+
+- [#32](https://github.com/GoldenHippoMedia/golden-hippo-builder/pull/32) [`1b2e6e4`](https://github.com/GoldenHippoMedia/golden-hippo-builder/commit/1b2e6e45cf4c722ab9e83050b9d6dd3d294dbd16) - Add new fields to product model — [@dkidwell999](https://github.com/dkidwell999)
+
+### Patch Changes
+
+- Updated dependencies [[`1b2e6e4`](https://github.com/GoldenHippoMedia/golden-hippo-builder/commit/1b2e6e45cf4c722ab9e83050b9d6dd3d294dbd16)]:
+  - @goldenhippo/builder-cart-schemas@0.13.0
+
 ## 0.4.2
 
 ### Patch Changes
