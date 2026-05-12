@@ -285,6 +285,63 @@ export const createProductModel = (request: ProductModelProps): ModelShape => {
         ],
       },
       {
+        name: 'featuredIngredients',
+        friendlyName: 'Featured Ingredients',
+        type: 'object',
+        required: false,
+        defaultCollapsed: true,
+        helperText: 'Showcases hero ingredients on the product detail page with imagery and descriptions',
+        subFields: [
+          {
+            name: 'featuredIngredientsHeading',
+            friendlyName: 'Featured Ingredients Heading',
+            type: 'text',
+            required: false,
+            localized: true,
+            defaultCollapsed: true,
+            helperText: 'The heading displayed above the featured ingredients list',
+          },
+          {
+            name: 'featuredIngredient',
+            friendlyName: 'Featured Ingredient',
+            type: 'list',
+            required: false,
+            copyOnAdd: true,
+            defaultCollapsed: true,
+            subFields: [
+              {
+                name: 'featuredIngredientImage',
+                friendlyName: 'Featured Ingredient Image',
+                type: 'file',
+                required: false,
+                localized: true,
+                defaultCollapsed: true,
+                allowedFileTypes: ['jpeg', 'png', 'svg', 'webp', 'gif'],
+                helperText: 'Image representing this featured ingredient',
+              },
+              {
+                name: 'featuredIngredientTitle',
+                friendlyName: 'Featured Ingredient Title',
+                type: 'text',
+                required: false,
+                localized: true,
+                defaultCollapsed: true,
+                helperText: 'Display name for this featured ingredient',
+              },
+              {
+                name: 'featuredIngredientDescription',
+                friendlyName: 'Featured Ingredient Description',
+                type: 'html',
+                required: false,
+                localized: true,
+                defaultCollapsed: true,
+                helperText: 'Description of this featured ingredient',
+              },
+            ],
+          },
+        ],
+      },
+      {
         name: 'faqs',
         friendlyName: 'FAQ Accordion Items',
         type: 'object',
@@ -466,6 +523,14 @@ export type BuilderProductContent = BuilderContent &
         displayName?: string;
         description?: string;
       }[];
+      featuredIngredients?: {
+        featuredIngredientsHeading?: string;
+        featuredIngredient?: {
+          featuredIngredientImage?: string;
+          featuredIngredientTitle?: string;
+          featuredIngredientDescription?: string;
+        }[];
+      };
       faqs?: {
         faqItem?: {
           faqTitle?: string;
