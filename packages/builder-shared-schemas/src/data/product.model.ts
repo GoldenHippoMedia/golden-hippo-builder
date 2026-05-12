@@ -415,6 +415,44 @@ export const createProductModel = (request: ProductModelProps): ModelShape => {
         ],
       },
       {
+        name: 'supplementFacts',
+        friendlyName: 'Supplement Facts',
+        type: 'object',
+        required: false,
+        defaultCollapsed: true,
+        helperText: 'Supplement facts labels displayed on the product detail page',
+        subFields: [
+          {
+            name: 'supplementFactsLabel',
+            friendlyName: 'Supplement Facts Label',
+            type: 'list',
+            required: false,
+            copyOnAdd: true,
+            defaultCollapsed: true,
+            subFields: [
+              {
+                name: 'supplementFactsLabelTitle',
+                friendlyName: 'Supplement Facts Label Title',
+                type: 'text',
+                required: false,
+                localized: true,
+                defaultCollapsed: true,
+                helperText: 'Title for this supplement facts label (e.g. flavor or variant name)',
+              },
+              {
+                name: 'supplementFactsLabelHtml',
+                friendlyName: 'Supplement Facts Label HTML',
+                type: 'html',
+                required: false,
+                localized: true,
+                defaultCollapsed: true,
+                helperText: 'HTML content of the supplement facts label',
+              },
+            ],
+          },
+        ],
+      },
+      {
         name: 'servingsPerUnit',
         friendlyName: 'Servings Per Unit',
         type: 'number',
@@ -578,6 +616,12 @@ export type BuilderProductContent = BuilderContent &
         faqItem?: {
           faqTitle?: string;
           faqDescription?: string;
+        }[];
+      };
+      supplementFacts?: {
+        supplementFactsLabel?: {
+          supplementFactsLabelTitle?: string;
+          supplementFactsLabelHtml?: string;
         }[];
       };
       gh: {
