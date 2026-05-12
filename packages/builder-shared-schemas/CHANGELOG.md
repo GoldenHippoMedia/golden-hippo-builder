@@ -1,5 +1,11 @@
 # @goldenhippo/builder-shared-schemas
 
+## 0.13.0
+
+### Minor Changes
+
+- [#32](https://github.com/GoldenHippoMedia/golden-hippo-builder/pull/32) [`1b2e6e4`](https://github.com/GoldenHippoMedia/golden-hippo-builder/commit/1b2e6e45cf4c722ab9e83050b9d6dd3d294dbd16) - Add new fields to product model: FAQ section, Featured ingredients, Ingredients accordion, Supplment facts, Featured icon labels — [@dkidwell999](https://github.com/dkidwell999)
+
 ## 0.9.2
 
 ### Patch Changes
