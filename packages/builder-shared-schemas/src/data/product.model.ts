@@ -285,6 +285,42 @@ export const createProductModel = (request: ProductModelProps): ModelShape => {
         ],
       },
       {
+        name: 'faqs',
+        friendlyName: 'FAQ Accordion Items',
+        type: 'object',
+        required: false,
+        defaultCollapsed: true,
+        helperText: 'Frequently asked questions displayed in an accordion on the product detail page',
+        subFields: [
+          {
+            name: 'faqItem',
+            type: 'list',
+            required: false,
+            copyOnAdd: true,
+            defaultCollapsed: true,
+            subFields: [
+              {
+                name: 'faqTitle',
+                friendlyName: 'FAQ Title',
+                type: 'text',
+                required: false,
+                localized: true,
+                defaultCollapsed: true,
+                helperText: 'The question shown in the accordion header',
+              },
+              {
+                name: 'faqDescription',
+                type: 'html',
+                required: false,
+                localized: true,
+                defaultCollapsed: true,
+                helperText: 'The answer shown when the accordion is expanded',
+              },
+            ],
+          },
+        ],
+      },
+      {
         name: 'servingsPerUnit',
         friendlyName: 'Servings Per Unit',
         type: 'number',
@@ -430,6 +466,12 @@ export type BuilderProductContent = BuilderContent &
         displayName?: string;
         description?: string;
       }[];
+      faqs?: {
+        faqItem?: {
+          faqTitle?: string;
+          faqDescription?: string;
+        }[];
+      };
       gh: {
         slug: string;
         productionId: string;
