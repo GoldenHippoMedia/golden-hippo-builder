@@ -181,12 +181,12 @@ export type BuilderProfileReferenceRuleContent = BuilderContent &
       applicationRules: Array<
         | {
             profileField: ProfileFieldReference.Age | ProfileFieldReference.Weight;
-            operator: 'equals' | 'not equals' | 'greater than' | 'less than' | 'contains' | 'does not contain';
+            numberOperator: 'equals' | 'not equals' | 'greater than' | 'less than';
             numberValue: number;
           }
         | {
-            profileField: ProfileFieldReference.Gender | ProfileFieldReference.Type;
-            operator: 'equals' | 'not equals' | 'greater than' | 'less than' | 'contains' | 'does not contain';
+            profileField: ProfileFieldReference.Gender | ProfileFieldReference.Type | ProfileFieldReference.Breed | ProfileFieldReference.HealthConditions;
+            stringOperator: 'is' | 'is not' | 'contains' | 'does not contain';
             stringValue: string;
           }
       >;
