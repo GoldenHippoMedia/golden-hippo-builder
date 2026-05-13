@@ -170,29 +170,29 @@ export const createProfileReferenceRuleModel = (): ModelShape => {
 };
 
 export type BuilderProfileReferenceRuleContent = BuilderContent &
-  Partial<{
-    data: BuilderResponseBaseData & {
-      displayName: string;
-      referenceType: ProfileReferenceType;
-      tagReference?: BuilderContentReference<BuilderProductTagContent['data']>;
-      ingredientReference?: BuilderContentReference<BuilderIngredientContent['data']>;
-      categoryReference?: BuilderContentReference<BuilderProductCategoryContent['data']>;
-      useCaseReference?: BuilderContentReference<BuilderProductUseCaseContent['data']>;
-      applicationRules: Array<
-        | {
-            profileField: ProfileFieldReference.Age | ProfileFieldReference.Weight;
-            numberOperator: 'equals' | 'not equals' | 'greater than' | 'less than';
-            numberValue: number;
-          }
-        | {
-            profileField:
-              | ProfileFieldReference.Gender
-              | ProfileFieldReference.Type
-              | ProfileFieldReference.Breed
-              | ProfileFieldReference.HealthConditions;
-            stringOperator: 'is' | 'is not' | 'contains' | 'does not contain';
-            stringValue: string;
-          }
-      >;
+    {
+        data: BuilderResponseBaseData & Partial<{
+            displayName: string;
+            referenceType: ProfileReferenceType;
+            tagReference?: BuilderContentReference<BuilderProductTagContent['data']>;
+            ingredientReference?: BuilderContentReference<BuilderIngredientContent['data']>;
+            categoryReference?: BuilderContentReference<BuilderProductCategoryContent['data']>;
+            useCaseReference?: BuilderContentReference<BuilderProductUseCaseContent['data']>;
+            applicationRules: Array<
+                | {
+                profileField: ProfileFieldReference.Age | ProfileFieldReference.Weight;
+                numberOperator: 'equals' | 'not equals' | 'greater than' | 'less than';
+                numberValue: number;
+            }
+                | {
+                profileField:
+                    | ProfileFieldReference.Gender
+                    | ProfileFieldReference.Type
+                    | ProfileFieldReference.Breed
+                    | ProfileFieldReference.HealthConditions;
+                stringOperator: 'is' | 'is not' | 'contains' | 'does not contain';
+                stringValue: string;
+            }
+            >;
+        }>;
     };
-  }>;
