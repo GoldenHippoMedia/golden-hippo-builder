@@ -12,8 +12,8 @@ export enum ProfileFieldReference {
   Gender = 'Gender',
   Weight = 'Weight',
   Type = 'Type',
-    Breed = 'Breed',
-    HealthConditions = 'Health Conditions',
+  Breed = 'Breed',
+  HealthConditions = 'Health Conditions',
 }
 
 export enum ProfileReferenceType {
@@ -119,8 +119,8 @@ export const createProfileReferenceRuleModel = (): ModelShape => {
               ProfileFieldReference.Gender,
               ProfileFieldReference.Weight,
               ProfileFieldReference.Type,
-                ProfileFieldReference.Breed,
-                ProfileFieldReference.HealthConditions,
+              ProfileFieldReference.Breed,
+              ProfileFieldReference.HealthConditions,
             ],
             helperText: 'The profile field to evaluate for this rule.',
           },
@@ -185,7 +185,11 @@ export type BuilderProfileReferenceRuleContent = BuilderContent &
             numberValue: number;
           }
         | {
-            profileField: ProfileFieldReference.Gender | ProfileFieldReference.Type | ProfileFieldReference.Breed | ProfileFieldReference.HealthConditions;
+            profileField:
+              | ProfileFieldReference.Gender
+              | ProfileFieldReference.Type
+              | ProfileFieldReference.Breed
+              | ProfileFieldReference.HealthConditions;
             stringOperator: 'is' | 'is not' | 'contains' | 'does not contain';
             stringValue: string;
           }
