@@ -56,10 +56,12 @@ async function setHippoModels(currentState: ApplicationContext) {
   const categoryModel = getModel(BuilderHelper.categoryModel.name, models);
   const tagModel = getModel(BuilderHelper.productTagModel.name, models);
   const useCaseModel = getModel(BuilderHelper.useCaseModel.name, models);
+  const profileReferenceRuleModel = getModel(BuilderHelper.profileReferenceRuleModel.name, models);
   const ingredientModelId = await setModel(BuilderHelper.ingredientsModel, ingredientModel, currentState);
   const categoryModelId = await setModel(BuilderHelper.categoryModel, categoryModel, currentState);
   const tagModelId = await setModel(BuilderHelper.productTagModel, tagModel, currentState);
   const useCaseModelId = await setModel(BuilderHelper.useCaseModel, useCaseModel, currentState);
+  await setModel(BuilderHelper.profileReferenceRuleModel, profileReferenceRuleModel, currentState);
 
   if (!ingredientModelId || !categoryModelId || !tagModelId || !useCaseModelId) return;
 

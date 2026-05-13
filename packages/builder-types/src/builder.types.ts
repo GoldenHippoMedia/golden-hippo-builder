@@ -59,7 +59,7 @@ interface BaseBuilderIOField {
    * However, the field must be set before any further changes can be saved. This means *all retrieved
    * data should be treated as optional.*
    */
-  required?: boolean;
+  required?: boolean | string;
   /**
    * When `true` users can provide alternate translations of the content.
    * This is available for most field types (excl. `object`)
@@ -135,7 +135,7 @@ type ReferenceField = Omit<BaseBuilderIOField, 'type'> & {
   type: 'reference';
   copyOnAdd: boolean;
   showTemplatePicker?: boolean;
-} & ({ modelId: string } | { model: string });
+} & ({ modelId: string } | { model: string | undefined });
 
 interface ListField extends Omit<BaseBuilderIOField, 'type'> {
   type: 'list';
@@ -171,7 +171,7 @@ interface SelectField extends Omit<BaseBuilderIOField, 'type' | 'defaultValue'> 
         '@type'?: string;
         Default?: string | number | boolean;
       };
-  enum: string[];
+  enum: string[] | string;
 }
 
 interface TagsField extends Omit<BaseBuilderIOField, 'type' | 'defaultValue'> {
