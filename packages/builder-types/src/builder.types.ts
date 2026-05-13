@@ -171,7 +171,7 @@ interface SelectField extends Omit<BaseBuilderIOField, 'type' | 'defaultValue'> 
         '@type'?: string;
         Default?: string | number | boolean;
       };
-  enum: string[] | string;
+  enum: string[];
 }
 
 interface TagsField extends Omit<BaseBuilderIOField, 'type' | 'defaultValue'> {
