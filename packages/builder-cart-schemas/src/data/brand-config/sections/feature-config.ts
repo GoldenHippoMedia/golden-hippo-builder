@@ -3,6 +3,7 @@ import { BuilderIOFieldTypes } from '@goldenhippo/builder-types';
 export enum ProductGridFilterType {
   DROPDOWN = 'Dropdown',
   STACKED_LIST = 'Stacked List',
+  HORIZONTAL_LIST = 'Horizontal List',
 }
 
 export enum ProductLinkPrefix {
@@ -24,8 +25,9 @@ export const createFeatureConfig = (gridFilterModelId: string): BuilderIOFieldTy
         type: 'select',
         defaultCollapsed: true,
         helperText: `Select the type of filters to use. 'Dropdown' will display a drop down of categories, ingredients, use cases, and tags. 
-        'Stacked List' allows you to create your own filter groupings from amongst those four filter types.`,
-        enum: [ProductGridFilterType.DROPDOWN, ProductGridFilterType.STACKED_LIST],
+        'Stacked List' allows you to create your own filter groupings from amongst those four filter types.
+        'Horizontal List' displays Product Categories only horizontally; click to filter on page or navigate option available.`,
+        enum: [ProductGridFilterType.DROPDOWN, ProductGridFilterType.STACKED_LIST, ProductGridFilterType.HORIZONTAL_LIST],
         defaultValue: 'Dropdown',
       },
       {
