@@ -1,5 +1,16 @@
 # @goldenhippo/builder-shared-schemas
 
+## 0.14.0
+
+### Minor Changes
+
+- [#34](https://github.com/GoldenHippoMedia/golden-hippo-builder/pull/34) [`f652aa7`](https://github.com/GoldenHippoMedia/golden-hippo-builder/commit/f652aa7fb3f9e11add533ea1f4e6d6383bf8d0d4) - Add profile-reference-rule model to cart schemas with conditional reference type selector (Tag / Ingredient / Category / UseCase) and per-field application rules. Extend builder-types to allow `required` as a string expression and `reference.model` to be optional. — [@steven-t-h](https://github.com/steven-t-h)
+
+### Patch Changes
+
+- Updated dependencies [[`f652aa7`](https://github.com/GoldenHippoMedia/golden-hippo-builder/commit/f652aa7fb3f9e11add533ea1f4e6d6383bf8d0d4)]:
+  - @goldenhippo/builder-types@0.14.0
+
 ## 0.13.0
 
 ### Minor Changes

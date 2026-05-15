@@ -1,5 +1,16 @@
 # @goldenhippo/builder-cart-plugin
 
+## 0.6.0
+
+### Minor Changes
+
+- [#34](https://github.com/GoldenHippoMedia/golden-hippo-builder/pull/34) [`f652aa7`](https://github.com/GoldenHippoMedia/golden-hippo-builder/commit/f652aa7fb3f9e11add533ea1f4e6d6383bf8d0d4) - Register the new profile-reference-rule model in the cart plugin model-sync and auto-provisioning flow. — [@steven-t-h](https://github.com/steven-t-h)
+
+### Patch Changes
+
+- Updated dependencies [[`95b5374`](https://github.com/GoldenHippoMedia/golden-hippo-builder/commit/95b53743220e6e83456589dba955a326e2aa4192), [`4393201`](https://github.com/GoldenHippoMedia/golden-hippo-builder/commit/4393201e3ac2ae97a8e87540d9c073bb7c4a7db3), [`f652aa7`](https://github.com/GoldenHippoMedia/golden-hippo-builder/commit/f652aa7fb3f9e11add533ea1f4e6d6383bf8d0d4)]:
+  - @goldenhippo/builder-cart-schemas@0.14.0
+
 ## 0.5.0
 
 ### Minor Changes
