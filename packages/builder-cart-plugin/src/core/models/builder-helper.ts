@@ -13,6 +13,7 @@ import {
   createSiteBannerModel,
   createDefaultWebsiteSectionModel,
   createPageModel,
+  createProfileReferenceRuleModel,
 } from '@goldenhippo/builder-cart-schemas';
 
 class BuilderHelper {
@@ -21,6 +22,7 @@ class BuilderHelper {
   categoryModel = createCategoryModel();
   productTagModel = createProductTagModel();
   useCaseModel = createProductUseCaseModel();
+  profileReferenceRuleModel = createProfileReferenceRuleModel();
   blogCategoryModel = createBlogCategoryModel();
 
   // Factory models (require model IDs from cascading creation)

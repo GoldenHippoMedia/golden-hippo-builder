@@ -444,7 +444,7 @@ export const createPageModel = (props: PageModelInputProps): ModelShape => {
                     name: 'enableAnonymousSubscriptions',
                     friendlyName: 'Always Show Subscriptions',
                     type: 'boolean',
-                    defaultValue: {},
+                    defaultValue: false,
                     required: false,
                     helperText:
                       'Enable this to present subscriptions (when available) to non-MyAccount visitors. By default, a user must be logged in to access this option.',

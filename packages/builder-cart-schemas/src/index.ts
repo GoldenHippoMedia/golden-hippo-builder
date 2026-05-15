@@ -9,6 +9,7 @@ export {
   createIngredientsModel,
   createProductTagModel,
   createProductUseCaseModel,
+  createProfileReferenceRuleModel,
   type BuilderBrandConfigContent,
   HeaderType,
   FooterType,
@@ -19,6 +20,7 @@ export {
   ProductLinkPrefix,
   SubscriptionCancelReasons,
   SubscriptionCancelButtonType,
+  ProfileFieldReference,
   type BuilderBlogCategoryContent,
   type BuilderBlogCommentContent,
   type BuilderProductContent,
@@ -28,6 +30,7 @@ export {
   type BuilderProductTagContent,
   type BuilderProductUseCaseContent,
   type BuilderProductGroupContent,
+  type BuilderProfileReferenceRuleContent,
 } from './data';
 
 export {
@@ -44,3 +47,5 @@ export {
   type BuilderGeneralPageContent,
   type BuilderPdpPageContent,
 } from './page';
+
+export { applyProfileReferenceRules } from './utils';
