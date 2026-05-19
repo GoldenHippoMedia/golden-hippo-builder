@@ -36,6 +36,7 @@ export {
 export {
   createDefaultWebsiteSectionModel,
   createSiteBannerModel,
+  createHeaderModel,
   type BuilderDefaultWebsiteSectionContent,
   type BuilderSiteBannerModelContent,
 } from './section';
