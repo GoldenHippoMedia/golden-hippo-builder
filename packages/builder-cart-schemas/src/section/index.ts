@@ -9,3 +9,5 @@ export {
   createSubscriptionCancellationPanelModel,
   type BuilderSubscriptionCancellationPanelContent,
 } from './subscription-cancellation-panel.model';
+
+export { createUpsellTemplateModel, type BuilderUpsellTemplateContent } from './upsell-template.model';

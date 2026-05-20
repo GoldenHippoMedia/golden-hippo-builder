@@ -13,6 +13,7 @@ import {
   createSiteBannerModel,
   createDefaultWebsiteSectionModel,
   createSubscriptionCancellationPanelModel,
+  createUpsellTemplateModel,
   createPageModel,
 } from '@goldenhippo/builder-cart-schemas';
 
@@ -61,6 +62,10 @@ class BuilderHelper {
 
   subscriptionCancellationPanel(editUrl: string): ModelShape {
     return createSubscriptionCancellationPanelModel(editUrl);
+  }
+
+  upsellTemplate(editUrl: string): ModelShape {
+    return createUpsellTemplateModel(editUrl);
   }
 
   pageModel(props: {

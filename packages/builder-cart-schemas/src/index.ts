@@ -34,9 +34,11 @@ export {
   createDefaultWebsiteSectionModel,
   createSiteBannerModel,
   createSubscriptionCancellationPanelModel,
+  createUpsellTemplateModel,
   type BuilderDefaultWebsiteSectionContent,
   type BuilderSiteBannerModelContent,
   type BuilderSubscriptionCancellationPanelContent,
+  type BuilderUpsellTemplateContent,
 } from './section';
 
 export {
