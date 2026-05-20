@@ -86,6 +86,10 @@ async function setHippoModels(currentState: ApplicationContext) {
   const defaultWebsiteSectionModel = getModel(defaultWebsiteSectionModelShape.name, models);
   const sectionModelId = await setModel(defaultWebsiteSectionModelShape, defaultWebsiteSectionModel, currentState);
 
+  const subscriptionCancellationPanelModelShape = BuilderHelper.subscriptionCancellationPanel(editUrl);
+  const subscriptionCancellationPanelModel = getModel(subscriptionCancellationPanelModelShape.name, models);
+  await setModel(subscriptionCancellationPanelModelShape, subscriptionCancellationPanelModel, currentState);
+
   if (!bannerModelId || !blogCategoryModelId || !sectionModelId) return;
 
   // Phase 3b: Product group (requires product + section)

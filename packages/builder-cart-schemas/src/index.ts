@@ -33,8 +33,10 @@ export {
 export {
   createDefaultWebsiteSectionModel,
   createSiteBannerModel,
+  createSubscriptionCancellationPanelModel,
   type BuilderDefaultWebsiteSectionContent,
   type BuilderSiteBannerModelContent,
+  type BuilderSubscriptionCancellationPanelContent,
 } from './section';
 
 export {

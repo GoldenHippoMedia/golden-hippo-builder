@@ -12,6 +12,7 @@ import {
   createBrandConfigModel,
   createSiteBannerModel,
   createDefaultWebsiteSectionModel,
+  createSubscriptionCancellationPanelModel,
   createPageModel,
 } from '@goldenhippo/builder-cart-schemas';
 
@@ -56,6 +57,10 @@ class BuilderHelper {
 
   defaultWebsiteSection(editUrl: string): ModelShape {
     return createDefaultWebsiteSectionModel(editUrl);
+  }
+
+  subscriptionCancellationPanel(editUrl: string): ModelShape {
+    return createSubscriptionCancellationPanelModel(editUrl);
   }
 
   pageModel(props: {
