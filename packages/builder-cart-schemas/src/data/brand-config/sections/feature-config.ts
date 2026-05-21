@@ -124,8 +124,8 @@ export const createFeatureConfig = (gridFilterModelId: string): BuilderIOFieldTy
       },
       {
         name: 'payPalGuestEnabled',
-        friendlyName: 'PayPal Guest Enabled',
-        helperText: 'Enable or disable PayPal guest checkout for the brand',
+        friendlyName: 'PayPal Enabled for Guest',
+        helperText: 'Shows the paypal checkout button on the cart page for all users (guest and logged in)',
         type: 'boolean',
         localized: false,
         defaultCollapsed: true,
