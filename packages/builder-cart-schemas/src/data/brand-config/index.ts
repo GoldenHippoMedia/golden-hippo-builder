@@ -257,6 +257,7 @@ export type BuilderBrandConfigContent = BuilderContent &
         cartDrawerEnabled: boolean;
         subscriptionExperience: 'Classic' | 'Version 2';
         useDefaultFrequencies: boolean;
+        payPalGuestEnabled?: boolean;
       };
       support: {
         email: string;
