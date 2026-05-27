@@ -1,5 +1,11 @@
 # @goldenhippo/builder-shared-schemas
 
+## 0.15.0
+
+### Patch Changes
+
+- [#38](https://github.com/GoldenHippoMedia/golden-hippo-builder/pull/38) [`c72d963`](https://github.com/GoldenHippoMedia/golden-hippo-builder/commit/c72d9630dabc68c271c5168051df006add07e267) - Added emojis to product model — [@vbhavsargh](https://github.com/vbhavsargh)
+
 ## 0.14.0
 
 ### Minor Changes
