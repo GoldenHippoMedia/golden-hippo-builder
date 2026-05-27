@@ -122,6 +122,14 @@ export const createFeatureConfig = (gridFilterModelId: string): BuilderIOFieldTy
           'When enabled, the selected frequency on an Offer Selector is calculated based on the product and quantity selected.',
         defaultCollapsed: false,
       },
+      {
+        name: 'payPalGuestEnabled',
+        friendlyName: 'PayPal Enabled for Guest',
+        helperText: 'Shows the paypal checkout button on the cart page for all users (guest and logged in)',
+        type: 'boolean',
+        localized: false,
+        defaultCollapsed: true,
+      },
     ],
   };
 };
