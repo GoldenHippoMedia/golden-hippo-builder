@@ -5,3 +5,8 @@ export {
 
 export { createSiteBannerModel, type BuilderSiteBannerModelContent } from './site-banner.model';
 export { createHeaderModel, type BuilderHeaderModelContent } from './header.model';
+export { createFooterModel, type BuilderFooterModelContent } from './footer.model';
+export {
+  createOfferSelectorContentModel,
+  type BuilderOfferSelectorContentModelContent,
+} from './offer-selector-content.model';
