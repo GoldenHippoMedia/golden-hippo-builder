@@ -18,8 +18,8 @@ import {
   createProfileReferenceRuleModel,
   createHeaderModel,
   createFooterModel,
+  createOfferSelectorContentModel
 } from '@goldenhippo/builder-cart-schemas';
-import { createOfferSelectorContentModel } from '@goldenhippo/builder-cart-schemas/section';
 
 class BuilderHelper {
   // Static data models (no dependencies)
