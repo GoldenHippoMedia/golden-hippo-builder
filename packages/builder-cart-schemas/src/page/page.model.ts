@@ -590,9 +590,7 @@ export const createPageModel = (props: PageModelInputProps): ModelShape => {
                     name: 'packageSelector',
                     friendlyName: 'Package Selector',
                     type: 'text',
-                    defaultValue: {
-                      Default: 'Choose a package',
-                    },
+                    defaultValue: 'Choose a package',
                     required: false,
                     helperText: 'Label for the package selector (e.g. "Choose a package")',
                     defaultCollapsed: false,
