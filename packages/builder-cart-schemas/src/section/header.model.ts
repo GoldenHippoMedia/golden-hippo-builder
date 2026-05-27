@@ -24,6 +24,6 @@ export const createHeaderModel = (editUrl: string): ModelShape => {
 
 export type BuilderHeaderModelContent = BuilderContent & {
   data: BuilderResponseBaseData & {
-    backgroundColor: string;
+    backgroundColor?: string;
   };
 };
