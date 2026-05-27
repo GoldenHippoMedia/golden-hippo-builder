@@ -125,6 +125,27 @@ export const MODEL_DEFINITIONS: ModelDefinition[] = [
     dependencies: [],
     getShape: (_ids, editUrl) => BuilderHelper.upsellTemplate(editUrl),
   },
+  {
+    name: 'header',
+    displayName: 'Header',
+    phase: 3,
+    dependencies: [],
+    getShape: (_ids, editUrl) => BuilderHelper.headerModel(editUrl),
+  },
+  {
+    name: 'footer',
+    displayName: 'Footer',
+    phase: 3,
+    dependencies: [],
+    getShape: (_ids, editUrl) => BuilderHelper.footerModel(editUrl),
+  },
+  {
+    name: 'offer-selector-content',
+    displayName: 'Offer Selector Content',
+    phase: 3,
+    dependencies: [],
+    getShape: (_ids, editUrl) => BuilderHelper.offerSelectorContentModel(editUrl),
+  },
 
   // Phase 3b — needs product + section
   {

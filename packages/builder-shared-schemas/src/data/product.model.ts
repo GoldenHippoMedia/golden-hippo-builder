@@ -39,6 +39,14 @@ export const createProductModel = (request: ProductModelProps): ModelShape => {
         allowedFileTypes: ['jpeg', 'png', 'svg', 'webp'],
       },
       {
+        name: 'emojis',
+        friendlyName: 'Emojis List',
+        helperText: 'Emoji shown on the flavor selector and used for the add-to-cart confetti.',
+        defaultCollapsed: true,
+        type: 'Tags',
+        required: false,
+      },
+      {
         name: 'secondaryImage',
         friendlyName: 'Secondary Image',
         helperText: 'Displayed on the product card hover for some grids',
@@ -560,6 +568,7 @@ export type BuilderProductContent = BuilderContent &
       name: string;
       displayName: string;
       featuredImage?: string;
+      emojis?: string[];
       secondaryImage?: string;
       subHeading?: string;
       gridTagline?: string;

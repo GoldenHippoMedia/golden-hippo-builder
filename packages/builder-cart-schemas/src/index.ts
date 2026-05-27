@@ -36,12 +36,18 @@ export {
 export {
   createDefaultWebsiteSectionModel,
   createSiteBannerModel,
+  createHeaderModel,
+  createFooterModel,
   createSubscriptionCancellationPanelModel,
   createUpsellTemplateModel,
+  createOfferSelectorContentModel,
   type BuilderDefaultWebsiteSectionContent,
   type BuilderSiteBannerModelContent,
   type BuilderSubscriptionCancellationPanelContent,
   type BuilderUpsellTemplateContent,
+  type BuilderHeaderModelContent,
+  type BuilderFooterModelContent,
+  type BuilderOfferSelectorContentModelContent,
 } from './section';
 
 export {
