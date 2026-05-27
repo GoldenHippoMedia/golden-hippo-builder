@@ -35,14 +35,6 @@ export const createProductGroupModel = (productModelId: string, sectionModelId: 
         helperText: 'The primary image of this product group.',
       },
       {
-        name: 'emojis',
-        friendlyName: 'Emojis List',
-        helperText: 'Emoji shown on the flavor selector and used for the add-to-cart confetti.',
-        defaultCollapsed: true,
-        type: 'Tags',
-        required: false,
-      },
-      {
         name: 'subHeading',
         friendlyName: 'Sub Heading',
         type: 'text',
@@ -179,7 +171,6 @@ export type BuilderProductGroupContent = BuilderContent &
     data: BuilderResponseBaseData & {
       displayName: string;
       featuredImage?: string;
-      emojis?: string[];
       subHeading?: string;
       gridTagline?: string;
       shortDescription?: string;
