@@ -1,13 +1,12 @@
-import {Builder} from '@builder.io/react';
+import { Builder } from '@builder.io/react';
 import appState from '@builder.io/app-context';
 import HippoCMSBrandConfiguration from '@application/HippoCMSBrandConfiguration';
 import HippoCMSAdmin from '@application/HippoCMSAdmin';
-import {adminIcon, configIcon, pluginId} from './constants';
-import {AppActions, OnSaveActions} from '@goldenhippo/builder-types';
+import { adminIcon, configIcon, pluginId } from './constants';
+import { AppActions, OnSaveActions } from '@goldenhippo/builder-types';
 import UserManagementService from '@services/user-management';
-import {ExtendedApplicationContext} from './interfaces/application-context.interface';
-import {captureTriggerSettingsDialog} from './plugin-actions';
-
+import { ExtendedApplicationContext } from './interfaces/application-context.interface';
+import { captureTriggerSettingsDialog } from './plugin-actions';
 
 Builder.register('plugin', {
   id: pluginId,

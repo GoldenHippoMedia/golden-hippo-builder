@@ -14,5 +14,5 @@ export const createFooterModel = (editUrl: string): ModelShape => {
 };
 
 export type BuilderFooterModelContent = BuilderContent & {
-  data: BuilderResponseBaseData
+  data: BuilderResponseBaseData;
 };

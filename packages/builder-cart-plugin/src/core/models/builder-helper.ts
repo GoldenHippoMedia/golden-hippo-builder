@@ -16,7 +16,10 @@ import {
   createUpsellTemplateModel,
   createPageModel,
   createProfileReferenceRuleModel,
+  createHeaderModel,
+  createFooterModel,
 } from '@goldenhippo/builder-cart-schemas';
+import { createOfferSelectorContentModel } from '@goldenhippo/builder-cart-schemas/section';
 
 class BuilderHelper {
   // Static data models (no dependencies)
@@ -68,6 +71,18 @@ class BuilderHelper {
 
   upsellTemplate(editUrl: string): ModelShape {
     return createUpsellTemplateModel(editUrl);
+  }
+
+  headerModel(editUrl: string): ModelShape {
+    return createHeaderModel(editUrl);
+  }
+
+  footerModel(editUrl: string): ModelShape {
+    return createFooterModel(editUrl);
+  }
+
+  offerSelectorContentModel(editUrl: string): ModelShape {
+    return createOfferSelectorContentModel(editUrl);
   }
 
   pageModel(props: {
