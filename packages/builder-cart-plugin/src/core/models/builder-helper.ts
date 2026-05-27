@@ -18,7 +18,7 @@ import {
   createProfileReferenceRuleModel,
   createHeaderModel,
   createFooterModel,
-  createOfferSelectorContentModel
+  createOfferSelectorContentModel,
 } from '@goldenhippo/builder-cart-schemas';
 
 class BuilderHelper {
