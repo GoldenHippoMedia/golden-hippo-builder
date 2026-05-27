@@ -1064,6 +1064,7 @@ export type BuilderPdpPageContent = BuilderContent &
               outOfStock?: string;
               outOfStockFormSuccess?: string;
               scrollButton?: string;
+              packageSelector?: string;
               flavorSelector?: string;
               quantitySelector?: string;
             };
