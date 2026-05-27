@@ -1,50 +1,13 @@
 import {Builder} from '@builder.io/react';
-import appState, {ApplicationContext, Model} from '@builder.io/app-context';
+import appState from '@builder.io/app-context';
 import HippoCMSBrandConfiguration from '@application/HippoCMSBrandConfiguration';
 import HippoCMSAdmin from '@application/HippoCMSAdmin';
 import {adminIcon, configIcon, pluginId} from './constants';
-import {AppActions, ModelShape, OnSaveActions} from '@goldenhippo/builder-types';
+import {AppActions, OnSaveActions} from '@goldenhippo/builder-types';
 import UserManagementService from '@services/user-management';
 import {ExtendedApplicationContext} from './interfaces/application-context.interface';
 import {captureTriggerSettingsDialog} from './plugin-actions';
 
-function getModel(name: string, models: Model[]) {
-  const match = models.find((model) => model.name === name);
-  console.log(`[Hippo Commerce - CART] Retrieved model "${name}" --->`, match?.id);
-  return match;
-}
-
-async function setModel(
-  shape: ModelShape,
-  current: Model | undefined,
-  currentState: ApplicationContext,
-): Promise<string | undefined> {
-  const randomId = crypto.randomUUID().toString();
-  try {
-    // @ts-expect-error incomplete types
-    await currentState.models.update({
-      ...shape,
-      id: current ? current.id : randomId,
-    });
-    const id = current ? current.id : randomId;
-    console.log('[Hippo Commerce - CART] Model update complete --->', shape.name, id);
-    return id;
-  } catch (e) {
-    console.error(
-      '[Hippo Commerce - CART] Set model error',
-      e instanceof Error ? { message: e.message, name: e.name, stack: e.stack } : e,
-    );
-    console.error('[Hippo Commerce - CART] Failed model shape:', shape.name);
-  }
-  return current ? current.id : shape.name;
-}
-
-function getEditUrl(state: ApplicationContext): string {
-  // @ts-expect-error not yet typed
-  const pluginSettings = state.user.organization.value.settings.plugins?.get(pluginId);
-  const editUrl = pluginSettings?.get('editUrl');
-  return (editUrl as string) ?? '';
-}
 
 Builder.register('plugin', {
   id: pluginId,
@@ -111,7 +74,7 @@ Builder.register('plugin', {
       advanced: true,
     },
   ],
-  ctaText: 'Save & Create Models',
+  ctaText: 'Save Settings',
   async onSave(actions: OnSaveActions) {
     await actions.updateSettings({
       hasConnected: true,
