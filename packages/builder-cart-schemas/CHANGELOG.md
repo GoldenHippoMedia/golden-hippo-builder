@@ -1,5 +1,32 @@
 # @goldenhippo/builder-cart-schemas
 
+## 0.14.0
+
+### Minor Changes
+
+- [#35](https://github.com/GoldenHippoMedia/golden-hippo-builder/pull/35) [`95b5374`](https://github.com/GoldenHippoMedia/golden-hippo-builder/commit/95b53743220e6e83456589dba955a326e2aa4192) - adds `Horizontal List` option to Product Grid Filter Type — [@vbhavsargh](https://github.com/vbhavsargh)
+
+- [#36](https://github.com/GoldenHippoMedia/golden-hippo-builder/pull/36) [`4393201`](https://github.com/GoldenHippoMedia/golden-hippo-builder/commit/4393201e3ac2ae97a8e87540d9c073bb7c4a7db3) - create new section type to default-website-section model — [@vbhavsargh](https://github.com/vbhavsargh)
+
+- [#34](https://github.com/GoldenHippoMedia/golden-hippo-builder/pull/34) [`f652aa7`](https://github.com/GoldenHippoMedia/golden-hippo-builder/commit/f652aa7fb3f9e11add533ea1f4e6d6383bf8d0d4) - Add profile-reference-rule model to cart schemas with conditional reference type selector (Tag / Ingredient / Category / UseCase) and per-field application rules. Extend builder-types to allow `required` as a string expression and `reference.model` to be optional. — [@steven-t-h](https://github.com/steven-t-h)
+
+### Patch Changes
+
+- Updated dependencies [[`f652aa7`](https://github.com/GoldenHippoMedia/golden-hippo-builder/commit/f652aa7fb3f9e11add533ea1f4e6d6383bf8d0d4)]:
+  - @goldenhippo/builder-shared-schemas@0.14.0
+  - @goldenhippo/builder-types@0.14.0
+
+## 0.13.0
+
+### Minor Changes
+
+- [#32](https://github.com/GoldenHippoMedia/golden-hippo-builder/pull/32) [`1b2e6e4`](https://github.com/GoldenHippoMedia/golden-hippo-builder/commit/1b2e6e45cf4c722ab9e83050b9d6dd3d294dbd16) - Add new fields to product model: FAQ section, Featured ingredients, Ingredients accordion, Supplment facts, Featured icon labels — [@dkidwell999](https://github.com/dkidwell999)
+
+### Patch Changes
+
+- Updated dependencies [[`1b2e6e4`](https://github.com/GoldenHippoMedia/golden-hippo-builder/commit/1b2e6e45cf4c722ab9e83050b9d6dd3d294dbd16)]:
+  - @goldenhippo/builder-shared-schemas@0.13.0
+
 ## 0.11.0
 
 ### Patch Changes

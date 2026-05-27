@@ -66,6 +66,13 @@ export const MODEL_DEFINITIONS: ModelDefinition[] = [
     dependencies: [],
     getShape: () => BuilderHelper.useCaseModel,
   },
+  {
+    name: 'profile-reference-rule',
+    displayName: 'Profile Reference Rule',
+    phase: 1,
+    dependencies: [],
+    getShape: () => BuilderHelper.profileReferenceRuleModel,
+  },
 
   // Phase 2 — needs phase 1 IDs
   {

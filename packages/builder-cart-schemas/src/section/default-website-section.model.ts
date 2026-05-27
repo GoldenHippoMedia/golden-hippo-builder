@@ -26,6 +26,9 @@ export const createDefaultWebsiteSectionModel = (editUrl: string): ModelShape =>
           'offerSelectorAboveCTAContent',
           'offerSelectorBelowCTAContent',
           'subscriptionManagementNoSubsContent',
+          'subscriptionCancellationContent',
+          'notFoundContent',
+          'productNotAvailableContent',
         ],
         helperText: 'Choose where this content section appears on the website',
       },
@@ -46,6 +49,9 @@ export type BuilderDefaultWebsiteSectionContent = BuilderContent & {
       | 'mainFooter'
       | 'offerSelectorAboveCTAContent'
       | 'offerSelectorBelowCTAContent'
-      | 'subscriptionManagementNoSubsContent';
+      | 'subscriptionManagementNoSubsContent'
+      | 'subscriptionCancellationContent'
+      | 'notFoundContent'
+      | 'productNotAvailableContent';
   };
 };

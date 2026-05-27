@@ -30,6 +30,11 @@ export { createBlogCategoryModel, type BuilderBlogCategoryContent } from './blog
 export { createBlogCommentModel, type BuilderBlogCommentContent } from './blog-comment.model';
 export { createProductGroupModel, type BuilderProductGroupContent, ProductGroupType } from './product-group.model';
 export {
+  createProfileReferenceRuleModel,
+  type BuilderProfileReferenceRuleContent,
+  ProfileFieldReference,
+} from './profile-reference-rule.model';
+export {
   createProductGridConfigModel,
   type BuilderProductGridFilterGroupContent,
   FilterApplicationType,

@@ -6,6 +6,7 @@ export default defineConfig({
     'data/index': 'src/data/index.ts',
     'section/index': 'src/section/index.ts',
     'page/index': 'src/page/index.ts',
+    'utils/index': 'src/utils/index.ts',
   },
   format: ['cjs', 'esm'],
   dts: true,

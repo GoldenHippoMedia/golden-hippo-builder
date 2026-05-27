@@ -285,6 +285,174 @@ export const createProductModel = (request: ProductModelProps): ModelShape => {
         ],
       },
       {
+        name: 'featuredIngredients',
+        friendlyName: 'Featured Ingredients',
+        type: 'object',
+        required: false,
+        defaultCollapsed: true,
+        helperText: 'Showcases hero ingredients on the product detail page with imagery and descriptions',
+        subFields: [
+          {
+            name: 'featuredIngredientsHeading',
+            friendlyName: 'Featured Ingredients Heading',
+            type: 'text',
+            required: false,
+            localized: true,
+            defaultCollapsed: true,
+            helperText: 'The heading displayed above the featured ingredients list',
+          },
+          {
+            name: 'featuredIngredient',
+            friendlyName: 'Featured Ingredient',
+            type: 'list',
+            required: false,
+            copyOnAdd: true,
+            defaultCollapsed: true,
+            subFields: [
+              {
+                name: 'featuredIngredientImage',
+                friendlyName: 'Featured Ingredient Image',
+                type: 'file',
+                required: false,
+                localized: true,
+                defaultCollapsed: true,
+                allowedFileTypes: ['jpeg', 'png', 'svg', 'webp', 'gif'],
+                helperText: 'Image representing this featured ingredient',
+              },
+              {
+                name: 'featuredIngredientTitle',
+                friendlyName: 'Featured Ingredient Title',
+                type: 'text',
+                required: false,
+                localized: true,
+                defaultCollapsed: true,
+                helperText: 'Display name for this featured ingredient',
+              },
+              {
+                name: 'featuredIngredientDescription',
+                friendlyName: 'Featured Ingredient Description',
+                type: 'html',
+                required: false,
+                localized: true,
+                defaultCollapsed: true,
+                helperText: 'Description of this featured ingredient',
+              },
+            ],
+          },
+        ],
+      },
+      {
+        name: 'whatsInside',
+        friendlyName: "What's Inside Accordion Items",
+        type: 'object',
+        required: false,
+        defaultCollapsed: true,
+        helperText: "Accordion items detailing what's inside the product (ingredients, components, etc.)",
+        subFields: [
+          {
+            name: 'whatsInsideItems',
+            friendlyName: "What's Inside Accordion Items",
+            type: 'list',
+            required: false,
+            copyOnAdd: true,
+            defaultCollapsed: true,
+            subFields: [
+              {
+                name: 'title',
+                friendlyName: 'Title',
+                type: 'text',
+                required: false,
+                localized: true,
+                defaultCollapsed: true,
+                helperText: 'The title shown in the accordion header',
+              },
+              {
+                name: 'description',
+                type: 'html',
+                required: false,
+                localized: true,
+                defaultCollapsed: true,
+                helperText: 'The content shown when the accordion is expanded',
+              },
+            ],
+          },
+        ],
+      },
+      {
+        name: 'faqs',
+        friendlyName: 'FAQ Accordion Items',
+        type: 'object',
+        required: false,
+        defaultCollapsed: true,
+        helperText: 'Frequently asked questions displayed in an accordion on the product detail page',
+        subFields: [
+          {
+            name: 'faqItem',
+            type: 'list',
+            required: false,
+            copyOnAdd: true,
+            defaultCollapsed: true,
+            subFields: [
+              {
+                name: 'faqTitle',
+                friendlyName: 'FAQ Title',
+                type: 'text',
+                required: false,
+                localized: true,
+                defaultCollapsed: true,
+                helperText: 'The question shown in the accordion header',
+              },
+              {
+                name: 'faqDescription',
+                type: 'html',
+                required: false,
+                localized: true,
+                defaultCollapsed: true,
+                helperText: 'The answer shown when the accordion is expanded',
+              },
+            ],
+          },
+        ],
+      },
+      {
+        name: 'supplementFacts',
+        friendlyName: 'Supplement Facts',
+        type: 'object',
+        required: false,
+        defaultCollapsed: true,
+        helperText: 'Supplement facts labels displayed on the product detail page',
+        subFields: [
+          {
+            name: 'supplementFactsLabel',
+            friendlyName: 'Supplement Facts Label',
+            type: 'list',
+            required: false,
+            copyOnAdd: true,
+            defaultCollapsed: true,
+            subFields: [
+              {
+                name: 'supplementFactsLabelTitle',
+                friendlyName: 'Supplement Facts Label Title',
+                type: 'text',
+                required: false,
+                localized: true,
+                defaultCollapsed: true,
+                helperText: 'Title for this supplement facts label (e.g. flavor or variant name)',
+              },
+              {
+                name: 'supplementFactsLabelHtml',
+                friendlyName: 'Supplement Facts Label HTML',
+                type: 'html',
+                required: false,
+                localized: true,
+                defaultCollapsed: true,
+                helperText: 'HTML content of the supplement facts label',
+              },
+            ],
+          },
+        ],
+      },
+      {
         name: 'servingsPerUnit',
         friendlyName: 'Servings Per Unit',
         type: 'number',
@@ -430,6 +598,32 @@ export type BuilderProductContent = BuilderContent &
         displayName?: string;
         description?: string;
       }[];
+      featuredIngredients?: {
+        featuredIngredientsHeading?: string;
+        featuredIngredient?: {
+          featuredIngredientImage?: string;
+          featuredIngredientTitle?: string;
+          featuredIngredientDescription?: string;
+        }[];
+      };
+      whatsInside?: {
+        whatsInsideItems?: {
+          title?: string;
+          description?: string;
+        }[];
+      };
+      faqs?: {
+        faqItem?: {
+          faqTitle?: string;
+          faqDescription?: string;
+        }[];
+      };
+      supplementFacts?: {
+        supplementFactsLabel?: {
+          supplementFactsLabelTitle?: string;
+          supplementFactsLabelHtml?: string;
+        }[];
+      };
       gh: {
         slug: string;
         productionId: string;
