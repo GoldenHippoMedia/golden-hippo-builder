@@ -1,13 +1,12 @@
-import { Builder } from '@builder.io/react';
-import appState, { ApplicationContext, Model } from '@builder.io/app-context';
+import {Builder} from '@builder.io/react';
+import appState, {ApplicationContext, Model} from '@builder.io/app-context';
 import HippoCMSBrandConfiguration from '@application/HippoCMSBrandConfiguration';
 import HippoCMSAdmin from '@application/HippoCMSAdmin';
-import { pluginId, configIcon, adminIcon } from './constants';
-import BuilderHelper from '@core/models/builder-helper';
-import { ModelShape, OnSaveActions, AppActions } from '@goldenhippo/builder-types';
+import {adminIcon, configIcon, pluginId} from './constants';
+import {AppActions, ModelShape, OnSaveActions} from '@goldenhippo/builder-types';
 import UserManagementService from '@services/user-management';
-import { ExtendedApplicationContext } from './interfaces/application-context.interface';
-import { captureTriggerSettingsDialog } from './plugin-actions';
+import {ExtendedApplicationContext} from './interfaces/application-context.interface';
+import {captureTriggerSettingsDialog} from './plugin-actions';
 
 function getModel(name: string, models: Model[]) {
   const match = models.find((model) => model.name === name);
@@ -45,100 +44,6 @@ function getEditUrl(state: ApplicationContext): string {
   const pluginSettings = state.user.organization.value.settings.plugins?.get(pluginId);
   const editUrl = pluginSettings?.get('editUrl');
   return (editUrl as string) ?? '';
-}
-
-async function setHippoModels(currentState: ApplicationContext) {
-  const editUrl = getEditUrl(currentState);
-  const models = currentState.models.result;
-
-  // Phase 1: Independent models (no dependencies)
-  const ingredientModel = getModel(BuilderHelper.ingredientsModel.name, models);
-  const categoryModel = getModel(BuilderHelper.categoryModel.name, models);
-  const tagModel = getModel(BuilderHelper.productTagModel.name, models);
-  const useCaseModel = getModel(BuilderHelper.useCaseModel.name, models);
-  const ingredientModelId = await setModel(BuilderHelper.ingredientsModel, ingredientModel, currentState);
-  const categoryModelId = await setModel(BuilderHelper.categoryModel, categoryModel, currentState);
-  const tagModelId = await setModel(BuilderHelper.productTagModel, tagModel, currentState);
-  const useCaseModelId = await setModel(BuilderHelper.useCaseModel, useCaseModel, currentState);
-
-  if (!ingredientModelId || !categoryModelId || !tagModelId || !useCaseModelId) return;
-
-  // Phase 2: Product (requires ingredient, category, tag, useCase)
-  const productModelShape = BuilderHelper.productModel({
-    ingredientsModelId: ingredientModelId,
-    categoryModelId: categoryModelId,
-    tagModelId: tagModelId,
-    useCaseModelId: useCaseModelId,
-  });
-  const productModel = getModel(productModelShape.name, models);
-  const productModelId = await setModel(productModelShape, productModel, currentState);
-  if (!productModelId) return;
-
-  // Phase 3: Independent models + default website section (needed by product group and page)
-  const bannerModelShape = BuilderHelper.siteBanner(editUrl);
-  const bannerModel = getModel(bannerModelShape.name, models);
-  const bannerModelId = await setModel(bannerModelShape, bannerModel, currentState);
-
-  const blogCategoryModel = getModel(BuilderHelper.blogCategoryModel.name, models);
-  const blogCategoryModelId = await setModel(BuilderHelper.blogCategoryModel, blogCategoryModel, currentState);
-
-  const defaultWebsiteSectionModelShape = BuilderHelper.defaultWebsiteSection(editUrl);
-  const defaultWebsiteSectionModel = getModel(defaultWebsiteSectionModelShape.name, models);
-  const sectionModelId = await setModel(defaultWebsiteSectionModelShape, defaultWebsiteSectionModel, currentState);
-
-  const subscriptionCancellationPanelModelShape = BuilderHelper.subscriptionCancellationPanel(editUrl);
-  const subscriptionCancellationPanelModel = getModel(subscriptionCancellationPanelModelShape.name, models);
-  await setModel(subscriptionCancellationPanelModelShape, subscriptionCancellationPanelModel, currentState);
-
-  const upsellTemplateModelShape = BuilderHelper.upsellTemplate(editUrl);
-  const upsellTemplateModel = getModel(upsellTemplateModelShape.name, models);
-  await setModel(upsellTemplateModelShape, upsellTemplateModel, currentState);
-
-  if (!bannerModelId || !blogCategoryModelId || !sectionModelId) return;
-
-  // Phase 3b: Product group (requires product + section)
-  const productGroupModelShape = BuilderHelper.productGroupModel(productModelId, sectionModelId);
-  const productGroupModel = getModel(productGroupModelShape.name, models);
-  const productGroupModelId = await setModel(productGroupModelShape, productGroupModel, currentState);
-
-  if (!productGroupModelId) return;
-
-  // Phase 4: Page (requires product, productGroup, category, banner, blogCategory, section)
-  const pageModelShape = BuilderHelper.pageModel({
-    productModelId,
-    productGroupModelId,
-    categoryModelId,
-    bannerModelId,
-    blogCategoryModelId,
-    sectionModelId,
-    editUrl,
-  });
-  const pageModel = getModel(pageModelShape.name, models);
-  const pageModelId = await setModel(pageModelShape, pageModel, currentState);
-  if (!pageModelId) return;
-
-  // Phase 5: Blog comment (requires page)
-  const blogCommentModelShape = BuilderHelper.blogCommentModel(pageModelId);
-  const blogCommentModel = getModel(blogCommentModelShape.name, models);
-  await setModel(blogCommentModelShape, blogCommentModel, currentState);
-
-  // Phase 6: Grid config (requires category, useCase, ingredient, tag)
-  const productGridConfigModelShape = BuilderHelper.productGridConfigModel({
-    categoryId: categoryModelId,
-    useCaseId: useCaseModelId,
-    ingredientId: ingredientModelId,
-    tagId: tagModelId,
-  });
-  const productGridConfigModel = getModel(productGridConfigModelShape.name, models);
-  const productGridConfigModelId = await setModel(productGridConfigModelShape, productGridConfigModel, currentState);
-  if (!productGridConfigModelId) return;
-
-  // Phase 7: Brand config (requires gridConfig, banner)
-  const brandConfigModelShape = BuilderHelper.brandConfig(productGridConfigModelId, bannerModelId);
-  const brandConfigModel = getModel(brandConfigModelShape.name, models);
-  await setModel(brandConfigModelShape, brandConfigModel, currentState);
-
-  console.info('[Hippo Commerce - CART] Model setup complete');
 }
 
 Builder.register('plugin', {
@@ -211,7 +116,7 @@ Builder.register('plugin', {
     await actions.updateSettings({
       hasConnected: true,
     });
-    await setHippoModels(appState as ApplicationContext);
+    // await setHippoModels(appState as ApplicationContext);
     // @ts-expect-error types are not complete
     await appState.dialogs.alert('Hippo Commerce Cart settings saved.');
   },
