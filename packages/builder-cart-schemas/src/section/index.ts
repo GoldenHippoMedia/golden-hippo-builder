@@ -4,3 +4,10 @@ export {
 } from './default-website-section.model';
 
 export { createSiteBannerModel, type BuilderSiteBannerModelContent } from './site-banner.model';
+
+export {
+  createSubscriptionCancellationPanelModel,
+  type BuilderSubscriptionCancellationPanelContent,
+} from './subscription-cancellation-panel.model';
+
+export { createUpsellTemplateModel, type BuilderUpsellTemplateContent } from './upsell-template.model';
