@@ -10,3 +10,10 @@ export {
   createOfferSelectorContentModel,
   type BuilderOfferSelectorContentModelContent,
 } from './offer-selector-content.model';
+
+export {
+  createSubscriptionCancellationPanelModel,
+  type BuilderSubscriptionCancellationPanelContent,
+} from './subscription-cancellation-panel.model';
+
+export { createUpsellTemplateModel, type BuilderUpsellTemplateContent } from './upsell-template.model';

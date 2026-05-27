@@ -111,6 +111,20 @@ export const MODEL_DEFINITIONS: ModelDefinition[] = [
     dependencies: [],
     getShape: (_ids, editUrl) => BuilderHelper.defaultWebsiteSection(editUrl),
   },
+  {
+    name: 'subscription-cancellation-panel',
+    displayName: 'Subscription Cancellation Panel',
+    phase: 3,
+    dependencies: [],
+    getShape: (_ids, editUrl) => BuilderHelper.subscriptionCancellationPanel(editUrl),
+  },
+  {
+    name: 'upsell-template',
+    displayName: 'Upsell Template',
+    phase: 3,
+    dependencies: [],
+    getShape: (_ids, editUrl) => BuilderHelper.upsellTemplate(editUrl),
+  },
 
   // Phase 3b — needs product + section
   {
