@@ -146,6 +146,13 @@ export const MODEL_DEFINITIONS: ModelDefinition[] = [
     dependencies: [],
     getShape: (_ids, editUrl) => BuilderHelper.offerSelectorContentModel(editUrl),
   },
+  {
+    name: 'promotional-card',
+    displayName: 'Promotional Card',
+    phase: 3,
+    dependencies: [],
+    getShape: (_ids, editUrl) => BuilderHelper.promotionalCardModel(editUrl),
+  },
 
   // Phase 3b — needs product + section
   {
