@@ -19,6 +19,7 @@ import {
   createHeaderModel,
   createFooterModel,
   createOfferSelectorContentModel,
+  createPromotionalCardModel,
 } from '@goldenhippo/builder-cart-schemas';
 
 class BuilderHelper {
@@ -83,6 +84,10 @@ class BuilderHelper {
 
   offerSelectorContentModel(editUrl: string): ModelShape {
     return createOfferSelectorContentModel(editUrl);
+  }
+
+  promotionalCardModel(editUrl: string): ModelShape {
+    return createPromotionalCardModel(editUrl);
   }
 
   pageModel(props: {
