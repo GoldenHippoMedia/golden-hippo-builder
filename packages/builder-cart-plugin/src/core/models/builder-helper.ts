@@ -86,8 +86,8 @@ class BuilderHelper {
     return createOfferSelectorContentModel(editUrl);
   }
 
-  promotionalCardModel(editUrl: string): ModelShape {
-    return createPromotionalCardModel(editUrl);
+  promotionalCardModel(productModelId: string, editUrl: string): ModelShape {
+    return createPromotionalCardModel(productModelId, editUrl);
   }
 
   pageModel(props: {
