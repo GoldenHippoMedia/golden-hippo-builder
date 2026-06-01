@@ -3,4 +3,4 @@
 '@goldenhippo/builder-cart-plugin': minor
 ---
 
-Add `promotional-card` section model for promotional card content blocks.
+Add `promotional-card` section model for promotional card content blocks, with `rank` (number) and `product` (proreference) fields for positioning.
