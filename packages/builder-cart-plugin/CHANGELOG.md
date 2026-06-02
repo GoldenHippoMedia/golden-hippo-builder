@@ -1,5 +1,22 @@
 # @goldenhippo/builder-cart-plugin
 
+## 0.7.0
+
+### Minor Changes
+
+- [#39](https://github.com/GoldenHippoMedia/golden-hippo-builder/pull/39) [`93ad2b3`](https://github.com/GoldenHippoMedia/golden-hippo-builder/commit/93ad2b35f64f110bae7f97cda7cd857bd4aabaf4) - Add `subscription-cancellation-panel` section model for the subscription cancellation flow. Exposes a `panelType` text field and is auto-provisioned by the cart plugin on save. — [@dkidwell999](https://github.com/dkidwell999)
+
+- [#39](https://github.com/GoldenHippoMedia/golden-hippo-builder/pull/39) [`93ad2b3`](https://github.com/GoldenHippoMedia/golden-hippo-builder/commit/93ad2b35f64f110bae7f97cda7cd857bd4aabaf4) - Add `upsell-template` section model for the upsell offer page template. Auto-provisioned by the cart plugin on save. — [@dkidwell999](https://github.com/dkidwell999)
+
+### Patch Changes
+
+- [#38](https://github.com/GoldenHippoMedia/golden-hippo-builder/pull/38) [`c72d963`](https://github.com/GoldenHippoMedia/golden-hippo-builder/commit/c72d9630dabc68c271c5168051df006add07e267) - Added new models to admin sync panel — [@vbhavsargh](https://github.com/vbhavsargh)
+
+- [#39](https://github.com/GoldenHippoMedia/golden-hippo-builder/pull/39) [`93ad2b3`](https://github.com/GoldenHippoMedia/golden-hippo-builder/commit/93ad2b35f64f110bae7f97cda7cd857bd4aabaf4) - Remove auto-sync when setting plugin settings — [@dkidwell999](https://github.com/dkidwell999)
+
+- Updated dependencies [[`c72d963`](https://github.com/GoldenHippoMedia/golden-hippo-builder/commit/c72d9630dabc68c271c5168051df006add07e267), [`c72d963`](https://github.com/GoldenHippoMedia/golden-hippo-builder/commit/c72d9630dabc68c271c5168051df006add07e267), [`c72d963`](https://github.com/GoldenHippoMedia/golden-hippo-builder/commit/c72d9630dabc68c271c5168051df006add07e267), [`93ad2b3`](https://github.com/GoldenHippoMedia/golden-hippo-builder/commit/93ad2b35f64f110bae7f97cda7cd857bd4aabaf4), [`93ad2b3`](https://github.com/GoldenHippoMedia/golden-hippo-builder/commit/93ad2b35f64f110bae7f97cda7cd857bd4aabaf4)]:
+  - @goldenhippo/builder-cart-schemas@0.15.0
+
 ## 0.6.0
 
 ### Minor Changes

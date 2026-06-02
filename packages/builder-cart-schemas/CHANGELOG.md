@@ -1,5 +1,24 @@
 # @goldenhippo/builder-cart-schemas
 
+## 0.15.0
+
+### Minor Changes
+
+- [#39](https://github.com/GoldenHippoMedia/golden-hippo-builder/pull/39) [`93ad2b3`](https://github.com/GoldenHippoMedia/golden-hippo-builder/commit/93ad2b35f64f110bae7f97cda7cd857bd4aabaf4) - Add `subscription-cancellation-panel` section model for the subscription cancellation flow. Exposes a `panelType` text field and is auto-provisioned by the cart plugin on save. — [@dkidwell999](https://github.com/dkidwell999)
+
+- [#39](https://github.com/GoldenHippoMedia/golden-hippo-builder/pull/39) [`93ad2b3`](https://github.com/GoldenHippoMedia/golden-hippo-builder/commit/93ad2b35f64f110bae7f97cda7cd857bd4aabaf4) - Add `upsell-template` section model for the upsell offer page template. Auto-provisioned by the cart plugin on save. — [@dkidwell999](https://github.com/dkidwell999)
+
+### Patch Changes
+
+- [#38](https://github.com/GoldenHippoMedia/golden-hippo-builder/pull/38) [`c72d963`](https://github.com/GoldenHippoMedia/golden-hippo-builder/commit/c72d9630dabc68c271c5168051df006add07e267) - Updated page model to accept offer selector content and added package selector — [@vbhavsargh](https://github.com/vbhavsargh)
+
+- [#38](https://github.com/GoldenHippoMedia/golden-hippo-builder/pull/38) [`c72d963`](https://github.com/GoldenHippoMedia/golden-hippo-builder/commit/c72d9630dabc68c271c5168051df006add07e267) - Updated brand config to accept new header and footer types. — [@vbhavsargh](https://github.com/vbhavsargh)
+
+- [#38](https://github.com/GoldenHippoMedia/golden-hippo-builder/pull/38) [`c72d963`](https://github.com/GoldenHippoMedia/golden-hippo-builder/commit/c72d9630dabc68c271c5168051df006add07e267) - Added header, footer, and offer selector content models. — [@vbhavsargh](https://github.com/vbhavsargh)
+
+- Updated dependencies [[`c72d963`](https://github.com/GoldenHippoMedia/golden-hippo-builder/commit/c72d9630dabc68c271c5168051df006add07e267)]:
+  - @goldenhippo/builder-shared-schemas@0.15.0
+
 ## 0.14.0
 
 ### Minor Changes

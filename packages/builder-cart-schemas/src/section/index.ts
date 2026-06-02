@@ -4,3 +4,16 @@ export {
 } from './default-website-section.model';
 
 export { createSiteBannerModel, type BuilderSiteBannerModelContent } from './site-banner.model';
+export { createHeaderModel, type BuilderHeaderModelContent } from './header.model';
+export { createFooterModel, type BuilderFooterModelContent } from './footer.model';
+export {
+  createOfferSelectorContentModel,
+  type BuilderOfferSelectorContentModelContent,
+} from './offer-selector-content.model';
+
+export {
+  createSubscriptionCancellationPanelModel,
+  type BuilderSubscriptionCancellationPanelContent,
+} from './subscription-cancellation-panel.model';
+
+export { createUpsellTemplateModel, type BuilderUpsellTemplateContent } from './upsell-template.model';

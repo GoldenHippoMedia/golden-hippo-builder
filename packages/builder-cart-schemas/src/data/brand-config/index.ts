@@ -20,7 +20,7 @@ import {
 } from './sections';
 import { BuilderContent } from '@builder.io/sdk';
 import { BuilderProductGridFilterGroupContent } from '../product-grid-filter-group.model';
-import { BuilderSiteBannerModelContent } from '../../section';
+import { BuilderFooterModelContent, BuilderHeaderModelContent, BuilderSiteBannerModelContent } from '../../section';
 
 export {
   HeaderType,
@@ -240,9 +240,15 @@ export type BuilderBrandConfigContent = BuilderContent &
             href: string;
           }[];
         };
+        cmsHeaderConfig?: {
+          headerContent: BuilderContentReference<BuilderHeaderModelContent['data']>;
+        };
       };
       footer: {
         footerType: FooterType;
+        cmsFooterConfig?: {
+          footerContent: BuilderContentReference<BuilderFooterModelContent['data']>;
+        };
       };
       features: {
         productGridFilterType: ProductGridFilterType;

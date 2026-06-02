@@ -7,6 +7,7 @@ export enum HeaderType {
   LINKLESS = 'LINKLESS',
   NONE = 'NONE',
   DMP = 'DMP',
+  CMS = 'CMS',
 }
 
 export interface BasicHeaderLink {
@@ -1233,6 +1234,19 @@ const headerOptions = {
       },
     ],
   } as BuilderIOFieldTypes,
+  cms: {
+    '@type': '@builder.io/core:Field',
+    name: 'cmsHeaderConfig',
+    showIf: "return options.get('headerType') === 'CMS'",
+    friendlyName: 'CMS Header Config',
+    helperText: 'Reference a header created in Builder CMS to use as the website header.',
+    type: 'reference',
+    model: 'header',
+    copyOnAdd: false,
+    localized: false,
+    required: true,
+    defaultCollapsed: true,
+  } as BuilderIOFieldTypes,
 };
 
 export const createHeaderConfig = (): BuilderIOFieldTypes => {
@@ -1255,6 +1269,7 @@ export const createHeaderConfig = (): BuilderIOFieldTypes => {
           HeaderType.LINKLESS,
           HeaderType.NONE,
           HeaderType.DMP,
+          HeaderType.CMS,
         ],
         defaultValue: 'MEDIUM',
       },
@@ -1262,6 +1277,7 @@ export const createHeaderConfig = (): BuilderIOFieldTypes => {
       headerOptions.medium,
       headerOptions.mega,
       headerOptions.dmp,
+      headerOptions.cms,
     ],
   };
 };

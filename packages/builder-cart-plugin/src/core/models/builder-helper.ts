@@ -12,8 +12,13 @@ import {
   createBrandConfigModel,
   createSiteBannerModel,
   createDefaultWebsiteSectionModel,
+  createSubscriptionCancellationPanelModel,
+  createUpsellTemplateModel,
   createPageModel,
   createProfileReferenceRuleModel,
+  createHeaderModel,
+  createFooterModel,
+  createOfferSelectorContentModel,
 } from '@goldenhippo/builder-cart-schemas';
 
 class BuilderHelper {
@@ -58,6 +63,26 @@ class BuilderHelper {
 
   defaultWebsiteSection(editUrl: string): ModelShape {
     return createDefaultWebsiteSectionModel(editUrl);
+  }
+
+  subscriptionCancellationPanel(editUrl: string): ModelShape {
+    return createSubscriptionCancellationPanelModel(editUrl);
+  }
+
+  upsellTemplate(editUrl: string): ModelShape {
+    return createUpsellTemplateModel(editUrl);
+  }
+
+  headerModel(editUrl: string): ModelShape {
+    return createHeaderModel(editUrl);
+  }
+
+  footerModel(editUrl: string): ModelShape {
+    return createFooterModel(editUrl);
+  }
+
+  offerSelectorContentModel(editUrl: string): ModelShape {
+    return createOfferSelectorContentModel(editUrl);
   }
 
   pageModel(props: {

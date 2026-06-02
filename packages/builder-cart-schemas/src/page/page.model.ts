@@ -2,7 +2,11 @@ import { BuilderContentReference, BuilderResponseBaseData, ModelShape } from '@g
 import { BuilderContent } from '@builder.io/sdk';
 import { BuilderProductCategoryContent, BuilderProductContent } from '@goldenhippo/builder-shared-schemas';
 import { BuilderBlogCategoryContent, BuilderProductGroupContent } from '../data';
-import { BuilderDefaultWebsiteSectionContent, BuilderSiteBannerModelContent } from '../section';
+import {
+  BuilderDefaultWebsiteSectionContent,
+  BuilderOfferSelectorContentModelContent,
+  BuilderSiteBannerModelContent,
+} from '../section';
 
 interface PageModelInputProps {
   productModelId: string;
@@ -583,6 +587,15 @@ export const createPageModel = (props: PageModelInputProps): ModelShape => {
                     defaultCollapsed: false,
                   },
                   {
+                    name: 'packageSelector',
+                    friendlyName: 'Package Selector',
+                    type: 'text',
+                    defaultValue: 'Choose a package',
+                    required: false,
+                    helperText: 'Label for the package selector (e.g. "Choose a package")',
+                    defaultCollapsed: false,
+                  },
+                  {
                     name: 'flavorSelector',
                     friendlyName: 'Flavor / Option Selector',
                     type: 'text',
@@ -628,6 +641,36 @@ export const createPageModel = (props: PageModelInputProps): ModelShape => {
                 helperText: 'The small image to display alongside the best value offer (highest quantity)',
                 allowedFileTypes: ['jpeg', 'png', 'svg', 'webp'],
                 defaultCollapsed: true,
+              },
+              {
+                name: 'content',
+                friendlyName: 'Custom Offer Selector Content',
+                type: 'object',
+                required: false,
+                helperText: 'Override the default offer selector content with custom content from Builder.',
+                defaultCollapsed: false,
+                subFields: [
+                  {
+                    name: 'aboveCTAContent',
+                    friendlyName: 'Above CTA Content',
+                    type: 'reference',
+                    required: false,
+                    helperText: 'Choose the content to display above the offer selector CTA',
+                    model: 'offer-selector-content',
+                    copyOnAdd: false,
+                    defaultCollapsed: false,
+                  },
+                  {
+                    name: 'belowCTAContent',
+                    friendlyName: 'Below CTA Content',
+                    type: 'reference',
+                    required: false,
+                    helperText: 'Choose the content to display below the offer selector CTA',
+                    model: 'offer-selector-content',
+                    copyOnAdd: false,
+                    defaultCollapsed: false,
+                  },
+                ],
               },
               {
                 name: 'cssOverrides',
@@ -1021,11 +1064,16 @@ export type BuilderPdpPageContent = BuilderContent &
               outOfStock?: string;
               outOfStockFormSuccess?: string;
               scrollButton?: string;
+              packageSelector?: string;
               flavorSelector?: string;
               quantitySelector?: string;
             };
             bestSellerImage?: string;
             bestValueImage?: string;
+            content?: {
+              aboveCTAContent?: BuilderContentReference<BuilderOfferSelectorContentModelContent['data']>;
+              belowCTAContent?: BuilderContentReference<BuilderOfferSelectorContentModelContent['data']>;
+            };
             cssOverrides?: {
               signupOfferCustomCssProps?: Record<string, string>;
               signupOfferPriceCustomCssProps?: Record<string, string>;
