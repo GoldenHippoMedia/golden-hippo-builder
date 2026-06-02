@@ -20,6 +20,7 @@ import {
 } from './sections';
 import { BuilderContent } from '@builder.io/sdk';
 import { BuilderProductGridFilterGroupContent } from '../product-grid-filter-group.model';
+import { BuilderPaymentConfigContent } from '../payment-config.model';
 import { BuilderFooterModelContent, BuilderHeaderModelContent, BuilderSiteBannerModelContent } from '../../section';
 
 export {
@@ -34,7 +35,11 @@ export {
   SubscriptionCancelButtonType,
 } from './sections';
 
-export const createBrandConfigModel = (gridFilterModelId: string, bannerModelId: string): ModelShape => {
+export const createBrandConfigModel = (
+  gridFilterModelId: string,
+  bannerModelId: string,
+  paymentConfigModelId: string,
+): ModelShape => {
   return {
     name: 'gh-brand-config',
     kind: 'data',
@@ -49,6 +54,15 @@ export const createBrandConfigModel = (gridFilterModelId: string, bannerModelId:
       createSupportConfig(),
       createPageConfig(),
       createCookieConfig(),
+      {
+        name: 'paymentConfig',
+        friendlyName: 'Payment Config',
+        type: 'reference',
+        modelId: paymentConfigModelId,
+        copyOnAdd: false,
+        defaultCollapsed: true,
+        helperText: 'Configure payment settings for the brand',
+      },
       {
         name: 'seo',
         friendlyName: 'SEO',
@@ -263,7 +277,6 @@ export type BuilderBrandConfigContent = BuilderContent &
         cartDrawerEnabled: boolean;
         subscriptionExperience: 'Classic' | 'Version 2';
         useDefaultFrequencies: boolean;
-        payPalGuestEnabled?: boolean;
       };
       support: {
         email: string;
@@ -406,5 +419,6 @@ export type BuilderBrandConfigContent = BuilderContent &
         description?: string;
         knowsAbout?: string[];
       };
+      paymentConfig?: BuilderContentReference<BuilderPaymentConfigContent['data']>;
     };
   }>;

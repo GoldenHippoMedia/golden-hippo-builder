@@ -39,3 +39,8 @@ export {
   type BuilderProductGridFilterGroupContent,
   FilterApplicationType,
 } from './product-grid-filter-group.model';
+export {
+  createPaymentConfigModel,
+  type BuilderPaymentConfigContent,
+  type BuilderPaymentConfig,
+} from './payment-config.model';
