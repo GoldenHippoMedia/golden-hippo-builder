@@ -1,5 +1,16 @@
 # @goldenhippo/builder-cart-plugin
 
+## 0.8.0
+
+### Minor Changes
+
+- [#42](https://github.com/GoldenHippoMedia/golden-hippo-builder/pull/42) [`5a16bc2`](https://github.com/GoldenHippoMedia/golden-hippo-builder/commit/5a16bc2347007963c443ba896b537ddd723f5aac) - Add `promotional-card` section model for promotional card content blocks, with `rank` (number) and `product` (proreference) fields for positioning. — [@vbhavsargh](https://github.com/vbhavsargh)
+
+### Patch Changes
+
+- Updated dependencies [[`5a16bc2`](https://github.com/GoldenHippoMedia/golden-hippo-builder/commit/5a16bc2347007963c443ba896b537ddd723f5aac)]:
+  - @goldenhippo/builder-cart-schemas@0.16.0
+
 ## 0.7.0
 
 ### Minor Changes
