@@ -3,7 +3,7 @@ import { BuilderIOFieldTypes } from '@goldenhippo/builder-types';
 export const createPaymentConfig = (paymentConfigModelId: string): BuilderIOFieldTypes => {
   return {
     name: 'paymentConfig',
-    friendlyName: 'Payment Config',
+    friendlyName: 'Payment Configuration',
     type: 'reference',
     modelId: paymentConfigModelId,
     copyOnAdd: false,
