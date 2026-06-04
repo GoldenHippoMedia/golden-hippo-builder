@@ -8,6 +8,7 @@ import {
   createGeneralConfig,
   createHeaderConfig,
   createPageConfig,
+  createPaymentConfig,
   createSupportConfig,
   FooterType,
   HeaderType,
@@ -38,7 +39,7 @@ export {
 export const createBrandConfigModel = (
   gridFilterModelId: string,
   bannerModelId: string,
-  paymentConfigModelId: string,
+  paymentConfigModelId?: string,
 ): ModelShape => {
   return {
     name: 'gh-brand-config',
@@ -54,15 +55,7 @@ export const createBrandConfigModel = (
       createSupportConfig(),
       createPageConfig(),
       createCookieConfig(),
-      {
-        name: 'paymentConfig',
-        friendlyName: 'Payment Config',
-        type: 'reference',
-        modelId: paymentConfigModelId,
-        copyOnAdd: false,
-        defaultCollapsed: true,
-        helperText: 'Configure payment settings for the brand',
-      },
+      ...(paymentConfigModelId ? [createPaymentConfig(paymentConfigModelId)] : []),
       {
         name: 'seo',
         friendlyName: 'SEO',
