@@ -44,6 +44,7 @@ export {
   createSubscriptionCancellationPanelModel,
   createUpsellTemplateModel,
   createOfferSelectorContentModel,
+  createPromotionalCardModel,
   type BuilderDefaultWebsiteSectionContent,
   type BuilderSiteBannerModelContent,
   type BuilderSubscriptionCancellationPanelContent,
@@ -51,6 +52,7 @@ export {
   type BuilderHeaderModelContent,
   type BuilderFooterModelContent,
   type BuilderOfferSelectorContentModelContent,
+  type BuilderPromotionalCardContent,
 } from './section';
 
 export {
