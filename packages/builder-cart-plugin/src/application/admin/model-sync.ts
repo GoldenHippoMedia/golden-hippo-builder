@@ -73,6 +73,13 @@ export const MODEL_DEFINITIONS: ModelDefinition[] = [
     dependencies: [],
     getShape: () => BuilderHelper.profileReferenceRuleModel,
   },
+  {
+    name: 'payment-config',
+    displayName: 'Payment Configuration',
+    phase: 1,
+    dependencies: [],
+    getShape: () => BuilderHelper.paymentConfigModel,
+  },
 
   // Phase 2 — needs phase 1 IDs
   {
@@ -212,13 +219,14 @@ export const MODEL_DEFINITIONS: ModelDefinition[] = [
       }),
   },
 
-  // Phase 7 — needs gridFilter + banner
+  // Phase 7 — needs gridFilter + banner + paymentConfig
   {
     name: 'gh-brand-config',
     displayName: 'Brand Configuration',
     phase: 7,
-    dependencies: ['product-grid-filter-group', 'banner'],
-    getShape: (ids) => BuilderHelper.brandConfig(ids['product-grid-filter-group'], ids['banner']),
+    dependencies: ['product-grid-filter-group', 'banner', 'payment-config'],
+    getShape: (ids) =>
+      BuilderHelper.brandConfig(ids['product-grid-filter-group'], ids['banner'], ids['payment-config']),
   },
 ];
 

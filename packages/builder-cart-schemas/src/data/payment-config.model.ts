@@ -7,7 +7,7 @@ export interface BuilderPaymentConfig {
 
 export const createPaymentConfigModel = (): ModelShape => {
   return {
-    name: 'gh-payment-config',
+    name: 'payment-config',
     kind: 'data',
     displayName: 'Payment Configuration',
     helperText: 'Configure payment settings for the brand',
@@ -16,7 +16,7 @@ export const createPaymentConfigModel = (): ModelShape => {
       {
         name: 'payPalGuestEnabled',
         friendlyName: 'PayPal Enabled for Guest',
-        helperText: 'Shows the paypal checkout button on the cart page for all users (guest and logged in)',
+        helperText: 'Shows the PayPal checkout button on the cart page for guest users (not signed in)',
         type: 'boolean',
         localized: false,
         defaultCollapsed: true,
