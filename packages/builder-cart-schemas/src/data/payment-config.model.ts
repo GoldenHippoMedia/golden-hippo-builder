@@ -15,7 +15,7 @@ export const createPaymentConfigModel = (): ModelShape => {
     fields: [
       {
         name: 'payPalGuestEnabled',
-        friendlyName: 'PayPal Enabled for Guest',
+        friendlyName: 'PayPal Enabled for Guests',
         helperText: 'Shows the PayPal checkout button on the cart page for guest users (not signed in)',
         type: 'boolean',
         localized: false,
