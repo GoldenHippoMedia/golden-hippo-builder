@@ -33,6 +33,7 @@ export {
   createProfileReferenceRuleModel,
   type BuilderProfileReferenceRuleContent,
   ProfileFieldReference,
+  ProfileReferenceApplicationType,
 } from './profile-reference-rule.model';
 export {
   createProductGridConfigModel,

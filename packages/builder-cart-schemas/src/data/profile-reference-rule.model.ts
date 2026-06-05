@@ -23,6 +23,12 @@ export enum ProfileReferenceType {
   UseCase = 'UseCase',
 }
 
+export enum ProfileReferenceApplicationType {
+  exclusive = 'exclusive',
+  preferred = 'preferred',
+  required = 'required',
+}
+
 export const createProfileReferenceRuleModel = (): ModelShape => {
   return {
     name: 'profile-reference-rule',
@@ -39,6 +45,20 @@ export const createProfileReferenceRuleModel = (): ModelShape => {
         defaultCollapsed: false,
         localized: true,
         helperText: 'The name of this profile reference rule.',
+      },
+      {
+        name: 'applicationType',
+        friendlyName: 'Application Type',
+        type: 'select',
+        required: true,
+        defaultCollapsed: false,
+        enum: [
+          ProfileReferenceApplicationType.exclusive,
+          ProfileReferenceApplicationType.preferred,
+          ProfileReferenceApplicationType.required,
+        ],
+        defaultValue: ProfileReferenceApplicationType.preferred,
+        helperText: 'How this rule is applied relative to other rules.',
       },
       {
         name: 'referenceType',
@@ -173,6 +193,7 @@ export type BuilderProfileReferenceRuleContent = BuilderContent & {
   data: BuilderResponseBaseData &
     Partial<{
       displayName: string;
+      applicationType: ProfileReferenceApplicationType;
       referenceType: ProfileReferenceType;
       tagReference?: BuilderContentReference<BuilderProductTagContent['data']>;
       ingredientReference?: BuilderContentReference<BuilderIngredientContent['data']>;

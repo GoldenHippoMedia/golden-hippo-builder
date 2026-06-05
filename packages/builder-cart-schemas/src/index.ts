@@ -21,6 +21,7 @@ export {
   SubscriptionCancelReasons,
   SubscriptionCancelButtonType,
   ProfileFieldReference,
+  ProfileReferenceApplicationType,
   type BuilderBlogCategoryContent,
   type BuilderBlogCommentContent,
   type BuilderProductContent,
