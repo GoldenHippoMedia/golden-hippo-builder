@@ -39,7 +39,7 @@ export {
 export const createBrandConfigModel = (
   gridFilterModelId: string,
   bannerModelId: string,
-  paymentConfigModelId?: string,
+  paymentConfigModelId: string,
 ): ModelShape => {
   return {
     name: 'gh-brand-config',
@@ -55,7 +55,7 @@ export const createBrandConfigModel = (
       createSupportConfig(),
       createPageConfig(),
       createCookieConfig(),
-      ...(paymentConfigModelId ? [createPaymentConfig(paymentConfigModelId)] : []),
+      createPaymentConfig(paymentConfigModelId),
       {
         name: 'seo',
         friendlyName: 'SEO',

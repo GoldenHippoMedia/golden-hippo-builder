@@ -56,7 +56,7 @@ class BuilderHelper {
     return createProductGridConfigModel(models);
   }
 
-  brandConfig(gridFilterModelId: string, bannerModelId: string, paymentConfigModelId?: string): ModelShape {
+  brandConfig(gridFilterModelId: string, bannerModelId: string, paymentConfigModelId: string): ModelShape {
     return createBrandConfigModel(gridFilterModelId, bannerModelId, paymentConfigModelId);
   }
 
