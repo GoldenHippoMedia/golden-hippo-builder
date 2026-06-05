@@ -53,11 +53,11 @@ export const createProfileReferenceRuleModel = (): ModelShape => {
         required: true,
         defaultCollapsed: false,
         enum: [
-          ProfileReferenceApplicationType.exclusive,
-          ProfileReferenceApplicationType.preferred,
-          ProfileReferenceApplicationType.required,
+          ProfileReferenceApplicationType.Exclusive,
+          ProfileReferenceApplicationType.Preferred,
+          ProfileReferenceApplicationType.Required,
         ],
-        defaultValue: ProfileReferenceApplicationType.preferred,
+        defaultValue: ProfileReferenceApplicationType.Preferred,
         helperText: 'How this rule is applied relative to other rules.',
       },
       {
