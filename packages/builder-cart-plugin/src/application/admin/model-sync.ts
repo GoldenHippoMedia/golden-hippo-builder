@@ -77,7 +77,7 @@ export const MODEL_DEFINITIONS: ModelDefinition[] = [
     name: 'recommendation-config',
     displayName: 'Recommendation Config',
     phase: 1,
-    dependencies: [],
+    dependencies: ['product-tag'],
     getShape: () => BuilderHelper.recommendationConfigModel,
   },
 
