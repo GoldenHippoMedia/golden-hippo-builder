@@ -24,9 +24,9 @@ export enum ProfileReferenceType {
 }
 
 export enum ProfileReferenceApplicationType {
-  exclusive = 'exclusive',
-  preferred = 'preferred',
-  required = 'required',
+  Exclusive = 'exclusive',
+  Preferred = 'preferred',
+  Required = 'required',
 }
 
 export const createProfileReferenceRuleModel = (): ModelShape => {
