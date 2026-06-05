@@ -74,7 +74,7 @@ export const MODEL_DEFINITIONS: ModelDefinition[] = [
     getShape: () => BuilderHelper.profileReferenceRuleModel,
   },
   // Phase 2 — needs phase 1 IDs
-    {
+  {
     name: 'recommendation-config',
     displayName: 'Recommendation Config',
     phase: 2,
