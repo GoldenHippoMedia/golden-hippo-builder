@@ -16,6 +16,7 @@ import {
   createUpsellTemplateModel,
   createPageModel,
   createProfileReferenceRuleModel,
+  createRecommendationConfigModel,
   createHeaderModel,
   createFooterModel,
   createOfferSelectorContentModel,
@@ -29,6 +30,7 @@ class BuilderHelper {
   productTagModel = createProductTagModel();
   useCaseModel = createProductUseCaseModel();
   profileReferenceRuleModel = createProfileReferenceRuleModel();
+  recommendationConfigModel = createRecommendationConfigModel();
   blogCategoryModel = createBlogCategoryModel();
 
   // Factory models (require model IDs from cascading creation)

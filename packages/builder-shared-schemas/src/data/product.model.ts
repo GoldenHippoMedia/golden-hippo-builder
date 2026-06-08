@@ -93,6 +93,15 @@ export const createProductModel = (request: ProductModelProps): ModelShape => {
         localized: true,
       },
       {
+        name: 'recommendationBlurb',
+        defaultCollapsed: true,
+        friendlyName: 'Recommendation Blurb',
+        helperText: 'Short blurb displayed when this product is surfaced as a recommendation.',
+        type: 'text',
+        required: false,
+        localized: true,
+      },
+      {
         name: 'quote',
         friendlyName: 'Quote',
         defaultCollapsed: true,
@@ -574,6 +583,7 @@ export type BuilderProductContent = BuilderContent &
       gridTagline?: string;
       gridDescription?: string;
       shortDescription?: string;
+      recommendationBlurb?: string;
       quote?: string;
       packagingLabels?: {
         singular: string;

@@ -10,6 +10,7 @@ export {
   createProductTagModel,
   createProductUseCaseModel,
   createProfileReferenceRuleModel,
+  createRecommendationConfigModel,
   type BuilderBrandConfigContent,
   HeaderType,
   FooterType,
@@ -21,6 +22,7 @@ export {
   SubscriptionCancelReasons,
   SubscriptionCancelButtonType,
   ProfileFieldReference,
+  ProfileReferenceApplicationType,
   type BuilderBlogCategoryContent,
   type BuilderBlogCommentContent,
   type BuilderProductContent,
@@ -31,6 +33,7 @@ export {
   type BuilderProductUseCaseContent,
   type BuilderProductGroupContent,
   type BuilderProfileReferenceRuleContent,
+  type BuilderRecommendationConfigContent,
 } from './data';
 
 export {
