@@ -1,5 +1,18 @@
 # @goldenhippo/builder-cart-plugin
 
+## 0.9.0
+
+### Minor Changes
+
+- [#44](https://github.com/GoldenHippoMedia/golden-hippo-builder/pull/44) [`2fde187`](https://github.com/GoldenHippoMedia/golden-hippo-builder/commit/2fde1871fb009a514e71c00a2edd499dea6f3f54) - Add `recommendationBlurb` text field to the `product` model. Optional, localized; used as a short blurb when the product is surfaced as a recommendation. — [@dkidwell999](https://github.com/dkidwell999)
+
+- [#44](https://github.com/GoldenHippoMedia/golden-hippo-builder/pull/44) [`2fde187`](https://github.com/GoldenHippoMedia/golden-hippo-builder/commit/2fde1871fb009a514e71c00a2edd499dea6f3f54) - Add `recommendation-config` data model — a sibling of `profile-reference-rule` that defines how product recommendations are generated. Each entry in the `recommendations` list represents one recommendation slot with optional `requiredTags` and `excludedTags` (references to `product-tag`). The number of items in the list is the recommendation count. Registered in the cart plugin admin model-sync (phase 1). — [@dkidwell999](https://github.com/dkidwell999)
+
+### Patch Changes
+
+- Updated dependencies [[`2fde187`](https://github.com/GoldenHippoMedia/golden-hippo-builder/commit/2fde1871fb009a514e71c00a2edd499dea6f3f54), [`2fde187`](https://github.com/GoldenHippoMedia/golden-hippo-builder/commit/2fde1871fb009a514e71c00a2edd499dea6f3f54)]:
+  - @goldenhippo/builder-cart-schemas@0.17.0
+
 ## 0.8.0
 
 ### Minor Changes
