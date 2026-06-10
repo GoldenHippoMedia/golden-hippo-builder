@@ -1,5 +1,11 @@
 # @goldenhippo/builder-shared-schemas
 
+## 0.17.0
+
+### Minor Changes
+
+- [#44](https://github.com/GoldenHippoMedia/golden-hippo-builder/pull/44) [`2fde187`](https://github.com/GoldenHippoMedia/golden-hippo-builder/commit/2fde1871fb009a514e71c00a2edd499dea6f3f54) - Add `recommendationBlurb` text field to the `product` model. Optional, localized; used as a short blurb when the product is surfaced as a recommendation. — [@dkidwell999](https://github.com/dkidwell999)
+
 ## 0.15.0
 
 ### Patch Changes

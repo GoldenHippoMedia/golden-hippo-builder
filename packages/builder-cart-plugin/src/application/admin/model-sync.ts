@@ -83,6 +83,13 @@ export const MODEL_DEFINITIONS: ModelDefinition[] = [
 
   // Phase 2 — needs phase 1 IDs
   {
+    name: 'recommendation-config',
+    displayName: 'Recommendation Config',
+    phase: 2,
+    dependencies: ['product-tag'],
+    getShape: () => BuilderHelper.recommendationConfigModel,
+  },
+  {
     name: 'product',
     displayName: 'Product',
     phase: 2,

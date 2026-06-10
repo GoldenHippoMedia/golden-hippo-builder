@@ -33,7 +33,12 @@ export {
   createProfileReferenceRuleModel,
   type BuilderProfileReferenceRuleContent,
   ProfileFieldReference,
+  ProfileReferenceApplicationType,
 } from './profile-reference-rule.model';
+export {
+  createRecommendationConfigModel,
+  type BuilderRecommendationConfigContent,
+} from './recommendation-config.model';
 export {
   createProductGridConfigModel,
   type BuilderProductGridFilterGroupContent,
