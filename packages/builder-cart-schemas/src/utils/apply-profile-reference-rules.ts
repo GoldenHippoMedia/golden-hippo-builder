@@ -1,4 +1,8 @@
-import { BuilderProfileReferenceRuleContent, ProfileFieldReference } from '../data/profile-reference-rule.model';
+import {
+  BuilderProfileReferenceRuleContent,
+  ProfileFieldReference,
+  ProfileReferenceApplicationType,
+} from '../data/profile-reference-rule.model';
 
 interface PetProfile {
   [ProfileFieldReference.Age]: number;
@@ -12,6 +16,7 @@ interface PetProfile {
 interface Reference {
   id: string;
   name: string;
+  applicationType: ProfileReferenceApplicationType;
 }
 
 interface AppliedRules {
@@ -31,32 +36,39 @@ export function applyProfileReferenceRules(
   const ingredients = new Set<Reference>();
 
   for (const rule of rules) {
-    const { referenceType, categoryReference, ingredientReference, tagReference, useCaseReference, applicationRules } =
-      rule.data;
+    const {
+      referenceType,
+      categoryReference,
+      ingredientReference,
+      tagReference,
+      useCaseReference,
+      applicationRules,
+      applicationType = ProfileReferenceApplicationType.Preferred,
+    } = rule.data;
     if (!applicationRules) continue;
     let reference: Reference | null = null;
     switch (referenceType) {
       case 'Tag': {
         if (tagReference?.id && tagReference.value.data?.name) {
-          reference = { id: tagReference.id, name: tagReference.value.data.name };
+          reference = { id: tagReference.id, name: tagReference.value.data.name, applicationType };
         }
         break;
       }
       case 'Category': {
         if (categoryReference?.id && categoryReference.value.data?.name) {
-          reference = { id: categoryReference.id, name: categoryReference.value.data.name };
+          reference = { id: categoryReference.id, name: categoryReference.value.data.name, applicationType };
         }
         break;
       }
       case 'UseCase': {
         if (useCaseReference?.id && useCaseReference.value.data?.name) {
-          reference = { id: useCaseReference.id, name: useCaseReference.value.data.name };
+          reference = { id: useCaseReference.id, name: useCaseReference.value.data.name, applicationType };
         }
         break;
       }
       case 'Ingredient': {
         if (ingredientReference?.id && ingredientReference.value.data?.name) {
-          reference = { id: ingredientReference.id, name: ingredientReference.value.data.name };
+          reference = { id: ingredientReference.id, name: ingredientReference.value.data.name, applicationType };
         }
         break;
       }
@@ -64,7 +76,7 @@ export function applyProfileReferenceRules(
         break;
     }
     if (!reference) continue;
-    // Now we have to verify that each rule in applicationRules is satisfied by the profile
+    // Now we have to verify that the profile satisfies each rule in applicationRules
     const isRuleSatisfied = applicationRules.every((applicationRule) => {
       const field = applicationRule.profileField;
       if (
