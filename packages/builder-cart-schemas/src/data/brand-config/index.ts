@@ -318,6 +318,7 @@ export type BuilderBrandConfigContent = BuilderContent &
               };
             };
           };
+          subscriptionUpgradeModuleEnabled: boolean;
         };
         checkout: {
           freeShippingBanner: {
