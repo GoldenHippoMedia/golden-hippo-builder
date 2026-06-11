@@ -10,6 +10,7 @@ import {
   createBlogCategoryModel,
   createBlogCommentModel,
   createBrandConfigModel,
+  createPaymentConfigModel,
   createSiteBannerModel,
   createDefaultWebsiteSectionModel,
   createSubscriptionCancellationPanelModel,
@@ -32,6 +33,7 @@ class BuilderHelper {
   profileReferenceRuleModel = createProfileReferenceRuleModel();
   recommendationConfigModel = createRecommendationConfigModel();
   blogCategoryModel = createBlogCategoryModel();
+  paymentConfigModel = createPaymentConfigModel();
 
   // Factory models (require model IDs from cascading creation)
   productModel(request: {
@@ -56,8 +58,8 @@ class BuilderHelper {
     return createProductGridConfigModel(models);
   }
 
-  brandConfig(gridFilterModelId: string, bannerModelId: string): ModelShape {
-    return createBrandConfigModel(gridFilterModelId, bannerModelId);
+  brandConfig(gridFilterModelId: string, bannerModelId: string, paymentConfigModelId: string): ModelShape {
+    return createBrandConfigModel(gridFilterModelId, bannerModelId, paymentConfigModelId);
   }
 
   siteBanner(editUrl: string): ModelShape {

@@ -33,6 +33,9 @@ export {
   type BuilderProductUseCaseContent,
   type BuilderProductGroupContent,
   type BuilderProfileReferenceRuleContent,
+  createPaymentConfigModel,
+  type BuilderPaymentConfigContent,
+  type BuilderPaymentConfig,
   type BuilderRecommendationConfigContent,
 } from './data';
 
