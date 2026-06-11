@@ -122,6 +122,16 @@ export const createFeatureConfig = (gridFilterModelId: string): BuilderIOFieldTy
           'When enabled, the selected frequency on an Offer Selector is calculated based on the product and quantity selected.',
         defaultCollapsed: false,
       },
+      {
+        name: 'recommendationConfig',
+        friendlyName: 'Recommendation Config',
+        type: 'reference',
+        model: 'recommendation-config',
+        localized: false,
+        defaultCollapsed: false,
+        copyOnAdd: false,
+        helperText: 'Select the global recommendation config used to generate product recommendations site-wide.',
+      },
     ],
   };
 };
