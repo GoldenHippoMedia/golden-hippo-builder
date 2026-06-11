@@ -275,7 +275,7 @@ export const createPageConfig = (): BuilderIOFieldTypes => {
             name: 'subscriptionUpgradeModuleEnabled',
             friendlyName: 'Determine whether we show Subscription Upgrade Module on the cart page',
             type: 'boolean',
-            required: true,
+            required: false,
             localized: true,
             defaultCollapsed: true,
           },
