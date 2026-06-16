@@ -1,5 +1,15 @@
 # @goldenhippo/builder-cart-schemas
 
+## 0.18.0
+
+### Minor Changes
+
+- [#46](https://github.com/GoldenHippoMedia/golden-hippo-builder/pull/46) [`8d1b59d`](https://github.com/GoldenHippoMedia/golden-hippo-builder/commit/8d1b59d7e65171274e523f2757bbe4705294eb36) - Add a global `recommendationConfig` reference to the brand config `features` section. It points to a `recommendation-config` data model entry, letting brands select the recommendation config used to generate product recommendations site-wide. The brand-config model-sync now depends on `recommendation-config` to guarantee creation order. — [@dkidwell999](https://github.com/dkidwell999)
+
+### Patch Changes
+
+- [#48](https://github.com/GoldenHippoMedia/golden-hippo-builder/pull/48) [`74a3329`](https://github.com/GoldenHippoMedia/golden-hippo-builder/commit/74a3329fa6a96c71a3237c987e292d576e109b97) - Updates the `applyProfileReferenceRules` utility to return the ProfileReferenceApplicationType for use in product recommendations — [@steven-t-h](https://github.com/steven-t-h)
+
 ## 0.17.0
 
 ### Minor Changes

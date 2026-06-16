@@ -22,6 +22,7 @@ import {
 import { BuilderContent } from '@builder.io/sdk';
 import { BuilderProductGridFilterGroupContent } from '../product-grid-filter-group.model';
 import { BuilderPaymentConfigContent } from '../payment-config.model';
+import { BuilderRecommendationConfigContent } from '../recommendation-config.model';
 import { BuilderFooterModelContent, BuilderHeaderModelContent, BuilderSiteBannerModelContent } from '../../section';
 
 export {
@@ -270,6 +271,7 @@ export type BuilderBrandConfigContent = BuilderContent &
         cartDrawerEnabled: boolean;
         subscriptionExperience: 'Classic' | 'Version 2';
         useDefaultFrequencies: boolean;
+        recommendationConfig: BuilderContentReference<BuilderRecommendationConfigContent['data']>;
       };
       support: {
         email: string;

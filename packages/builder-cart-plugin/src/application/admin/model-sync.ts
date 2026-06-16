@@ -231,7 +231,7 @@ export const MODEL_DEFINITIONS: ModelDefinition[] = [
     name: 'gh-brand-config',
     displayName: 'Brand Configuration',
     phase: 7,
-    dependencies: ['product-grid-filter-group', 'banner', 'payment-config'],
+    dependencies: ['product-grid-filter-group', 'banner', 'recommendation-config', 'payment-config'],
     getShape: (ids) =>
       BuilderHelper.brandConfig(ids['product-grid-filter-group'], ids['banner'], ids['payment-config']),
   },
