@@ -1,5 +1,6 @@
-import { BuilderResponseBaseData, ModelShape } from '@goldenhippo/builder-types';
+import { BuilderContentReference, BuilderResponseBaseData, ModelShape } from '@goldenhippo/builder-types';
 import { BuilderContent } from '@builder.io/sdk';
+import { BuilderSiteBannerModelContent } from './site-banner.model';
 
 export const createHeaderModel = (editUrl: string): ModelShape => {
   return {
@@ -17,6 +18,22 @@ export const createHeaderModel = (editUrl: string): ModelShape => {
         helperText: 'Select the background color for the header',
         defaultCollapsed: false,
       },
+      {
+        name: 'aboveHeaderBanner',
+        friendlyName: 'Above Header Banner',
+        type: 'reference',
+        model: 'banner',
+        copyOnAdd: false,
+        defaultCollapsed: false,
+      },
+      {
+        name: 'belowHeaderBanner',
+        friendlyName: 'Below Header Banner',
+        type: 'reference',
+        model: 'banner',
+        copyOnAdd: false,
+        defaultCollapsed: false,
+      },
     ],
     editingUrlLogic: 'return `' + editUrl + '/builder-header-section?builder.preview=true&builder.frameEditing=true`',
   };
@@ -25,5 +42,7 @@ export const createHeaderModel = (editUrl: string): ModelShape => {
 export type BuilderHeaderModelContent = BuilderContent & {
   data: BuilderResponseBaseData & {
     backgroundColor?: string;
+    aboveHeaderBanner?: BuilderContentReference<BuilderSiteBannerModelContent['data']>;
+    belowHeaderBanner?: BuilderContentReference<BuilderSiteBannerModelContent['data']>;
   };
 };
