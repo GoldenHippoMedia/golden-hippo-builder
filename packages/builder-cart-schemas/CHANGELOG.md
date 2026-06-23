@@ -1,5 +1,13 @@
 # @goldenhippo/builder-cart-schemas
 
+## 0.19.0
+
+### Minor Changes
+
+- [#52](https://github.com/GoldenHippoMedia/golden-hippo-builder/pull/52) [`0cb43dd`](https://github.com/GoldenHippoMedia/golden-hippo-builder/commit/0cb43ddef3c3fbce46b52bdaae2dd4e094ada607) - Add `dynamicBrowserTab` config to the brand-config features section, controlling the blinking browser tab title shown when a user switches away from the tab (`enabled`, `awayTitle`, optional `defaultTitle`). — [@kewinnerygoldenhippo](https://github.com/kewinnerygoldenhippo)
+
+- [#47](https://github.com/GoldenHippoMedia/golden-hippo-builder/pull/47) [`09ac981`](https://github.com/GoldenHippoMedia/golden-hippo-builder/commit/09ac98180a687a3d717b9c635ca8382e0533ab70) - Add `subscriptionUpgradeModuleEnabled` boolean to the cart page config in brand-config, controlling whether the Subscription Upgrade Module is shown on the cart page. — [@kewinnerygoldenhippo](https://github.com/kewinnerygoldenhippo)
+
 ## 0.18.0
 
 ### Minor Changes
