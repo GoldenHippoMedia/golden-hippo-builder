@@ -132,6 +132,43 @@ export const createFeatureConfig = (gridFilterModelId: string): BuilderIOFieldTy
         copyOnAdd: false,
         helperText: 'Select the global recommendation config used to generate product recommendations site-wide.',
       },
+      {
+        name: 'dynamicBrowserTab',
+        friendlyName: 'Dynamic Browser Tab',
+        type: 'object',
+        defaultCollapsed: true,
+        helperText:
+          'When enabled, the browser tab title blinks to a custom message after the user switches away from the tab.',
+        subFields: [
+          {
+            name: 'enabled',
+            friendlyName: 'Enabled',
+            type: 'boolean',
+            required: false,
+            localized: false,
+            defaultCollapsed: true,
+            helperText: 'Turn the dynamic browser tab on or off.',
+          },
+          {
+            name: 'awayTitle',
+            friendlyName: 'Away Title',
+            type: 'text',
+            required: true,
+            localized: true,
+            defaultCollapsed: true,
+            helperText: 'Tab title that blinks when the user switches away from the tab. Emoji go inline here.',
+          },
+          {
+            name: 'defaultTitle',
+            friendlyName: 'Default Title',
+            type: 'text',
+            required: false,
+            localized: true,
+            defaultCollapsed: true,
+            helperText: 'Optional. Overrides the page title on load.',
+          },
+        ],
+      },
     ],
   };
 };

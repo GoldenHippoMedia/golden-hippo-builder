@@ -264,6 +264,11 @@ export type BuilderBrandConfigContent = BuilderContent &
         cartDrawerEnabled: boolean;
         subscriptionExperience: 'Classic' | 'Version 2';
         useDefaultFrequencies: boolean;
+        dynamicBrowserTab?: {
+          enabled: boolean;
+          awayTitle: string;
+          defaultTitle?: string;
+        };
         recommendationConfig: BuilderContentReference<BuilderRecommendationConfigContent['data']>;
       };
       support: {
