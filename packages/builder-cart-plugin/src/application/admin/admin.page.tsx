@@ -8,10 +8,12 @@ import { openPluginSettings } from '../../plugin-actions';
 import {
   MODEL_DEFINITIONS,
   getModelStatuses,
+  getUnmanagedModels,
   syncAllModels,
   syncSingleModel,
   type ModelStatus,
   type SyncResult,
+  type UnmanagedModel,
 } from './model-sync';
 
 // ---------------------------------------------------------------------------
@@ -236,6 +238,7 @@ const AdminPage: React.FC<AdminPageProps> = observer(({ context }) => {
 
   // Model sync state
   const [modelStatuses, setModelStatuses] = useState<ModelStatus[]>([]);
+  const [unmanagedModels, setUnmanagedModels] = useState<UnmanagedModel[]>([]);
   const [syncingModel, setSyncingModel] = useState<string | null>(null);
   const [syncingAll, setSyncingAll] = useState(false);
   const [syncResults, setSyncResults] = useState<SyncResult[] | null>(null);
@@ -249,10 +252,12 @@ const AdminPage: React.FC<AdminPageProps> = observer(({ context }) => {
   // Load model statuses on mount
   useEffect(() => {
     setModelStatuses(getModelStatuses(context.models.result));
+    setUnmanagedModels(getUnmanagedModels(context.models.result));
   }, [context.models.result]);
 
   const refreshStatuses = useCallback(() => {
     setModelStatuses(getModelStatuses(context.models.result));
+    setUnmanagedModels(getUnmanagedModels(context.models.result));
   }, [context.models.result]);
 
   // ---- Connection tests ----
@@ -435,6 +440,61 @@ const AdminPage: React.FC<AdminPageProps> = observer(({ context }) => {
             </AccentButton>
           }
         >
+          {/* Models this package defines that don't yet exist on the brand —
+              these are what the sync will add. */}
+          {modelStatuses.some((s) => !s.exists) && (
+            <div className="mb-4 rounded-lg bg-[var(--success)]/10 border border-[var(--success)]/30 px-4 py-3">
+              <div className="text-sm font-semibold text-[var(--success)]">
+                {modelStatuses.filter((s) => !s.exists).length} model
+                {modelStatuses.filter((s) => !s.exists).length === 1 ? '' : 's'} will be added by the sync
+              </div>
+              <div className="mt-1 text-xs text-[var(--text-secondary)]">
+                These models are defined by this package but don&apos;t exist on the brand yet. Running the sync will
+                create them.
+              </div>
+              <div className="mt-3 flex flex-wrap gap-1.5">
+                {modelStatuses
+                  .filter((s) => !s.exists)
+                  .map((s) => (
+                    <span
+                      key={s.name}
+                      className="inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded font-mono bg-[var(--success)]/15 text-[var(--success)]"
+                      title={s.displayName}
+                    >
+                      {s.name}
+                    </span>
+                  ))}
+              </div>
+            </div>
+          )}
+
+          {/* Unmanaged-model warning: models on this brand that this package
+              does not define. They are not synced and risk being orphaned. */}
+          {unmanagedModels.length > 0 && (
+            <div className="mb-4 rounded-lg bg-[var(--warning)]/10 border border-[var(--warning)]/30 px-4 py-3">
+              <div className="text-sm font-semibold text-[var(--warning)]">
+                {unmanagedModels.length} model{unmanagedModels.length === 1 ? '' : 's'} on this brand{' '}
+                {unmanagedModels.length === 1 ? 'is' : 'are'} not part of this package
+              </div>
+              <div className="mt-1 text-xs text-[var(--text-secondary)]">
+                These models exist on the brand but aren&apos;t managed by the sync. They won&apos;t be maintained and
+                could be dropped or orphaned — relocate any content you need to keep before re-provisioning.
+              </div>
+              <div className="mt-3 flex flex-wrap gap-1.5">
+                {unmanagedModels.map((m) => (
+                  <span
+                    key={m.modelId}
+                    className="inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded font-mono bg-[var(--warning)]/15 text-[var(--warning)]"
+                    title={m.kind ? `kind: ${m.kind}` : undefined}
+                  >
+                    {m.name}
+                    {m.kind && <span className="opacity-60">· {m.kind}</span>}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Sync result banner */}
           {syncResults && (
             <div className="mb-4">

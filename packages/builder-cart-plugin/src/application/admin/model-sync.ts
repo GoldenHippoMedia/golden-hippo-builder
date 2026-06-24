@@ -32,6 +32,17 @@ export interface SyncResult {
   error?: string;
 }
 
+/**
+ * A model that exists on the brand's Builder.io space but is NOT defined by
+ * this package. These are not managed by the sync and risk being orphaned.
+ */
+export interface UnmanagedModel {
+  name: string;
+  modelId: string;
+  /** Builder.io model kind ('page' | 'component'/'section' | 'data'), when available. */
+  kind?: string;
+}
+
 // ---------------------------------------------------------------------------
 // Model definitions (all 13 models, ordered by phase)
 // ---------------------------------------------------------------------------
@@ -289,6 +300,32 @@ export function getModelStatuses(models: Model[]): ModelStatus[] {
       modelId: existing?.id,
     };
   });
+}
+
+/**
+ * Native Builder.io models that ship with every space. They aren't defined by
+ * this package but are never dropped by the sync and don't need tracking, so we
+ * exclude them from the unmanaged-model warning. Add new native names here.
+ */
+const NATIVE_MODEL_NAMES = new Set(['symbol']);
+
+/**
+ * Find models that exist on the brand's space but are NOT defined by this
+ * package (excluding native Builder.io models). These won't be touched by the
+ * sync, so they sit outside the managed set and risk being orphaned / lost if
+ * the brand is re-provisioned. Surfacing them lets an admin relocate the
+ * content before that happens.
+ */
+export function getUnmanagedModels(models: Model[]): UnmanagedModel[] {
+  const managed = new Set(MODEL_DEFINITIONS.map((def) => def.name));
+  return models
+    .filter((m) => m.name && !managed.has(m.name) && !NATIVE_MODEL_NAMES.has(m.name))
+    .map((m) => ({
+      name: m.name,
+      modelId: m.id,
+      // `kind` exists at runtime but isn't in the published Model type.
+      kind: (m as { kind?: string }).kind,
+    }));
 }
 
 /**
