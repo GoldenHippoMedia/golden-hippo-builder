@@ -1,5 +1,11 @@
 # @goldenhippo/builder-cart-plugin
 
+## 0.10.1
+
+### Patch Changes
+
+- [`888768e`](https://github.com/GoldenHippoMedia/golden-hippo-builder/commit/888768e9fe2f0afc21087935909606705a7ab2a8) - Bump to include latest cart schemas — [@steven-t-h](https://github.com/steven-t-h)
+
 ## 0.10.0
 
 ### Minor Changes
