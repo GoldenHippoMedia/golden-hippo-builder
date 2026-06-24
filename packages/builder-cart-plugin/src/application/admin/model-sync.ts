@@ -330,44 +330,48 @@ export function getUnmanagedModels(models: Model[]): UnmanagedModel[] {
     }));
 }
 
-interface NamedField {
+/** Minimal shape shared by package fields (BuilderIOFieldTypes) and brand fields (Input). */
+export interface NamedField {
   name: string;
   subFields?: readonly NamedField[];
 }
 
 //Helper function to recursively diff fields and subfields against their current values
-function diffFields(
+//Refactor a bit for test compatibilityx
+export function diffFieldTrees(
   desired: readonly NamedField[],
   current: readonly NamedField[],
-  prefix: string,
-  added: string[],
-  removed: string[],
-): void {
-  const currentByName = new Map(current.map((f) => [f.name, f]));
-  const desiredByName = new Map(desired.map((f) => [f.name, f]));
+): { added: string[]; removed: string[] } {
+  const added: string[] = [];
+  const removed: string[] = [];
 
-  for (const f of desired) {
-    const path = prefix ? `${prefix}.${f.name}` : f.name;
-    const match = currentByName.get(f.name);
-    if (!match) {
-      added.push(path);
-    } else if (f.subFields?.length || match.subFields?.length) {
-      diffFields(f.subFields ?? [], match.subFields ?? [], path, added, removed);
+  const walk = (d: readonly NamedField[], c: readonly NamedField[], prefix: string): void => {
+    const currentByName = new Map(c.map((f) => [f.name, f]));
+    const desiredByName = new Map(d.map((f) => [f.name, f]));
+
+    for (const f of d) {
+      const path = prefix ? `${prefix}.${f.name}` : f.name;
+      const match = currentByName.get(f.name);
+      if (!match) {
+        added.push(path);
+      } else if (f.subFields?.length || match.subFields?.length) {
+        walk(f.subFields ?? [], match.subFields ?? [], path);
+      }
     }
-  }
-  for (const f of current) {
-    if (!desiredByName.has(f.name)) {
-      removed.push(prefix ? `${prefix}.${f.name}` : f.name);
+    for (const f of c) {
+      if (!desiredByName.has(f.name)) {
+        removed.push(prefix ? `${prefix}.${f.name}` : f.name);
+      }
     }
-  }
+  };
+
+  walk(desired, current, '');
+  return { added, removed };
 }
 
 /**
  * For every managed model that already exists on the brand, diff its current
  * fields against the fields this package defines, recursing into subfields.
- * Added fields are created by the sync; removed fields are dropped (taking
- * their content with them). Models that don't exist yet are covered by the
- * "will be added" list, so they are skipped here.
  */
 export function getFieldDiffs(context: ApplicationContext): FieldDiff[] {
   const editUrl = getEditUrl(context);
@@ -396,9 +400,7 @@ export function getFieldDiffs(context: ApplicationContext): FieldDiff[] {
       continue;
     }
 
-    const added: string[] = [];
-    const removed: string[] = [];
-    diffFields(desiredFields, (existing.fields ?? []) as readonly NamedField[], '', added, removed);
+    const { added, removed } = diffFieldTrees(desiredFields, (existing.fields ?? []) as readonly NamedField[]);
 
     if (added.length > 0 || removed.length > 0) {
       diffs.push({ name: def.name, displayName: def.displayName, added, removed });
