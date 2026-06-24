@@ -17,6 +17,7 @@ class BuilderApi {
 
   constructor(context: ExtendedApplicationContext) {
     this.authHeaders = context.user.authHeaders as Record<string, string>;
+    console.log('[DRK] context => ', context);
     this.apiKey = context.user.apiKey;
     this.context = context;
 
@@ -81,8 +82,23 @@ class BuilderApi {
       .map((a: any) => ({ id: a.id, name: a.name ?? a.id, url: a.url, type: a.type }));
   }
 
-  async getModelEntries(modelName: string): Promise<BuilderContent[]> {
-    return this.fetchContent({ modelName, limit: 100 });
+  async getModelEntries(modelName: string, options?: { bustCache?: boolean }): Promise<BuilderContent[]> {
+    return this.fetchContent({ modelName, limit: 100, bustCache: options?.bustCache ?? false });
+  }
+
+  async saveProduct(productId: string, data: Record<string, any>): Promise<void> {
+    const resp = await fetch(`https://builder.io/api/v1/write/product/${productId}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${this.privateApiKey}`,
+      },
+      body: JSON.stringify({ data }),
+    });
+    if (!resp.ok) {
+      const body = await resp.text();
+      throw new Error(`Failed to save product: ${resp.status} ${body}`);
+    }
   }
 
   private async fetchContent<T extends BuilderContent = BuilderContent>(request: FetchContentRequest): Promise<T[]> {
