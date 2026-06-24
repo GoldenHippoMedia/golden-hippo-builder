@@ -1,6 +1,10 @@
 import React, { useMemo, useState } from 'react';
 import { EmptyState } from '@goldenhippo/builder-ui';
 import type { BuilderProductContent, BuilderProductTagContent } from '@goldenhippo/builder-shared-schemas';
+import { localize } from '../localization';
+
+// The list shows the Default locale; the per-locale editor lives in the detail view.
+const text = (v: unknown): string => localize<string>(v) ?? '';
 
 interface ProductListProps {
   products: BuilderProductContent[];
@@ -20,7 +24,7 @@ const ProductRow: React.FC<{
   onSelect: () => void;
 }> = ({ product, tagLabels, onSelect }) => {
   const data = product.data;
-  const displayName = data?.displayName || data?.name || '(Untitled product)';
+  const displayName = text(data?.displayName) || data?.name || '(Untitled product)';
   const image = data?.featuredImage;
 
   return (
@@ -65,19 +69,21 @@ const ProductList: React.FC<ProductListProps> = ({ products, tagsById, onSelect 
     const q = query.trim().toLowerCase();
     if (!q) return products;
     return products.filter((p) => {
-      const name = (p.data?.displayName || p.data?.name || '').toLowerCase();
+      const name = (text(p.data?.displayName) || p.data?.name || '').toLowerCase();
       return name.includes(q);
     });
   }, [products, query]);
 
   const resolveTagLabels = (product: BuilderProductContent): string[] => {
-    const refs = product.data?.tags ?? [];
+    // The tags list is itself localized; resolve to Default, then resolve each
+    // referenced tag's (localized) name.
+    const refs = localize<NonNullable<BuilderProductContent['data']>['tags']>(product.data?.tags) ?? [];
     return refs
       .map((ref) => {
         const tagId = (ref?.tag as { id?: string } | undefined)?.id;
         if (!tagId) return null;
         const entry = tagsById.get(tagId);
-        return entry?.data?.name || entry?.name || null;
+        return text(entry?.data?.name) || entry?.name || null;
       })
       .filter((label): label is string => Boolean(label));
   };

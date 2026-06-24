@@ -11,6 +11,7 @@ import { ExtendedApplicationContext } from '../../interfaces/application-context
 import BuilderApi from '../../services/builder-api';
 import ProductList from './components/product-list';
 import ProductDetail from './components/product-detail';
+import { collectLocales } from './localization';
 
 interface ProductConfigPageProps {
   context: ExtendedApplicationContext;
@@ -37,12 +38,20 @@ const ProductConfigPage: React.FC<ProductConfigPageProps> = ({ context }) => {
       else setRefreshing(true);
       setError(null);
       try {
+        // Fetch raw (unresolved) so localized fields stay as LocalizedValue
+        // objects — required to edit per-locale and to discover locales.
         const [productResults, tagResults, categoryResults, ingredientResults, useCaseResults] = await Promise.all([
-          api.getModelEntries('product', { bustCache: true }) as Promise<BuilderProductContent[]>,
-          api.getModelEntries('product-tag', { bustCache: true }) as Promise<BuilderProductTagContent[]>,
-          api.getModelEntries('product-category', { bustCache: true }) as Promise<BuilderProductCategoryContent[]>,
-          api.getModelEntries('product-ingredient', { bustCache: true }) as Promise<BuilderIngredientContent[]>,
-          api.getModelEntries('product-use-case', { bustCache: true }) as Promise<BuilderProductUseCaseContent[]>,
+          api.getModelEntries('product', { bustCache: true, raw: true }) as Promise<BuilderProductContent[]>,
+          api.getModelEntries('product-tag', { bustCache: true, raw: true }) as Promise<BuilderProductTagContent[]>,
+          api.getModelEntries('product-category', { bustCache: true, raw: true }) as Promise<
+            BuilderProductCategoryContent[]
+          >,
+          api.getModelEntries('product-ingredient', { bustCache: true, raw: true }) as Promise<
+            BuilderIngredientContent[]
+          >,
+          api.getModelEntries('product-use-case', { bustCache: true, raw: true }) as Promise<
+            BuilderProductUseCaseContent[]
+          >,
         ]);
         setProducts(productResults);
         setTags(tagResults);
@@ -82,6 +91,12 @@ const ProductConfigPage: React.FC<ProductConfigPageProps> = ({ context }) => {
     if (view.kind !== 'detail') return null;
     return products.find((p) => p.id === view.productId) ?? null;
   }, [view, products]);
+
+  // Locales discovered across all fetched content (Default first).
+  const availableLocales = useMemo(
+    () => collectLocales([...products, ...tags, ...categories, ...ingredients, ...useCases]),
+    [products, tags, categories, ingredients, useCases],
+  );
 
   const handleProductSaved = useCallback((updated: BuilderProductContent) => {
     setProducts((prev) => prev.map((p) => (p.id === updated.id ? updated : p)));
@@ -159,6 +174,7 @@ const ProductConfigPage: React.FC<ProductConfigPageProps> = ({ context }) => {
           categories={categories}
           ingredients={ingredients}
           useCases={useCases}
+          locales={availableLocales}
           onBack={() => setView({ kind: 'list' })}
           onSaved={handleProductSaved}
         />

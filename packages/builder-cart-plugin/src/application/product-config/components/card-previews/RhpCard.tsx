@@ -40,19 +40,14 @@ const RhpCard: React.FC<CardPreviewProps> = ({ product, sample }) => {
 
       <div className="mt-auto flex w-full flex-col items-center pt-4">
         <label className="mb-1 block w-full text-left text-sm font-semibold text-neutral-800">Select Flavor</label>
-        <div className="relative mb-3 w-full">
-          <select
-            className="w-full appearance-none rounded-full border-2 border-black bg-white py-1.5 pl-3.5 pr-10 text-base text-[#1a1a1a]"
-            style={{ colorScheme: 'light' }}
-            defaultValue="0"
-          >
-            {sample.flavors.map((f, i) => (
-              <option key={f} value={i}>
-                {f}
-              </option>
-            ))}
-          </select>
-          <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-xs">▾</span>
+        {/* Static stand-in for the flavor <select> — a native select inherits the
+            plugin's dark color-scheme and renders unreadable, so the preview mocks
+            the closed control instead. */}
+        <div className="mb-3 flex w-full items-center justify-between rounded-full border-2 border-black bg-white py-1.5 pl-3.5 pr-4 text-base text-[#1a1a1a]">
+          <span>{sample.flavors[0]}</span>
+          <span aria-hidden className="text-xs">
+            ▾
+          </span>
         </div>
 
         <p className="m-0 text-[32px] font-semibold leading-none">{sample.guestPrice}</p>

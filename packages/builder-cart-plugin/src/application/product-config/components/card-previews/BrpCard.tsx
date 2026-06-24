@@ -67,19 +67,10 @@ const BrpCard: React.FC<CardPreviewProps> = ({ product, sample }) => {
           </p>
         </div>
 
-        <div className="relative rounded-lg border border-neutral-600 shadow">
+        {/* Static stand-in for the quantity <select> (see RhpCard note). */}
+        <div className="relative rounded-lg border border-neutral-600 bg-white pb-1 pl-4 pr-[30px] pt-4 text-xs text-[#1a1a1a] shadow">
           <label className="absolute left-4 top-1 text-[10px] leading-none text-neutral-500">Quantity</label>
-          <select
-            className="w-full cursor-pointer appearance-none bg-transparent pb-1 pl-4 pr-[30px] pt-4 text-xs text-[#1a1a1a] focus:outline-none"
-            style={{ colorScheme: 'light' }}
-            defaultValue="0"
-          >
-            {sample.quantities.map((q, i) => (
-              <option key={q.label} value={i}>
-                {q.label}
-              </option>
-            ))}
-          </select>
+          <span>{sample.quantities[0].label}</span>
           <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-xs text-neutral-500">
             ▾
           </span>
