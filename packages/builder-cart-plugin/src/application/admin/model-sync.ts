@@ -42,6 +42,14 @@ export interface UnmanagedModel {
   /** Builder.io model kind ('page' | 'component'/'section' | 'data'), when available. */
   kind?: string;
 }
+export interface FieldDiff {
+  name: string;
+  displayName: string;
+  /** Field names the sync will add (in the package shape, not on the brand). */
+  added: string[];
+  /** Field names the sync will remove (on the brand, not in the package shape). */
+  removed: string[];
+}
 
 // ---------------------------------------------------------------------------
 // Model definitions (all 13 models, ordered by phase)
@@ -309,13 +317,7 @@ export function getModelStatuses(models: Model[]): ModelStatus[] {
  */
 const NATIVE_MODEL_NAMES = new Set(['symbol']);
 
-/**
- * Find models that exist on the brand's space but are NOT defined by this
- * package (excluding native Builder.io models). These won't be touched by the
- * sync, so they sit outside the managed set and risk being orphaned / lost if
- * the brand is re-provisioned. Surfacing them lets an admin relocate the
- * content before that happens.
- */
+//Get models that are not managed by this package
 export function getUnmanagedModels(models: Model[]): UnmanagedModel[] {
   const managed = new Set(MODEL_DEFINITIONS.map((def) => def.name));
   return models
@@ -326,6 +328,84 @@ export function getUnmanagedModels(models: Model[]): UnmanagedModel[] {
       // `kind` exists at runtime but isn't in the published Model type.
       kind: (m as { kind?: string }).kind,
     }));
+}
+
+interface NamedField {
+  name: string;
+  subFields?: readonly NamedField[];
+}
+
+//Helper function to recursively diff fields and subfields against their current values
+function diffFields(
+  desired: readonly NamedField[],
+  current: readonly NamedField[],
+  prefix: string,
+  added: string[],
+  removed: string[],
+): void {
+  const currentByName = new Map(current.map((f) => [f.name, f]));
+  const desiredByName = new Map(desired.map((f) => [f.name, f]));
+
+  for (const f of desired) {
+    const path = prefix ? `${prefix}.${f.name}` : f.name;
+    const match = currentByName.get(f.name);
+    if (!match) {
+      added.push(path);
+    } else if (f.subFields?.length || match.subFields?.length) {
+      diffFields(f.subFields ?? [], match.subFields ?? [], path, added, removed);
+    }
+  }
+  for (const f of current) {
+    if (!desiredByName.has(f.name)) {
+      removed.push(prefix ? `${prefix}.${f.name}` : f.name);
+    }
+  }
+}
+
+/**
+ * For every managed model that already exists on the brand, diff its current
+ * fields against the fields this package defines, recursing into subfields.
+ * Added fields are created by the sync; removed fields are dropped (taking
+ * their content with them). Models that don't exist yet are covered by the
+ * "will be added" list, so they are skipped here.
+ */
+export function getFieldDiffs(context: ApplicationContext): FieldDiff[] {
+  const editUrl = getEditUrl(context);
+  const models = context.models.result;
+
+  // Seed idMap so getShape() can resolve dependency references.
+  const idMap: Record<string, string> = {};
+  for (const def of MODEL_DEFINITIONS) {
+    const existing = models.find((m) => m.name === def.name);
+    if (existing?.id) {
+      idMap[def.name] = existing.id;
+    }
+  }
+
+  const diffs: FieldDiff[] = [];
+  for (const def of MODEL_DEFINITIONS) {
+    const existing = models.find((m) => m.name === def.name);
+    if (!existing) continue;
+
+    let desiredFields: readonly NamedField[];
+    try {
+      desiredFields = (def.getShape(idMap, editUrl).fields ?? []) as readonly NamedField[];
+    } catch {
+      // If the shape can't be built (e.g. unresolved dependency), skip it
+      // rather than reporting a misleading diff.
+      continue;
+    }
+
+    const added: string[] = [];
+    const removed: string[] = [];
+    diffFields(desiredFields, (existing.fields ?? []) as readonly NamedField[], '', added, removed);
+
+    if (added.length > 0 || removed.length > 0) {
+      diffs.push({ name: def.name, displayName: def.displayName, added, removed });
+    }
+  }
+
+  return diffs;
 }
 
 /**

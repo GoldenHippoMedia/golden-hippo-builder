@@ -7,10 +7,12 @@ import { pluginId } from '../../constants';
 import { openPluginSettings } from '../../plugin-actions';
 import {
   MODEL_DEFINITIONS,
+  getFieldDiffs,
   getModelStatuses,
   getUnmanagedModels,
   syncAllModels,
   syncSingleModel,
+  type FieldDiff,
   type ModelStatus,
   type SyncResult,
   type UnmanagedModel,
@@ -239,6 +241,7 @@ const AdminPage: React.FC<AdminPageProps> = observer(({ context }) => {
   // Model sync state
   const [modelStatuses, setModelStatuses] = useState<ModelStatus[]>([]);
   const [unmanagedModels, setUnmanagedModels] = useState<UnmanagedModel[]>([]);
+  const [fieldDiffs, setFieldDiffs] = useState<FieldDiff[]>([]);
   const [syncingModel, setSyncingModel] = useState<string | null>(null);
   const [syncingAll, setSyncingAll] = useState(false);
   const [syncResults, setSyncResults] = useState<SyncResult[] | null>(null);
@@ -253,12 +256,14 @@ const AdminPage: React.FC<AdminPageProps> = observer(({ context }) => {
   useEffect(() => {
     setModelStatuses(getModelStatuses(context.models.result));
     setUnmanagedModels(getUnmanagedModels(context.models.result));
-  }, [context.models.result]);
+    setFieldDiffs(getFieldDiffs(context as any));
+  }, [context, context.models.result]);
 
   const refreshStatuses = useCallback(() => {
     setModelStatuses(getModelStatuses(context.models.result));
     setUnmanagedModels(getUnmanagedModels(context.models.result));
-  }, [context.models.result]);
+    setFieldDiffs(getFieldDiffs(context as any));
+  }, [context, context.models.result]);
 
   // ---- Connection tests ----
 
@@ -464,6 +469,47 @@ const AdminPage: React.FC<AdminPageProps> = observer(({ context }) => {
                       {s.name}
                     </span>
                   ))}
+              </div>
+            </div>
+          )}
+
+          {/* Field-level diff for existing models: fields the sync will add
+              (safe) or remove (drops the field and its content). */}
+          {fieldDiffs.length > 0 && (
+            <div className="mb-4 rounded-lg bg-[var(--bg-glass)] border border-[var(--border-glass)] px-4 py-3">
+              <div className="text-sm font-semibold text-[var(--text-primary)]">
+                Field changes on {fieldDiffs.length} existing model{fieldDiffs.length === 1 ? '' : 's'}
+              </div>
+              <div className="mt-1 text-xs text-[var(--text-secondary)]">
+                The sync replaces each model&apos;s shape. Fields shown in green will be added; fields in red will be
+                removed along with any content stored in them.
+              </div>
+              <div className="mt-3 space-y-2.5">
+                {fieldDiffs.map((diff) => (
+                  <div key={diff.name}>
+                    <div className="text-xs font-medium text-[var(--text-primary)]">
+                      {diff.displayName} <span className="text-[var(--text-muted)] font-mono">({diff.name})</span>
+                    </div>
+                    <div className="mt-1 flex flex-wrap gap-1.5">
+                      {diff.added.map((f) => (
+                        <span
+                          key={`add-${f}`}
+                          className="text-[11px] px-2 py-0.5 rounded font-mono bg-[var(--success)]/15 text-[var(--success)]"
+                        >
+                          + {f}
+                        </span>
+                      ))}
+                      {diff.removed.map((f) => (
+                        <span
+                          key={`rm-${f}`}
+                          className="text-[11px] px-2 py-0.5 rounded font-mono bg-[var(--error)]/15 text-[var(--error)]"
+                        >
+                          − {f}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           )}
