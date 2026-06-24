@@ -22,7 +22,6 @@ class BuilderApi {
 
   constructor(context: ExtendedApplicationContext) {
     this.authHeaders = context.user.authHeaders as Record<string, string>;
-    console.log('[DRK] context => ', context);
     this.apiKey = context.user.apiKey;
     this.context = context;
 
