@@ -4,6 +4,8 @@ export interface ChipOption {
   id: string;
   label: string;
   color?: string;
+  /** Optional badge image (used by some product cards instead of a text pill). */
+  image?: string;
 }
 
 interface ChipMultiSelectProps {

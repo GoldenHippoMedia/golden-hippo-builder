@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import { Section, FormField } from '@goldenhippo/builder-ui';
+import { Section, FormField, TagInput } from '@goldenhippo/builder-ui';
 import type {
   BuilderProductContent,
   BuilderProductTagContent,
@@ -10,6 +10,7 @@ import type {
 import BuilderApi from '../../../services/builder-api';
 import ChipMultiSelect, { type ChipOption } from './chip-multi-select';
 import ProductCardPreview from './product-card-preview';
+import type { PreviewProduct } from './card-previews';
 
 interface ProductDetailProps {
   product: BuilderProductContent;
@@ -30,8 +31,13 @@ interface EditState {
   displayName: string;
   subHeading: string;
   gridTagline: string;
+  gridDescription: string;
   shortDescription: string;
   featuredImage: string;
+  secondaryImage: string;
+  packagingSingular: string;
+  packagingPlural: string;
+  emojis: string[];
   hidden: boolean;
   outOfStock: boolean;
   cartOutOfStock: boolean;
@@ -52,8 +58,13 @@ const seedState = (product: BuilderProductContent): EditState => {
     displayName: d?.displayName ?? '',
     subHeading: d?.subHeading ?? '',
     gridTagline: d?.gridTagline ?? '',
+    gridDescription: d?.gridDescription ?? '',
     shortDescription: d?.shortDescription ?? '',
     featuredImage: d?.featuredImage ?? '',
+    secondaryImage: d?.secondaryImage ?? '',
+    packagingSingular: d?.packagingLabels?.singular ?? '',
+    packagingPlural: d?.packagingLabels?.plural ?? '',
+    emojis: d?.emojis ?? [],
     hidden: Boolean(d?.hidden),
     outOfStock: Boolean(d?.outOfStock),
     cartOutOfStock: Boolean(d?.cartOutOfStock),
@@ -129,6 +140,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
           id: t.id!,
           label: t.data?.name || t.name || '(Untitled tag)',
           color: t.data?.tagColor,
+          image: t.data?.image,
         })),
     [tags],
   );
@@ -169,15 +181,32 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
   // Resolved chip lists for the live preview ------------------------------
 
   const tagOptionsById = useMemo(() => new Map(tagOptions.map((o) => [o.id, o])), [tagOptions]);
-  const categoryOptionsById = useMemo(() => new Map(categoryOptions.map((o) => [o.id, o])), [categoryOptions]);
 
   const selectedTagChips = useMemo(
     () => state.tagIds.map((id) => tagOptionsById.get(id)).filter((o): o is ChipOption => Boolean(o)),
     [state.tagIds, tagOptionsById],
   );
-  const selectedCategoryChips = useMemo(
-    () => state.categoryIds.map((id) => categoryOptionsById.get(id)).filter((o): o is ChipOption => Boolean(o)),
-    [state.categoryIds, categoryOptionsById],
+
+  // Editable, product-driven inputs handed to the live preview. (Categories are
+  // intentionally excluded — storefront cards don't render them.)
+  const previewProduct = useMemo<PreviewProduct>(
+    () => ({
+      displayName: state.displayName,
+      subHeading: state.subHeading,
+      gridTagline: state.gridTagline,
+      gridDescription: state.gridDescription,
+      featuredImage: state.featuredImage,
+      secondaryImage: state.secondaryImage,
+      packagingSingular: state.packagingSingular,
+      emojis: state.emojis,
+      hidden: state.hidden,
+      outOfStock: state.outOfStock,
+      cartOutOfStock: state.cartOutOfStock,
+      averageRating: product.data?.reviews?.averageRating,
+      reviewCount: product.data?.reviews?.count,
+      tags: selectedTagChips.map((c) => ({ id: c.id, label: c.label, color: c.color, image: c.image })),
+    }),
+    [state, product.data?.reviews?.averageRating, product.data?.reviews?.count, selectedTagChips],
   );
 
   // Save ------------------------------------------------------------------
@@ -191,8 +220,12 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
         displayName: state.displayName,
         subHeading: state.subHeading,
         gridTagline: state.gridTagline,
+        gridDescription: state.gridDescription,
         shortDescription: state.shortDescription,
         featuredImage: state.featuredImage,
+        secondaryImage: state.secondaryImage,
+        packagingLabels: { singular: state.packagingSingular, plural: state.packagingPlural },
+        emojis: state.emojis,
         hidden: state.hidden,
         outOfStock: state.outOfStock,
         cartOutOfStock: state.cartOutOfStock,
@@ -266,7 +299,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
         </div>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-6">
         {/* ---- Editor column ---- */}
         <div className="space-y-6">
           <Section title="Display" subtitle="What customers see on grids and product cards">
@@ -301,6 +334,18 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
                 />
               </FormField>
 
+              <FormField
+                label="Grid Description"
+                helper="Extra sub-heading shown on some cards (e.g. Centered / Boxed). Separate from the tagline."
+              >
+                <input
+                  type="text"
+                  value={state.gridDescription}
+                  onChange={(e) => update('gridDescription', e.target.value)}
+                  className="w-full px-3 py-2 rounded-lg border border-[var(--border-glass)] bg-[var(--bg-glass)] text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent)]/50"
+                />
+              </FormField>
+
               <FormField label="Short Description (HTML)" helper="Typically shown on the PDP. HTML allowed.">
                 <textarea
                   value={state.shortDescription}
@@ -318,6 +363,54 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
                   placeholder="https://cdn.builder.io/api/v1/image/..."
                   className="w-full px-3 py-2 rounded-lg border border-[var(--border-glass)] bg-[var(--bg-glass)] text-sm text-[var(--text-primary)] font-mono focus:outline-none focus:border-[var(--accent)]/50"
                 />
+              </FormField>
+
+              <FormField label="Secondary Image URL" helper="Shown on card hover for grids that support it.">
+                <input
+                  type="text"
+                  value={state.secondaryImage}
+                  onChange={(e) => update('secondaryImage', e.target.value)}
+                  placeholder="https://cdn.builder.io/api/v1/image/..."
+                  className="w-full px-3 py-2 rounded-lg border border-[var(--border-glass)] bg-[var(--bg-glass)] text-sm text-[var(--text-primary)] font-mono focus:outline-none focus:border-[var(--accent)]/50"
+                />
+              </FormField>
+            </div>
+          </Section>
+
+          <Section
+            title="Packaging & Flavor"
+            subtitle="Unit labels and flavor emojis used on cards and the offer selector"
+          >
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  label="Packaging (singular)"
+                  helper='e.g. "bottle" — used for "per bottle" on cards/offer selector'
+                >
+                  <input
+                    type="text"
+                    value={state.packagingSingular}
+                    onChange={(e) => update('packagingSingular', e.target.value)}
+                    placeholder="bottle"
+                    className="w-full px-3 py-2 rounded-lg border border-[var(--border-glass)] bg-[var(--bg-glass)] text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent)]/50"
+                  />
+                </FormField>
+                <FormField label="Packaging (plural)" helper='e.g. "bottles" — used for multi-quantity options'>
+                  <input
+                    type="text"
+                    value={state.packagingPlural}
+                    onChange={(e) => update('packagingPlural', e.target.value)}
+                    placeholder="bottles"
+                    className="w-full px-3 py-2 rounded-lg border border-[var(--border-glass)] bg-[var(--bg-glass)] text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent)]/50"
+                  />
+                </FormField>
+              </div>
+
+              <FormField
+                label="Emojis"
+                helper="Shown on the offer selector's flavor options and used for the add-to-cart confetti."
+              >
+                <TagInput value={state.emojis} onChange={(v) => update('emojis', v)} placeholder="Add emoji..." />
               </FormField>
             </div>
           </Section>
@@ -388,19 +481,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
 
         {/* ---- Preview column ---- */}
         <div>
-          <ProductCardPreview
-            displayName={state.displayName}
-            subHeading={state.subHeading}
-            gridTagline={state.gridTagline}
-            featuredImage={state.featuredImage}
-            hidden={state.hidden}
-            outOfStock={state.outOfStock}
-            cartOutOfStock={state.cartOutOfStock}
-            averageRating={data?.reviews?.averageRating}
-            reviewCount={data?.reviews?.count}
-            tagChips={selectedTagChips}
-            categoryChips={selectedCategoryChips}
-          />
+          <ProductCardPreview product={previewProduct} />
         </div>
       </div>
     </div>
