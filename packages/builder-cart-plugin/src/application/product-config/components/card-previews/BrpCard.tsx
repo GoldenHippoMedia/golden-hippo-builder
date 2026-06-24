@@ -85,7 +85,12 @@ const BrpCard: React.FC<CardPreviewProps> = ({ product, sample }) => {
         <button className={`${btnPrimary} w-full rounded-md px-4 py-2`}>Add to Cart</button>
       )}
 
-      <a className="mt-4 text-center text-sm font-semibold" style={{ color: GOLD_DARK }}>
+      <a
+        href="#"
+        onClick={(e) => e.preventDefault()}
+        className="mt-4 text-center text-sm font-semibold"
+        style={{ color: GOLD_DARK }}
+      >
         View Product
       </a>
     </CardShell>
