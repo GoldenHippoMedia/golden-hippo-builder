@@ -82,7 +82,11 @@ const DmpCard: React.FC<CardPreviewProps> = ({ product, sample }) => {
         ) : (
           <button className={`${btnPrimary} w-full rounded-md px-4 py-2 text-sm`}>Add to My Cart</button>
         )}
-        <a className="w-full rounded-md border-2 border-[#1a1a1a] px-4 py-2 text-sm font-semibold uppercase text-[#1a1a1a] transition-colors hover:bg-[#1a1a1a] hover:text-white">
+        <a
+          href="#"
+          onClick={(e) => e.preventDefault()}
+          className="w-full rounded-md border-2 border-[#1a1a1a] px-4 py-2 text-sm font-semibold uppercase text-[#1a1a1a] transition-colors hover:bg-[#1a1a1a] hover:text-white"
+        >
           Learn More
         </a>
       </div>
