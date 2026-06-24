@@ -48,11 +48,29 @@ const DmpCard: React.FC<CardPreviewProps> = ({ product, sample }) => {
           {sample.guestPrice}
         </span>
         <span
-          className="flex min-w-40 items-center justify-center gap-1 rounded-full p-1 text-lg font-bold leading-none"
+          className="relative flex min-w-40 items-center justify-center rounded-full p-1"
           style={{ backgroundColor: GOLD_SOFT, color: GOLD_DARK }}
         >
-          {sample.memberPrice}
-          <span className="ml-1 text-[9px] font-bold uppercase text-[#4e5d74]">Subscribe &amp; Save</span>
+          {/* Subscription icon, pinned left like the storefront card */}
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="absolute left-1 h-6 w-6"
+            aria-hidden
+          >
+            <path d="M3 12a9 9 0 0 1 15.5-6.4L21 8" />
+            <path d="M21 3v5h-5" />
+            <path d="M21 12a9 9 0 0 1-15.5 6.4L3 16" />
+            <path d="M3 21v-5h5" />
+          </svg>
+          <span className="text-center leading-none">
+            <span className="block text-lg font-bold">{sample.memberPrice}</span>
+            <span className="mt-1 block text-[9px] font-bold uppercase text-[#4e5d74]">Subscribe &amp; Save</span>
+          </span>
         </span>
       </div>
 

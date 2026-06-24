@@ -13,6 +13,7 @@ import ProductCardPreview from './product-card-preview';
 import type { PreviewProduct } from './card-previews';
 import { localize, setLocalized, DEFAULT_LOCALE } from '../localization';
 import { isProductFieldLocalized } from '../product-fields';
+import { builderContentUrl } from '../builder-urls';
 
 interface ProductDetailProps {
   product: BuilderProductContent;
@@ -337,6 +338,31 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
           {internalName && <div className="text-xs text-[var(--text-muted)] font-mono mt-1">{internalName}</div>}
         </div>
         <div className="flex items-center gap-2">
+          {product.id && (
+            <a
+              href={builderContentUrl(product.id)}
+              target="_blank"
+              rel="noopener noreferrer"
+              title="Open this product in the Builder.io content editor"
+              className="inline-flex items-center gap-1 rounded-lg border border-[var(--border-glass)] bg-[var(--bg-glass)] px-3 py-1.5 text-xs font-medium text-[var(--text-secondary)] transition-colors hover:bg-[var(--bg-glass-hover)] hover:text-[var(--accent)]"
+            >
+              Open in Builder.io
+              <svg
+                width="11"
+                height="11"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                <path d="M15 3h6v6" />
+                <path d="M10 14 21 3" />
+              </svg>
+            </a>
+          )}
           <button
             onClick={handleCancel}
             disabled={!dirty || saving}

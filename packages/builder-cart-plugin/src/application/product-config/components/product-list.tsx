@@ -2,6 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { EmptyState } from '@goldenhippo/builder-ui';
 import type { BuilderProductContent, BuilderProductTagContent } from '@goldenhippo/builder-shared-schemas';
 import { localize } from '../localization';
+import { builderContentUrl } from '../builder-urls';
 
 // The list shows the Default locale; the per-locale editor lives in the detail view.
 const text = (v: unknown): string => localize<string>(v) ?? '';
@@ -18,6 +19,28 @@ const TagChip: React.FC<{ label: string }> = ({ label }) => (
   </span>
 );
 
+/**
+ * Renders the product image exactly as the storefront `cart-line` component
+ * does — a 64px white, bordered, object-cover box — so images that crop badly
+ * or vanish on the cart's white background are obvious here, not in production.
+ * Mirrors cart-line.component.html's imageContainerTemplate (white is the
+ * default cart background; brands can override imageContainerBGColor).
+ */
+const CartLineThumb: React.FC<{ src?: string; alt: string }> = ({ src, alt }) => (
+  <div
+    className="flex h-16 w-16 flex-shrink-0 flex-col items-center justify-center overflow-hidden rounded-lg border-2 border-[#d1d5db] bg-white"
+    title="Shown exactly as it renders in the cart line"
+  >
+    {src ? (
+      <figure className="h-full w-full">
+        <img src={src} alt={alt} className="h-full w-full object-cover" />
+      </figure>
+    ) : (
+      <span className="text-[10px] text-[#9ca3af]">No image</span>
+    )}
+  </div>
+);
+
 const ProductRow: React.FC<{
   product: BuilderProductContent;
   tagLabels: string[];
@@ -29,15 +52,7 @@ const ProductRow: React.FC<{
 
   return (
     <div className="flex items-center gap-4 p-4 rounded-xl border border-[var(--border-glass)] bg-[var(--bg-glass)] hover:bg-[var(--bg-glass-hover)] transition-colors">
-      <div className="w-16 h-16 rounded-lg overflow-hidden bg-[var(--bg-primary)] border border-[var(--border-glass)] flex-shrink-0">
-        {image ? (
-          <img src={image} alt={displayName} className="w-full h-full object-cover" />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center text-[var(--text-muted)] text-[10px]">
-            No image
-          </div>
-        )}
-      </div>
+      <CartLineThumb src={image} alt={displayName} />
 
       <div className="flex-1 min-w-0">
         <div className="text-sm font-semibold text-[var(--text-primary)] truncate">{displayName}</div>
@@ -52,12 +67,40 @@ const ProductRow: React.FC<{
         )}
       </div>
 
-      <button
-        className="px-3 py-1.5 rounded-lg text-xs font-medium border border-[var(--border-glass)] bg-[var(--bg-glass)] text-[var(--text-secondary)] cursor-pointer hover:bg-[var(--bg-glass-hover)] hover:text-[var(--accent)] transition-colors flex-shrink-0"
-        onClick={onSelect}
-      >
-        View details →
-      </button>
+      <div className="flex flex-shrink-0 items-center gap-2">
+        {product.id && (
+          <a
+            href={builderContentUrl(product.id)}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={(e) => e.stopPropagation()}
+            title="Open this product in the Builder.io content editor"
+            className="inline-flex items-center gap-1 rounded-lg border border-[var(--border-glass)] bg-[var(--bg-glass)] px-3 py-1.5 text-xs font-medium text-[var(--text-secondary)] transition-colors hover:bg-[var(--bg-glass-hover)] hover:text-[var(--accent)]"
+          >
+            Builder
+            <svg
+              width="11"
+              height="11"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+              <path d="M15 3h6v6" />
+              <path d="M10 14 21 3" />
+            </svg>
+          </a>
+        )}
+        <button
+          className="px-3 py-1.5 rounded-lg text-xs font-medium border border-[var(--border-glass)] bg-[var(--bg-glass)] text-[var(--text-secondary)] cursor-pointer hover:bg-[var(--bg-glass-hover)] hover:text-[var(--accent)] transition-colors"
+          onClick={onSelect}
+        >
+          View details →
+        </button>
+      </div>
     </div>
   );
 };
