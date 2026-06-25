@@ -116,6 +116,52 @@ const Spinner: React.FC = () => (
   </svg>
 );
 
+const Chevron: React.FC<{ open: boolean; className?: string }> = ({ open, className }) => (
+  <svg
+    className={`h-4 w-4 shrink-0 transition-transform ${open ? 'rotate-180' : ''} ${className ?? ''}`}
+    viewBox="0 0 20 20"
+    fill="currentColor"
+  >
+    <path
+      fillRule="evenodd"
+      d="M5.23 7.21a.75.75 0 011.06.02L10 11.06l3.71-3.84a.75.75 0 111.08 1.04l-4.25 4.4a.75.75 0 01-1.08 0L5.21 8.27a.75.75 0 01.02-1.06z"
+      clipRule="evenodd"
+    />
+  </svg>
+);
+
+/**
+ * A banner whose details collapse behind a summary line. Collapsed by default
+ * so the Model Sync panel shows just counts until an admin expands one.
+ */
+const CollapsibleBanner: React.FC<{
+  variant: 'success' | 'warning' | 'neutral';
+  summary: React.ReactNode;
+  children: React.ReactNode;
+}> = ({ variant, summary, children }) => {
+  const [open, setOpen] = useState(false);
+  const styles: Record<typeof variant, { container: string; text: string }> = {
+    success: { container: 'bg-[var(--success)]/10 border-[var(--success)]/30', text: 'text-[var(--success)]' },
+    warning: { container: 'bg-[var(--warning)]/10 border-[var(--warning)]/30', text: 'text-[var(--warning)]' },
+    neutral: { container: 'bg-[var(--bg-glass)] border-[var(--border-glass)]', text: 'text-[var(--text-primary)]' },
+  };
+  const s = styles[variant];
+  return (
+    <div className={`mb-4 rounded-lg border ${s.container}`}>
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        aria-expanded={open}
+        className="w-full flex items-center justify-between gap-3 px-4 py-3 cursor-pointer text-left"
+      >
+        <span className={`text-sm font-semibold ${s.text}`}>{summary}</span>
+        <Chevron open={open} className={s.text} />
+      </button>
+      {open && <div className="px-4 pb-3">{children}</div>}
+    </div>
+  );
+};
+
 // ---------------------------------------------------------------------------
 // Connection test card
 // ---------------------------------------------------------------------------
@@ -448,12 +494,13 @@ const AdminPage: React.FC<AdminPageProps> = observer(({ context }) => {
           {/* Models this package defines that don't yet exist on the brand —
               these are what the sync will add. */}
           {modelStatuses.some((s) => !s.exists) && (
-            <div className="mb-4 rounded-lg bg-[var(--success)]/10 border border-[var(--success)]/30 px-4 py-3">
-              <div className="text-sm font-semibold text-[var(--success)]">
-                {modelStatuses.filter((s) => !s.exists).length} model
-                {modelStatuses.filter((s) => !s.exists).length === 1 ? '' : 's'} will be added by the sync
-              </div>
-              <div className="mt-1 text-xs text-[var(--text-secondary)]">
+            <CollapsibleBanner
+              variant="success"
+              summary={`${modelStatuses.filter((s) => !s.exists).length} model${
+                modelStatuses.filter((s) => !s.exists).length === 1 ? '' : 's'
+              } will be added by the sync`}
+            >
+              <div className="text-xs text-[var(--text-secondary)]">
                 These models are defined by this package but don&apos;t exist on the brand yet. Running the sync will
                 create them.
               </div>
@@ -470,17 +517,17 @@ const AdminPage: React.FC<AdminPageProps> = observer(({ context }) => {
                     </span>
                   ))}
               </div>
-            </div>
+            </CollapsibleBanner>
           )}
 
           {/* Field-level diff for existing models: fields the sync will add
               (safe) or remove (drops the field and its content). */}
           {fieldDiffs.length > 0 && (
-            <div className="mb-4 rounded-lg bg-[var(--bg-glass)] border border-[var(--border-glass)] px-4 py-3">
-              <div className="text-sm font-semibold text-[var(--text-primary)]">
-                Field changes on {fieldDiffs.length} existing model{fieldDiffs.length === 1 ? '' : 's'}
-              </div>
-              <div className="mt-1 text-xs text-[var(--text-secondary)]">
+            <CollapsibleBanner
+              variant="neutral"
+              summary={`Field changes on ${fieldDiffs.length} existing model${fieldDiffs.length === 1 ? '' : 's'}`}
+            >
+              <div className="text-xs text-[var(--text-secondary)]">
                 The sync replaces each model&apos;s shape. Fields shown in green will be added; fields in red will be
                 removed along with any content stored in them.
               </div>
@@ -511,18 +558,22 @@ const AdminPage: React.FC<AdminPageProps> = observer(({ context }) => {
                   </div>
                 ))}
               </div>
-            </div>
+            </CollapsibleBanner>
           )}
 
           {/* Unmanaged-model warning: models on this brand that this package
               does not define. They are not synced and risk being orphaned. */}
           {unmanagedModels.length > 0 && (
-            <div className="mb-4 rounded-lg bg-[var(--warning)]/10 border border-[var(--warning)]/30 px-4 py-3">
-              <div className="text-sm font-semibold text-[var(--warning)]">
-                {unmanagedModels.length} model{unmanagedModels.length === 1 ? '' : 's'} on this brand{' '}
-                {unmanagedModels.length === 1 ? 'is' : 'are'} not part of this package
-              </div>
-              <div className="mt-1 text-xs text-[var(--text-secondary)]">
+            <CollapsibleBanner
+              variant="warning"
+              summary={
+                <>
+                  {unmanagedModels.length} model{unmanagedModels.length === 1 ? '' : 's'} on this brand{' '}
+                  {unmanagedModels.length === 1 ? 'is' : 'are'} not part of this package
+                </>
+              }
+            >
+              <div className="text-xs text-[var(--text-secondary)]">
                 These models exist on the brand but aren&apos;t managed by the sync. They won&apos;t be maintained and
                 could be dropped or orphaned — relocate any content you need to keep before re-provisioning.
               </div>
@@ -538,7 +589,7 @@ const AdminPage: React.FC<AdminPageProps> = observer(({ context }) => {
                   </span>
                 ))}
               </div>
-            </div>
+            </CollapsibleBanner>
           )}
 
           {/* Sync result banner */}
