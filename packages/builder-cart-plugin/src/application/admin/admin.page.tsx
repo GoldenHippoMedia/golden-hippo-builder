@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { observer } from 'mobx-react';
 import { Section, PageHeader, LoadingSection } from '@goldenhippo/builder-ui';
 import { ExtendedApplicationContext } from '../../interfaces/application-context.interface';
@@ -13,10 +13,8 @@ import {
   getUnmanagedModels,
   syncAllModels,
   syncSingleModel,
-  type FieldDiff,
   type ModelStatus,
   type SyncResult,
-  type UnmanagedModel,
 } from './model-sync';
 
 // ---------------------------------------------------------------------------
@@ -289,9 +287,6 @@ const AdminPage: React.FC<AdminPageProps> = observer(({ context }) => {
   const [writeTest, setWriteTest] = useState<ConnectionTestResult>({ status: 'idle' });
 
   // Model sync state
-  const [modelStatuses, setModelStatuses] = useState<ModelStatus[]>([]);
-  const [unmanagedModels, setUnmanagedModels] = useState<UnmanagedModel[]>([]);
-  const [fieldDiffs, setFieldDiffs] = useState<FieldDiff[]>([]);
   const [syncingModel, setSyncingModel] = useState<string | null>(null);
   const [syncingAll, setSyncingAll] = useState(false);
   const [syncResults, setSyncResults] = useState<SyncResult[] | null>(null);
@@ -302,18 +297,9 @@ const AdminPage: React.FC<AdminPageProps> = observer(({ context }) => {
   const apiKey = context.user.apiKey;
   const authHeaders = context.user.authHeaders as Record<string, string>;
 
-  // Load model statuses on mount
-  useEffect(() => {
-    setModelStatuses(getModelStatuses(context.models.result));
-    setUnmanagedModels(getUnmanagedModels(context.models.result));
-    setFieldDiffs(getFieldDiffs(context as any));
-  }, [context, context.models.result]);
-
-  const refreshStatuses = useCallback(() => {
-    setModelStatuses(getModelStatuses(context.models.result));
-    setUnmanagedModels(getUnmanagedModels(context.models.result));
-    setFieldDiffs(getFieldDiffs(context as any));
-  }, [context, context.models.result]);
+  const modelStatuses = getModelStatuses(context.models.result);
+  const unmanagedModels = getUnmanagedModels(context.models.result);
+  const fieldDiffs = getFieldDiffs(context as any);
 
   // ---- Connection tests ----
 
@@ -407,9 +393,8 @@ const AdminPage: React.FC<AdminPageProps> = observer(({ context }) => {
     } finally {
       setSyncingModel(null);
       setSyncingAll(false);
-      refreshStatuses();
     }
-  }, [context, refreshStatuses]);
+  }, [context]);
 
   const handleSyncSingle = useCallback(
     async (modelName: string) => {
@@ -420,10 +405,9 @@ const AdminPage: React.FC<AdminPageProps> = observer(({ context }) => {
         setSyncResults([result]);
       } finally {
         setSyncingModel(null);
-        refreshStatuses();
       }
     },
-    [context, refreshStatuses],
+    [context],
   );
 
   return (
