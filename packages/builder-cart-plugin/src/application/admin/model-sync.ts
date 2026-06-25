@@ -1,7 +1,9 @@
 import { ApplicationContext, Model } from '@builder.io/app-context';
 import BuilderHelper from '@core/models/builder-helper';
 import { ModelShape } from '@goldenhippo/builder-types';
-import { pluginId } from '../../constants';
+import { pluginId, SCHEMA_VERSION } from '../../constants';
+
+export { SCHEMA_VERSION };
 
 // ---------------------------------------------------------------------------
 // Types

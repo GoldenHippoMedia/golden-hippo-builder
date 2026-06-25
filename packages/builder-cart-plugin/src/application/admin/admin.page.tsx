@@ -7,6 +7,7 @@ import { pluginId } from '../../constants';
 import { openPluginSettings } from '../../plugin-actions';
 import {
   MODEL_DEFINITIONS,
+  SCHEMA_VERSION,
   getFieldDiffs,
   getModelStatuses,
   getUnmanagedModels,
@@ -130,10 +131,6 @@ const Chevron: React.FC<{ open: boolean; className?: string }> = ({ open, classN
   </svg>
 );
 
-/**
- * A banner whose details collapse behind a summary line. Collapsed by default
- * so the Model Sync panel shows just counts until an admin expands one.
- */
 const CollapsibleBanner: React.FC<{
   variant: 'success' | 'warning' | 'neutral';
   summary: React.ReactNode;
@@ -161,6 +158,13 @@ const CollapsibleBanner: React.FC<{
     </div>
   );
 };
+
+const VersionIndicator: React.FC<{ version: string }> = ({ version }) => (
+  <div className="mb-4 flex items-center gap-2 text-sm">
+    <span className="text-[var(--text-secondary)]">Schema version</span>
+    <span className="font-mono font-semibold text-[var(--text-primary)]">{version}</span>
+  </div>
+);
 
 // ---------------------------------------------------------------------------
 // Connection test card
@@ -491,6 +495,8 @@ const AdminPage: React.FC<AdminPageProps> = observer(({ context }) => {
             </AccentButton>
           }
         >
+          <VersionIndicator version={SCHEMA_VERSION} />
+
           {/* Models this package defines that don't yet exist on the brand —
               these are what the sync will add. */}
           {modelStatuses.some((s) => !s.exists) && (
