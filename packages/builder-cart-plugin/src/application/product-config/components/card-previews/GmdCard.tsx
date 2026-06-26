@@ -64,7 +64,9 @@ const GmdCard: React.FC<CardPreviewProps> = ({ product, sample }) => {
           </div>
         </div>
 
-        <a className={`${btnOutline} mt-3 w-full rounded-full px-4 py-2 text-sm`}>Learn More</a>
+        <a href="#" onClick={(e) => e.preventDefault()} className={`${btnOutline} mt-3 w-full rounded-full px-4 py-2 text-sm`}>
+          Learn More
+        </a>
         {oos ? (
           <p className="text-center text-sm font-semibold uppercase text-[#b91c1c]">Out of Stock</p>
         ) : (
