@@ -1,7 +1,15 @@
 const path = require('path');
+const webpack = require('webpack');
+
+const schemaVersion = require('../builder-cart-schemas/package.json').version;
 
 module.exports = {
   entry: `./src/plugin.ts`,
+  plugins: [
+    new webpack.DefinePlugin({
+      __SCHEMA_VERSION__: JSON.stringify(schemaVersion),
+    }),
+  ],
   externals: {
     react: 'react',
     'react-dom': 'react-dom',

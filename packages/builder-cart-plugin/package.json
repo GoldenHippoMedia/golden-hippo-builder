@@ -19,7 +19,8 @@
     "start": "webpack-dev-server --mode development",
     "build": "webpack --mode production",
     "typecheck": "tsc --noEmit",
-    "lint": "eslint src/"
+    "lint": "eslint src/",
+    "test": "vitest run"
   },
   "dependencies": {
     "@builder.io/app-context": "^1.0.0",
@@ -48,6 +49,7 @@
     "react-dom": "^18.3.1",
     "style-loader": "^4.0.0",
     "ts-loader": "^9.5.4",
+    "vitest": "^4.0.18",
     "webpack": "^5.105.2",
     "webpack-cli": "^6.0.1",
     "webpack-dev-server": "^5.2.3"
