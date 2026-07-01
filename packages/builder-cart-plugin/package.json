@@ -1,6 +1,6 @@
 {
   "name": "@goldenhippo/builder-cart-plugin",
-  "version": "0.10.1",
+  "version": "0.11.0",
   "description": "Builder.io plugin for Golden Hippo commerce brand management",
   "main": "dist/plugin.system.js",
   "repository": {
