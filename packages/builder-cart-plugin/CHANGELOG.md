@@ -1,5 +1,11 @@
 # @goldenhippo/builder-cart-plugin
 
+## 0.12.0
+
+### Minor Changes
+
+- [`d482317`](https://github.com/GoldenHippoMedia/golden-hippo-builder/commit/d482317ea25703c53ec5d590979568b8c6238c42) - add two new feature flags to configure passwordless login — [@dkidwell999](https://github.com/dkidwell999)
+
 ## 0.11.0
 
 ### Minor Changes
