@@ -1,5 +1,11 @@
 # @goldenhippo/builder-cart-schemas
 
+## 0.20.0
+
+### Minor Changes
+
+- [#59](https://github.com/GoldenHippoMedia/golden-hippo-builder/pull/59) [`f4ec487`](https://github.com/GoldenHippoMedia/golden-hippo-builder/commit/f4ec487fb9a78641cfb66ae23632d61c7a6f9b12) - Add passwordless login feature flags to brand config: `passwordlessLoginEnabled` toggles passwordless login for the brand, and `passwordlessLoginDefault` presents it as the default login method (only shown when passwordless login is enabled). — [@dkidwell999](https://github.com/dkidwell999)
+
 ## 0.19.0
 
 ### Minor Changes
