@@ -8,6 +8,7 @@ import {
   createGeneralConfig,
   createHeaderConfig,
   createPageConfig,
+  createPaymentConfig,
   createSupportConfig,
   FooterType,
   HeaderType,
@@ -20,6 +21,7 @@ import {
 } from './sections';
 import { BuilderContent } from '@builder.io/sdk';
 import { BuilderProductGridFilterGroupContent } from '../product-grid-filter-group.model';
+import { BuilderPaymentConfigContent } from '../payment-config.model';
 import { BuilderRecommendationConfigContent } from '../recommendation-config.model';
 import { BuilderFooterModelContent, BuilderHeaderModelContent, BuilderSiteBannerModelContent } from '../../section';
 
@@ -35,7 +37,11 @@ export {
   SubscriptionCancelButtonType,
 } from './sections';
 
-export const createBrandConfigModel = (gridFilterModelId: string, bannerModelId: string): ModelShape => {
+export const createBrandConfigModel = (
+  gridFilterModelId: string,
+  bannerModelId: string,
+  paymentConfigModelId: string,
+): ModelShape => {
   return {
     name: 'gh-brand-config',
     kind: 'data',
@@ -50,6 +56,7 @@ export const createBrandConfigModel = (gridFilterModelId: string, bannerModelId:
       createSupportConfig(),
       createPageConfig(),
       createCookieConfig(),
+      createPaymentConfig(paymentConfigModelId),
       {
         name: 'seo',
         friendlyName: 'SEO',
@@ -415,5 +422,6 @@ export type BuilderBrandConfigContent = BuilderContent &
         description?: string;
         knowsAbout?: string[];
       };
+      paymentConfig?: BuilderContentReference<BuilderPaymentConfigContent['data']>;
     };
   }>;
