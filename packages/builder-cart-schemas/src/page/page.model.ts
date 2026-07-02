@@ -823,6 +823,14 @@ export const createPageModel = (props: PageModelInputProps): ModelShape => {
         defaultCollapsed: false,
       },
       {
+        name: 'canonicalURL',
+        friendlyName: 'Canonical URL',
+        type: 'url',
+        required: false,
+        helperText: 'Override the canonical URL for this page. If blank, the page URL is used.',
+        defaultCollapsed: false,
+      },
+      {
         name: 'description',
         friendlyName: 'SEO Description',
         type: 'longText',
@@ -986,6 +994,7 @@ type BasePageData = {
   title: string;
   pageType: 'Product' | 'Blog' | 'General';
   heading?: string;
+  canonicalURL?: string;
   description?: string;
   seoImage?: string;
   search?: {
