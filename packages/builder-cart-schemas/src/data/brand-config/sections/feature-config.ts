@@ -106,6 +106,23 @@ export const createFeatureConfig = (gridFilterModelId: string): BuilderIOFieldTy
         defaultCollapsed: true,
       },
       {
+        name: 'passwordlessLoginEnabled',
+        friendlyName: 'Enable Passwordless Login',
+        helperText: 'Enable or disable passwordless login for the brand',
+        type: 'boolean',
+        localized: false,
+        defaultCollapsed: true,
+      },
+      {
+        name: 'passwordlessLoginDefault',
+        friendlyName: 'Passwordless Login is Default',
+        helperText: 'When enabled, passwordless login is presented as the default login method',
+        type: 'boolean',
+        localized: false,
+        defaultCollapsed: true,
+        showIf: `return options.get('passwordlessLoginEnabled') === true`,
+      },
+      {
         name: 'subscriptionExperience',
         friendlyName: 'Subscription Experience',
         type: 'select',
