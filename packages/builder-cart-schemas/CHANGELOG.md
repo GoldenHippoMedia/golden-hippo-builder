@@ -1,5 +1,11 @@
 # @goldenhippo/builder-cart-schemas
 
+## 0.21.0
+
+### Minor Changes
+
+- [#57](https://github.com/GoldenHippoMedia/golden-hippo-builder/pull/57) [`5013c90`](https://github.com/GoldenHippoMedia/golden-hippo-builder/commit/5013c90e5b60bfab525c380e958d72c8440475dd) - Adding canonical URL to the Cart Page model — [@jnuttGH](https://github.com/jnuttGH)
+
 ## 0.20.0
 
 ### Minor Changes
