@@ -445,13 +445,25 @@ export const createPageModel = (props: PageModelInputProps): ModelShape => {
                     defaultCollapsed: false,
                   },
                   {
-                    name: 'enableAnonymousSubscriptions',
-                    friendlyName: 'Always Show Subscriptions',
+                    name: 'hideSubscriptionVariants',
+                    friendlyName: 'Hide Subscription Variants',
                     type: 'boolean',
                     defaultValue: false,
                     required: false,
                     helperText:
-                      'Enable this to present subscriptions (when available) to non-MyAccount visitors. By default, a user must be logged in to access this option.',
+                      'Hide subscriptions entirely. When enabled, no subscription toggle is shown and only one-time pricing is available to all visitors.',
+                    defaultCollapsed: false,
+                    hidden: false,
+                    advanced: true,
+                  },
+                  {
+                    name: 'disableGuestSubscriptions',
+                    friendlyName: 'Disable Guest Subscriptions',
+                    type: 'boolean',
+                    defaultValue: false,
+                    required: false,
+                    helperText:
+                      'Prevent logged-out (guest) visitors from seeing or buying subscriptions; they are limited to one-time purchases. Logged-in visitors are unaffected.',
                     defaultCollapsed: false,
                     hidden: false,
                     advanced: true,
@@ -1062,7 +1074,8 @@ export type BuilderPdpPageContent = BuilderContent &
               showMemberPriceMessage?: boolean;
               showSubscriptionPriceMessage?: boolean;
               scrollToTopOffset?: number;
-              enableAnonymousSubscriptions?: boolean;
+              hideSubscriptionVariants?: boolean;
+              disableGuestSubscriptions?: boolean;
             };
             labels: {
               actionButton?: string;
