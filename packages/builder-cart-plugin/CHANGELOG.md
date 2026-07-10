@@ -1,5 +1,11 @@
 # @goldenhippo/builder-cart-plugin
 
+## 0.13.0
+
+### Minor Changes
+
+- [`9fcb890`](https://github.com/GoldenHippoMedia/golden-hippo-builder/commit/9fcb890962c1e8ffa07814af8fc5d41014988346) - Add `featuredIconLabels` object field to the `product` model. Optional; wraps a repeatable `featuredIconLabel` list, each item with `featuredIconImage` (file), `featuredIconTitle` (text), and `altText` (text). Used to showcase featured icons with titles on the product detail page. — [@vbhavsargh](https://github.com/vbhavsargh)
+
 ## 0.12.0
 
 ### Minor Changes
