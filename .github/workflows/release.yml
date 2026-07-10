@@ -22,18 +22,9 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24
           cache: npm
           registry-url: https://registry.npmjs.org
-
-      - name: Upgrade npm (required for trusted publishing)
-        run: |
-          npm pack npm@latest --pack-destination /tmp
-          NPM_PREFIX="$(npm prefix -g)"
-          rm -rf "$NPM_PREFIX/lib/node_modules/npm"
-          mkdir -p "$NPM_PREFIX/lib/node_modules/npm"
-          tar xzf /tmp/npm-*.tgz --strip-components=1 -C "$NPM_PREFIX/lib/node_modules/npm"
-          npm --version
 
       - run: npm install
 
