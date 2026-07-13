@@ -285,6 +285,15 @@ export const createPageModel = (props: PageModelInputProps): ModelShape => {
             defaultCollapsed: false,
           },
           {
+            name: 'disableZoom',
+            friendlyName: 'Disable Zoom',
+            type: 'boolean',
+            required: false,
+            helperText: 'When true, disables the zoom interaction on the product image slider',
+            showIf: `return options.get('sliderComponent') === '${OfferSelectorSliderTypes.SLIDER_ZOOM}'`,
+            defaultCollapsed: false,
+          },
+          {
             name: 'reviewSettings',
             friendlyName: 'Review Settings',
             type: 'object',
@@ -1045,6 +1054,7 @@ export type BuilderPdpPageContent = BuilderContent &
             image: string;
           }[];
           sliderComponent?: OfferSelectorSliderTypes;
+          disableZoom?: boolean;
           reviewSettings?: {
             showStarRating?: boolean;
             showGlobalFiveStarRating?: boolean;
