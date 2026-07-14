@@ -2,13 +2,21 @@ name: Publish TechDocs
 
 # Generates this repo's MkDocs site (mkdocs.yml + wiki/) with techdocs-cli and
 # publishes it to the shared GCS bucket the Backstage backend serves
-# (techdocs.builder: external). Thin caller of the org-shared reusable workflow so
-# the generate/publish logic lives in exactly one place
-# (GoldenHippoMedia/hippo-backstage/.github/workflows/techdocs-reusable.yml).
+# (techdocs.builder: external in hippo-backstage).
 #
-# NOTE: the backstage.io/techdocs-ref annotation lives on the System `builder-io`
-# (see catalog-info.yaml), so docs publish under the SYSTEM entity ref — NOT a
-# Component. Backstage serves them from gs://<bucket>/default/system/builder-io/.
+# The steps are INLINED rather than calling hippo-backstage's shared
+# techdocs-reusable.yml: this repo is PUBLIC and GitHub forbids a public workflow
+# from calling a reusable workflow stored in a PRIVATE repo. Keep these steps in
+# sync with GoldenHippoMedia/hippo-backstage/.github/workflows/techdocs-reusable.yml.
+#
+# Docs publish under the SYSTEM entity ref — the backstage.io/techdocs-ref
+# annotation is on the `builder-io` System (see catalog-info.yaml), not a Component,
+# so Backstage serves them from gs://<bucket>/default/system/builder-io/.
+#
+# Requires org-level, both granted to this PUBLIC repo:
+#   - secret   GCS_SA_KEY           GCS service-account JSON (storage.objects.* +
+#                                    storage.buckets.get)
+#   - variable TECHDOCS_GCS_BUCKET  target bucket name
 
 on:
   push:
@@ -25,9 +33,37 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  techdocs:
-    uses: GoldenHippoMedia/hippo-backstage/.github/workflows/techdocs-reusable.yml@main
-    with:
-      entity: default/system/builder-io
-      bucket: ${{ vars.TECHDOCS_GCS_BUCKET }}
-    secrets: inherit
+  publish-techdocs:
+    runs-on: ubuntu-latest
+    # Skip (green, not failed) if the bucket variable isn't configured yet.
+    if: ${{ vars.TECHDOCS_GCS_BUCKET != '' }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install MkDocs + techdocs-cli
+        run: |
+          pip install mkdocs-techdocs-core
+          npm install -g @techdocs/cli
+
+      - name: Authenticate to Google Cloud Storage
+        env:
+          GCS_SA_KEY: ${{ secrets.GCS_SA_KEY }}
+        run: |
+          printf '%s' "$GCS_SA_KEY" > "$RUNNER_TEMP/gcs-sa.json"
+          echo "GOOGLE_APPLICATION_CREDENTIALS=$RUNNER_TEMP/gcs-sa.json" >> "$GITHUB_ENV"
+
+      - name: Generate and publish
+        run: |
+          techdocs-cli generate --no-docker --verbose
+          techdocs-cli publish \
+            --publisher-type googleGcs \
+            --storage-name "${{ vars.TECHDOCS_GCS_BUCKET }}" \
+            --entity default/system/builder-io
