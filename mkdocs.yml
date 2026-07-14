@@ -1,0 +1,19 @@
+site_name: Builder.io Workspace Wiki
+site_description: Developer documentation for the Golden Hippo Builder.io monorepo.
+
+# Golden Hippo keeps its docs in wiki/ rather than the MkDocs default docs/ folder.
+# docs_dir points TechDocs at that folder so the existing wiki renders as-is.
+docs_dir: wiki
+
+nav:
+  - Home: README.md
+  - Architecture: architecture.md
+  - Development Workflow: development-workflow.md
+  - Versioning & Publishing: versioning-and-publishing.md
+  - Consuming Schemas: consuming-schemas.md
+  - Consuming Plugins: consuming-plugins.md
+  - Funnel Architecture: funnel-architecture.md
+  - Repository Setup: repository-setup.md
+
+plugins:
+  - techdocs-core

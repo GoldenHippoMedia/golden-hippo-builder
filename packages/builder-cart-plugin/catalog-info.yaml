@@ -1,0 +1,19 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: builder-cart-plugin
+  title: '@goldenhippo/builder-cart-plugin'
+  description: React plugin running inside the Builder.io editor for cart/commerce brand sites — manages pages, products, blogs, comments, and brand config.
+  annotations:
+    github.com/project-slug: GoldenHippoMedia/golden-hippo-builder
+    backstage.io/source-location: url:https://github.com/GoldenHippoMedia/golden-hippo-builder/tree/main/packages/builder-cart-plugin/
+    goldenhippo.com/brand: all
+  tags: [npm-package, typescript, react, builder-io, plugin, cart]
+spec:
+  type: library
+  lifecycle: production
+  owner: team-retention
+  system: builder-io
+  dependsOn:
+    - component:builder-cart-schemas
+    - component:builder-ui

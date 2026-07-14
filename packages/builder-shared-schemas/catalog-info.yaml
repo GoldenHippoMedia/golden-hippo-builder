@@ -1,0 +1,18 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: builder-shared-schemas
+  title: '@goldenhippo/builder-shared-schemas'
+  description: Shared Builder.io model definitions (product and its dependencies) consumed by both the cart and funnel schema packages.
+  annotations:
+    github.com/project-slug: GoldenHippoMedia/golden-hippo-builder
+    backstage.io/source-location: url:https://github.com/GoldenHippoMedia/golden-hippo-builder/tree/main/packages/builder-shared-schemas/
+    goldenhippo.com/brand: all
+  tags: [npm-package, typescript, builder-io, schema, shared]
+spec:
+  type: library
+  lifecycle: production
+  owner: team-commerce-platform
+  system: builder-io
+  dependsOn:
+    - component:builder-types

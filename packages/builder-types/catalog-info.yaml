@@ -1,0 +1,16 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: builder-types
+  title: '@goldenhippo/builder-types'
+  description: Shared Builder.io TypeScript type definitions (ModelShape, BuilderResponseBaseData, field types) used across the schema packages.
+  annotations:
+    github.com/project-slug: GoldenHippoMedia/golden-hippo-builder
+    backstage.io/source-location: url:https://github.com/GoldenHippoMedia/golden-hippo-builder/tree/main/packages/builder-types/
+    goldenhippo.com/brand: all
+  tags: [npm-package, typescript, builder-io, types, shared]
+spec:
+  type: library
+  lifecycle: production
+  owner: team-commerce-platform
+  system: builder-io

@@ -1,0 +1,41 @@
+# Registered automatically via GoldenHippoMedia GitHub org discovery — the same
+# pattern every GH repo uses. Defines the builder-io System (this monorepo) and a
+# Location that fans out to the per-package Component descriptors under packages/.
+# Teams, domains, and other systems live in the central hippo-backstage catalog and
+# are only referenced here (owner: team-commerce-platform, domain: commerce-platform),
+# never redefined.
+apiVersion: backstage.io/v1alpha1
+kind: System
+metadata:
+  name: builder-io
+  title: Builder.io CMS Integration
+  description: Golden Hippo's Builder.io integration monorepo — cart & funnel editor plugins plus the shared schema/UI packages they publish to npm.
+  annotations:
+    github.com/project-slug: GoldenHippoMedia/golden-hippo-builder
+    backstage.io/techdocs-ref: dir:.
+  tags: [builder-io, monorepo, nx, typescript]
+  links:
+    - url: https://github.com/GoldenHippoMedia/golden-hippo-builder
+      title: Repository
+      type: source
+spec:
+  owner: team-commerce-platform
+  domain: commerce-platform
+---
+# Fans out to each workspace package's own descriptor. Relative targets resolve
+# against this file's location, so the whole monorepo is ingested from the single
+# auto-discovered root catalog-info.yaml.
+apiVersion: backstage.io/v1alpha1
+kind: Location
+metadata:
+  name: builder-io-packages
+  description: Component descriptors for each package in the Builder.io monorepo.
+spec:
+  targets:
+    - ./packages/builder-cart-plugin/catalog-info.yaml
+    - ./packages/builder-cart-schemas/catalog-info.yaml
+    - ./packages/builder-funnel-plugin/catalog-info.yaml
+    - ./packages/builder-funnel-schemas/catalog-info.yaml
+    - ./packages/builder-shared-schemas/catalog-info.yaml
+    - ./packages/builder-types/catalog-info.yaml
+    - ./packages/builder-ui/catalog-info.yaml

@@ -1,0 +1,19 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: builder-funnel-schemas
+  title: '@goldenhippo/builder-funnel-schemas'
+  description: Builder.io model definitions and TypeScript content types for funnel models — offers, funnels, destinations, split tests, and funnel pages.
+  annotations:
+    github.com/project-slug: GoldenHippoMedia/golden-hippo-builder
+    backstage.io/source-location: url:https://github.com/GoldenHippoMedia/golden-hippo-builder/tree/main/packages/builder-funnel-schemas/
+    goldenhippo.com/brand: all
+  tags: [npm-package, typescript, builder-io, schema, funnel]
+spec:
+  type: library
+  lifecycle: production
+  owner: team-acquisition
+  system: builder-io
+  dependsOn:
+    - component:builder-shared-schemas
+    - component:builder-types
