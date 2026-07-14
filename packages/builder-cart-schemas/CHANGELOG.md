@@ -1,5 +1,11 @@
 # @goldenhippo/builder-cart-schemas
 
+## 0.22.1
+
+### Patch Changes
+
+- [#63](https://github.com/GoldenHippoMedia/golden-hippo-builder/pull/63) [`05baf1c`](https://github.com/GoldenHippoMedia/golden-hippo-builder/commit/05baf1c329235c14270c64916685ba1fb4750ef1) - replace deprecated subscription toggle with two new clearer fields on the page model — [@dkidwell999](https://github.com/dkidwell999)
+
 ## 0.21.0
 
 ### Minor Changes
