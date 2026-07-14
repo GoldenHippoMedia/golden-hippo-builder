@@ -15,6 +15,8 @@ interface ChipMultiSelectProps {
   selectedIds: string[];
   onChange: (ids: string[]) => void;
   placeholder?: string;
+  /** Optional control rendered right-aligned in the label row (e.g. a per-field locale selector). */
+  labelAccessory?: React.ReactNode;
 }
 
 const ChipMultiSelect: React.FC<ChipMultiSelectProps> = ({
@@ -24,6 +26,7 @@ const ChipMultiSelect: React.FC<ChipMultiSelectProps> = ({
   selectedIds,
   onChange,
   placeholder = 'Search to add...',
+  labelAccessory,
 }) => {
   const [query, setQuery] = useState('');
   const [open, setOpen] = useState(false);
@@ -62,7 +65,10 @@ const ChipMultiSelect: React.FC<ChipMultiSelectProps> = ({
   return (
     <div ref={containerRef} className="space-y-2">
       <div>
-        <div className="text-xs font-semibold text-[var(--text-secondary)] tracking-wide">{label}</div>
+        <div className="flex items-center justify-between gap-2">
+          <div className="text-xs font-semibold text-[var(--text-secondary)] tracking-wide">{label}</div>
+          {labelAccessory}
+        </div>
         {helperText && <div className="text-[11px] text-[var(--text-muted)] mt-0.5">{helperText}</div>}
       </div>
 

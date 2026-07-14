@@ -1,19 +1,15 @@
 import { describe, it, expect } from 'vitest';
-import { EDITED_PRODUCT_FIELDS, isProductFieldLocalized, productFieldExists } from './product-fields';
-
-// Guards against the product config form drifting out of sync with the product
-// model schema. If a field is renamed/removed in the schema, or its localized
-// flag flips (which changes how the form must save it), these fail for review.
+import { PRODUCT_FORM_FIELDS, isProductFieldLocalized, productFieldExists } from './product-fields';
 
 describe('product config form ↔ schema sync', () => {
   it('edits only fields that exist in the product model', () => {
-    const missing = EDITED_PRODUCT_FIELDS.filter((f) => !productFieldExists(f));
+    const missing = PRODUCT_FORM_FIELDS.filter((f) => !productFieldExists(f.modelField)).map((f) => f.modelField);
     expect(missing, `form edits fields absent from the schema: ${missing.join(', ')}`).toEqual([]);
   });
 
   it('matches the schema localized flags the save logic relies on', () => {
     // Pinned expectations — update intentionally alongside the form/save logic.
-    const expected: Record<(typeof EDITED_PRODUCT_FIELDS)[number], boolean> = {
+    const expected: Record<string, boolean> = {
       displayName: true,
       subHeading: true,
       gridTagline: true,
@@ -33,7 +29,19 @@ describe('product config form ↔ schema sync', () => {
       useCases: true,
     };
 
-    const actual = Object.fromEntries(EDITED_PRODUCT_FIELDS.map((f) => [f, isProductFieldLocalized(f)]));
+    const actual = Object.fromEntries(
+      PRODUCT_FORM_FIELDS.map((f) => [f.modelField, isProductFieldLocalized(f.modelField)]),
+    );
     expect(actual).toEqual(expected);
+  });
+
+  it('uses a unique key per field', () => {
+    const keys = PRODUCT_FORM_FIELDS.map((f) => f.key);
+    expect(new Set(keys).size, 'duplicate form-field keys').toBe(keys.length);
+  });
+
+  it('gives every reference field the metadata its save path needs', () => {
+    const bad = PRODUCT_FORM_FIELDS.filter((f) => f.control === 'refs' && (!f.refModel || !f.refKey)).map((f) => f.key);
+    expect(bad, `ref fields missing refModel/refKey: ${bad.join(', ')}`).toEqual([]);
   });
 });
