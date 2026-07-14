@@ -1,0 +1,16 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: builder-ui
+  title: '@goldenhippo/builder-ui'
+  description: Shared React component library (Tailwind v4 + DaisyUI) used across the Builder.io plugins. Internal — not published to npm.
+  annotations:
+    github.com/project-slug: GoldenHippoMedia/golden-hippo-builder
+    backstage.io/source-location: url:https://github.com/GoldenHippoMedia/golden-hippo-builder/tree/main/packages/builder-ui/
+    goldenhippo.com/brand: all
+  tags: [typescript, react, ui, shared, internal]
+spec:
+  type: library
+  lifecycle: production
+  owner: team-commerce-platform
+  system: builder-io

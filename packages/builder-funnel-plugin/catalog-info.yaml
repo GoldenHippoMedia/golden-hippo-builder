@@ -1,0 +1,19 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: builder-funnel-plugin
+  title: '@goldenhippo/builder-funnel-plugin'
+  description: React plugin running inside the Builder.io editor for funnel websites — manages offers, funnels, destinations, and split tests.
+  annotations:
+    github.com/project-slug: GoldenHippoMedia/golden-hippo-builder
+    backstage.io/source-location: url:https://github.com/GoldenHippoMedia/golden-hippo-builder/tree/main/packages/builder-funnel-plugin/
+    goldenhippo.com/brand: all
+  tags: [npm-package, typescript, react, builder-io, plugin, funnel]
+spec:
+  type: library
+  lifecycle: production
+  owner: team-acquisition
+  system: builder-io
+  dependsOn:
+    - component:builder-funnel-schemas
+    - component:builder-ui
