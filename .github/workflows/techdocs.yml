@@ -1,0 +1,33 @@
+name: Publish TechDocs
+
+# Generates this repo's MkDocs site (mkdocs.yml + wiki/) with techdocs-cli and
+# publishes it to the shared GCS bucket the Backstage backend serves
+# (techdocs.builder: external). Thin caller of the org-shared reusable workflow so
+# the generate/publish logic lives in exactly one place
+# (GoldenHippoMedia/hippo-backstage/.github/workflows/techdocs-reusable.yml).
+#
+# NOTE: the backstage.io/techdocs-ref annotation lives on the System `builder-io`
+# (see catalog-info.yaml), so docs publish under the SYSTEM entity ref — NOT a
+# Component. Backstage serves them from gs://<bucket>/default/system/builder-io/.
+
+on:
+  push:
+    branches: [main]
+    # Docs live in wiki/ (mkdocs.yml sets docs_dir: wiki), not the MkDocs default docs/.
+    paths:
+      - 'wiki/**'
+      - 'mkdocs.yml'
+      - '.github/workflows/techdocs.yml'
+  workflow_dispatch: {}
+
+concurrency:
+  group: techdocs-publish
+  cancel-in-progress: false
+
+jobs:
+  techdocs:
+    uses: GoldenHippoMedia/hippo-backstage/.github/workflows/techdocs-reusable.yml@main
+    with:
+      entity: default/system/builder-io
+      bucket: ${{ vars.TECHDOCS_GCS_BUCKET }}
+    secrets: inherit
