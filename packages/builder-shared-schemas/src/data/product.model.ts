@@ -359,6 +359,54 @@ export const createProductModel = (request: ProductModelProps): ModelShape => {
         ],
       },
       {
+        name: 'featuredIconLabels',
+        friendlyName: 'Featured Icon Labels',
+        type: 'object',
+        required: false,
+        defaultCollapsed: true,
+        helperText: 'Showcases featured icons with titles on the product detail page',
+        subFields: [
+          {
+            name: 'featuredIconLabel',
+            friendlyName: 'Featured Icon Label',
+            type: 'list',
+            required: false,
+            copyOnAdd: true,
+            defaultCollapsed: true,
+            subFields: [
+              {
+                name: 'featuredIconImage',
+                friendlyName: 'Featured Icon Image',
+                type: 'file',
+                required: false,
+                localized: true,
+                defaultCollapsed: true,
+                allowedFileTypes: ['jpeg', 'png', 'svg', 'webp', 'gif'],
+                helperText: 'Icon image displayed for this featured icon label',
+              },
+              {
+                name: 'featuredIconTitle',
+                friendlyName: 'Featured Icon Title',
+                type: 'text',
+                required: false,
+                localized: true,
+                defaultCollapsed: true,
+                helperText: 'Title displayed alongside this featured icon',
+              },
+              {
+                name: 'altText',
+                friendlyName: 'Alt Text',
+                type: 'text',
+                required: false,
+                localized: true,
+                defaultCollapsed: true,
+                helperText: 'Alternative text for the icon image, used for accessibility',
+              },
+            ],
+          },
+        ],
+      },
+      {
         name: 'whatsInside',
         friendlyName: "What's Inside Accordion Items",
         type: 'object',
@@ -623,6 +671,13 @@ export type BuilderProductContent = BuilderContent &
           featuredIngredientImage?: string;
           featuredIngredientTitle?: string;
           featuredIngredientDescription?: string;
+        }[];
+      };
+      featuredIconLabels?: {
+        featuredIconLabel?: {
+          featuredIconImage?: string;
+          featuredIconTitle?: string;
+          altText?: string;
         }[];
       };
       whatsInside?: {

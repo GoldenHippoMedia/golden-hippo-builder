@@ -20,20 +20,14 @@ jobs:
         with:
           fetch-depth: 0
 
+      # Node 24 bundles npm >= 11.5.1, which supports OIDC trusted publishing.
+      # This avoids upgrading npm in place at runtime, which self-corrupts the
+      # running process (see git history: promise-retry / sigstore MODULE_NOT_FOUND).
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24
           cache: npm
           registry-url: https://registry.npmjs.org
-
-      - name: Upgrade npm (required for trusted publishing)
-        run: |
-          npm pack npm@latest --pack-destination /tmp
-          NPM_PREFIX="$(npm prefix -g)"
-          rm -rf "$NPM_PREFIX/lib/node_modules/npm"
-          mkdir -p "$NPM_PREFIX/lib/node_modules/npm"
-          tar xzf /tmp/npm-*.tgz --strip-components=1 -C "$NPM_PREFIX/lib/node_modules/npm"
-          npm --version
 
       - run: npm install
 

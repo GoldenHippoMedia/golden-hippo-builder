@@ -1,5 +1,29 @@
 # @goldenhippo/builder-cart-plugin
 
+## 0.13.0
+
+### Minor Changes
+
+- [`9fcb890`](https://github.com/GoldenHippoMedia/golden-hippo-builder/commit/9fcb890962c1e8ffa07814af8fc5d41014988346) - Add `featuredIconLabels` object field to the `product` model. Optional; wraps a repeatable `featuredIconLabel` list, each item with `featuredIconImage` (file), `featuredIconTitle` (text), and `altText` (text). Used to showcase featured icons with titles on the product detail page. — [@vbhavsargh](https://github.com/vbhavsargh)
+
+## 0.12.0
+
+### Minor Changes
+
+- [`d482317`](https://github.com/GoldenHippoMedia/golden-hippo-builder/commit/d482317ea25703c53ec5d590979568b8c6238c42) - add two new feature flags to configure passwordless login — [@dkidwell999](https://github.com/dkidwell999)
+
+## 0.11.0
+
+### Minor Changes
+
+- [#56](https://github.com/GoldenHippoMedia/golden-hippo-builder/pull/56) [`95fe60f`](https://github.com/GoldenHippoMedia/golden-hippo-builder/commit/95fe60f46f08973755225dbe0a6bd66de41af127) - Add context to the Admin Model Sync panel. A green banner lists the package-defined models that will be added by the sync (those not yet on the brand), and a yellow banner warns when a brand has models that aren't defined by this package — these unmanaged models sit outside the sync's managed set and risk being orphaned. Native Builder.io models such as `symbol` are excluded from the warning. A field-level diff also previews, per existing model, which fields the sync will add (green) or remove (red) — recursing into subfields (reported as dotted paths) and surfacing field removals before they drop the field and its stored content. — [@dkidwell999](https://github.com/dkidwell999)
+
+## 0.10.1
+
+### Patch Changes
+
+- [`888768e`](https://github.com/GoldenHippoMedia/golden-hippo-builder/commit/888768e9fe2f0afc21087935909606705a7ab2a8) - Bump to include latest cart schemas — [@steven-t-h](https://github.com/steven-t-h)
+
 ## 0.10.0
 
 ### Minor Changes

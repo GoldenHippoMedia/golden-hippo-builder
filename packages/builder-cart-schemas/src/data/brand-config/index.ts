@@ -262,8 +262,15 @@ export type BuilderBrandConfigContent = BuilderContent &
         shippingThresholdNotificationEnabled: boolean;
         bundlingEnabled: boolean;
         cartDrawerEnabled: boolean;
+        passwordlessLoginEnabled: boolean;
+        passwordlessLoginDefault: boolean;
         subscriptionExperience: 'Classic' | 'Version 2';
         useDefaultFrequencies: boolean;
+        dynamicBrowserTab?: {
+          enabled: boolean;
+          awayTitle: string;
+          defaultTitle?: string;
+        };
         recommendationConfig: BuilderContentReference<BuilderRecommendationConfigContent['data']>;
       };
       support: {
@@ -318,6 +325,7 @@ export type BuilderBrandConfigContent = BuilderContent &
               };
             };
           };
+          subscriptionUpgradeModuleEnabled: boolean;
         };
         checkout: {
           freeShippingBanner: {

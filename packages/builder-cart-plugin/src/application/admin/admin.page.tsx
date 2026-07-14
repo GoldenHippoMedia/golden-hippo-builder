@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { observer } from 'mobx-react';
 import { Section, PageHeader, LoadingSection } from '@goldenhippo/builder-ui';
 import { ExtendedApplicationContext } from '../../interfaces/application-context.interface';
@@ -7,7 +7,10 @@ import { pluginId } from '../../constants';
 import { openPluginSettings } from '../../plugin-actions';
 import {
   MODEL_DEFINITIONS,
+  SCHEMA_VERSION,
+  getFieldDiffs,
   getModelStatuses,
+  getUnmanagedModels,
   syncAllModels,
   syncSingleModel,
   type ModelStatus,
@@ -110,6 +113,55 @@ const Spinner: React.FC = () => (
     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
   </svg>
+);
+
+const Chevron: React.FC<{ open: boolean; className?: string }> = ({ open, className }) => (
+  <svg
+    className={`h-4 w-4 shrink-0 transition-transform ${open ? 'rotate-180' : ''} ${className ?? ''}`}
+    viewBox="0 0 20 20"
+    fill="currentColor"
+  >
+    <path
+      fillRule="evenodd"
+      d="M5.23 7.21a.75.75 0 011.06.02L10 11.06l3.71-3.84a.75.75 0 111.08 1.04l-4.25 4.4a.75.75 0 01-1.08 0L5.21 8.27a.75.75 0 01.02-1.06z"
+      clipRule="evenodd"
+    />
+  </svg>
+);
+
+const CollapsibleBanner: React.FC<{
+  variant: 'success' | 'warning' | 'neutral';
+  summary: React.ReactNode;
+  children: React.ReactNode;
+}> = ({ variant, summary, children }) => {
+  const [open, setOpen] = useState(false);
+  const styles: Record<typeof variant, { container: string; text: string }> = {
+    success: { container: 'bg-[var(--success)]/10 border-[var(--success)]/30', text: 'text-[var(--success)]' },
+    warning: { container: 'bg-[var(--warning)]/10 border-[var(--warning)]/30', text: 'text-[var(--warning)]' },
+    neutral: { container: 'bg-[var(--bg-glass)] border-[var(--border-glass)]', text: 'text-[var(--text-primary)]' },
+  };
+  const s = styles[variant];
+  return (
+    <div className={`mb-4 rounded-lg border ${s.container}`}>
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        aria-expanded={open}
+        className="w-full flex items-center justify-between gap-3 px-4 py-3 cursor-pointer text-left"
+      >
+        <span className={`text-sm font-semibold ${s.text}`}>{summary}</span>
+        <Chevron open={open} className={s.text} />
+      </button>
+      {open && <div className="px-4 pb-3">{children}</div>}
+    </div>
+  );
+};
+
+const VersionIndicator: React.FC<{ version: string }> = ({ version }) => (
+  <div className="mb-4 flex items-center gap-2 text-sm">
+    <span className="text-[var(--text-secondary)]">Schema version</span>
+    <span className="font-mono font-semibold text-[var(--text-primary)]">{version}</span>
+  </div>
 );
 
 // ---------------------------------------------------------------------------
@@ -235,7 +287,6 @@ const AdminPage: React.FC<AdminPageProps> = observer(({ context }) => {
   const [writeTest, setWriteTest] = useState<ConnectionTestResult>({ status: 'idle' });
 
   // Model sync state
-  const [modelStatuses, setModelStatuses] = useState<ModelStatus[]>([]);
   const [syncingModel, setSyncingModel] = useState<string | null>(null);
   const [syncingAll, setSyncingAll] = useState(false);
   const [syncResults, setSyncResults] = useState<SyncResult[] | null>(null);
@@ -246,14 +297,9 @@ const AdminPage: React.FC<AdminPageProps> = observer(({ context }) => {
   const apiKey = context.user.apiKey;
   const authHeaders = context.user.authHeaders as Record<string, string>;
 
-  // Load model statuses on mount
-  useEffect(() => {
-    setModelStatuses(getModelStatuses(context.models.result));
-  }, [context.models.result]);
-
-  const refreshStatuses = useCallback(() => {
-    setModelStatuses(getModelStatuses(context.models.result));
-  }, [context.models.result]);
+  const modelStatuses = getModelStatuses(context.models.result);
+  const unmanagedModels = getUnmanagedModels(context.models.result);
+  const fieldDiffs = getFieldDiffs(context as any);
 
   // ---- Connection tests ----
 
@@ -347,9 +393,8 @@ const AdminPage: React.FC<AdminPageProps> = observer(({ context }) => {
     } finally {
       setSyncingModel(null);
       setSyncingAll(false);
-      refreshStatuses();
     }
-  }, [context, refreshStatuses]);
+  }, [context]);
 
   const handleSyncSingle = useCallback(
     async (modelName: string) => {
@@ -360,10 +405,9 @@ const AdminPage: React.FC<AdminPageProps> = observer(({ context }) => {
         setSyncResults([result]);
       } finally {
         setSyncingModel(null);
-        refreshStatuses();
       }
     },
-    [context, refreshStatuses],
+    [context],
   );
 
   return (
@@ -435,6 +479,109 @@ const AdminPage: React.FC<AdminPageProps> = observer(({ context }) => {
             </AccentButton>
           }
         >
+          <VersionIndicator version={SCHEMA_VERSION} />
+
+          {/* Models this package defines that don't yet exist on the brand —
+              these are what the sync will add. */}
+          {modelStatuses.some((s) => !s.exists) && (
+            <CollapsibleBanner
+              variant="success"
+              summary={`${modelStatuses.filter((s) => !s.exists).length} model${
+                modelStatuses.filter((s) => !s.exists).length === 1 ? '' : 's'
+              } will be added by the sync`}
+            >
+              <div className="text-xs text-[var(--text-secondary)]">
+                These models are defined by this package but don&apos;t exist on the brand yet. Running the sync will
+                create them.
+              </div>
+              <div className="mt-3 flex flex-wrap gap-1.5">
+                {modelStatuses
+                  .filter((s) => !s.exists)
+                  .map((s) => (
+                    <span
+                      key={s.name}
+                      className="inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded font-mono bg-[var(--success)]/15 text-[var(--success)]"
+                      title={s.displayName}
+                    >
+                      {s.name}
+                    </span>
+                  ))}
+              </div>
+            </CollapsibleBanner>
+          )}
+
+          {/* Field-level diff for existing models: fields the sync will add
+              (safe) or remove (drops the field and its content). */}
+          {fieldDiffs.length > 0 && (
+            <CollapsibleBanner
+              variant="neutral"
+              summary={`Field changes on ${fieldDiffs.length} existing model${fieldDiffs.length === 1 ? '' : 's'}`}
+            >
+              <div className="text-xs text-[var(--text-secondary)]">
+                The sync replaces each model&apos;s shape. Fields shown in green will be added; fields in red will be
+                removed along with any content stored in them.
+              </div>
+              <div className="mt-3 space-y-2.5">
+                {fieldDiffs.map((diff) => (
+                  <div key={diff.name}>
+                    <div className="text-xs font-medium text-[var(--text-primary)]">
+                      {diff.displayName} <span className="text-[var(--text-muted)] font-mono">({diff.name})</span>
+                    </div>
+                    <div className="mt-1 flex flex-wrap gap-1.5">
+                      {diff.added.map((f) => (
+                        <span
+                          key={`add-${f}`}
+                          className="text-[11px] px-2 py-0.5 rounded font-mono bg-[var(--success)]/15 text-[var(--success)]"
+                        >
+                          + {f}
+                        </span>
+                      ))}
+                      {diff.removed.map((f) => (
+                        <span
+                          key={`rm-${f}`}
+                          className="text-[11px] px-2 py-0.5 rounded font-mono bg-[var(--error)]/15 text-[var(--error)]"
+                        >
+                          − {f}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CollapsibleBanner>
+          )}
+
+          {/* Unmanaged-model warning: models on this brand that this package
+              does not define. They are not synced and risk being orphaned. */}
+          {unmanagedModels.length > 0 && (
+            <CollapsibleBanner
+              variant="warning"
+              summary={
+                <>
+                  {unmanagedModels.length} model{unmanagedModels.length === 1 ? '' : 's'} on this brand{' '}
+                  {unmanagedModels.length === 1 ? 'is' : 'are'} not part of this package
+                </>
+              }
+            >
+              <div className="text-xs text-[var(--text-secondary)]">
+                These models exist on the brand but aren&apos;t managed by the sync. They won&apos;t be maintained and
+                could be dropped or orphaned — relocate any content you need to keep before re-provisioning.
+              </div>
+              <div className="mt-3 flex flex-wrap gap-1.5">
+                {unmanagedModels.map((m) => (
+                  <span
+                    key={m.modelId}
+                    className="inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded font-mono bg-[var(--warning)]/15 text-[var(--warning)]"
+                    title={m.kind ? `kind: ${m.kind}` : undefined}
+                  >
+                    {m.name}
+                    {m.kind && <span className="opacity-60">· {m.kind}</span>}
+                  </span>
+                ))}
+              </div>
+            </CollapsibleBanner>
+          )}
+
           {/* Sync result banner */}
           {syncResults && (
             <div className="mb-4">
