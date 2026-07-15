@@ -1,5 +1,11 @@
 # @goldenhippo/builder-cart-plugin
 
+## 0.14.0
+
+### Minor Changes
+
+- [#73](https://github.com/GoldenHippoMedia/golden-hippo-builder/pull/73) [`eab3212`](https://github.com/GoldenHippoMedia/golden-hippo-builder/commit/eab321217878a6972355a5249f4fecae6500f06a) - bump version to v0.14 — [@dkidwell999](https://github.com/dkidwell999)
+
 ## 0.13.0
 
 ### Minor Changes
