@@ -2,17 +2,6 @@ import { describe, it, expect } from 'vitest';
 import * as CartSchemas from '@goldenhippo/builder-cart-schemas';
 import { MODEL_DEFINITIONS } from './model-sync';
 
-// Consistency guards for the plugin's model registry (MODEL_DEFINITIONS). These
-// fail only when two places disagree — e.g. a model exists in the schema but
-// isn't registered, or a dependency is wired to a model that won't be
-// provisioned in time. They do NOT fire on ordinary, intentional edits (that's
-// what PR review is for); they catch the "added it here, forgot the matching
-// spot over there" class of mistake.
-
-// A tolerant stand-in for any factory argument: property access and calls return
-// itself, and it coerces to a harmless string. This lets us invoke every schema
-// factory regardless of its argument shape purely to read the model name it
-// produces — names are string literals, independent of the arguments.
 const anyArg: any = new Proxy(
   function noop() {
     /* callable proxy target */
@@ -27,16 +16,14 @@ const anyArg: any = new Proxy(
   },
 );
 
-// Models the schema exports but the cart plugin intentionally does NOT provision.
-// Keep this empty; add a name here (with a comment explaining why) only for a
-// model that is deliberately unmanaged by this plugin.
+//Empty for now, would be used for any models we don't care to test here.
 const UNMANAGED_BY_CART = new Set<string>([]);
 
-// Build every `create*Model` the schema package exports and collect the model
-// names they produce.
+//Grab all model factory functions from the barrel file 'cartschemas'
 const schemaModelNames = (): string[] => {
   const names = new Set<string>();
   for (const [key, value] of Object.entries(CartSchemas)) {
+    //Only grab the model factory functions -- This is a little fragile, relies on the factory function having a specific naming convention.
     if (typeof value === 'function' && /^create[A-Za-z0-9]*Model$/.test(key)) {
       const shape = (value as (...args: unknown[]) => { name?: string })(anyArg, anyArg, anyArg);
       if (shape?.name) names.add(shape.name);
@@ -45,19 +32,18 @@ const schemaModelNames = (): string[] => {
   return [...names];
 };
 
-// Seed enough context for getShape(): dependency IDs (any non-empty string works
-// for building the shape) and an editUrl. Mirrors how getFieldDiffs builds shapes.
 const idMap = Object.fromEntries(MODEL_DEFINITIONS.map((d) => [d.name, `id-${d.name}`]));
 const EDIT_URL = 'https://editor.example.com';
 
 describe('MODEL_DEFINITIONS completeness', () => {
+  //This test will fail if either a factory function is missing OR if a model definition is missing
   it('registers exactly the models the schema package defines', () => {
     const defined = new Set(schemaModelNames());
     // Guard against a vacuous pass if factory enumeration ever breaks.
     expect(defined.size, 'no schema model factories were discovered — the enumeration is broken').toBeGreaterThan(0);
 
     const registered = new Set(MODEL_DEFINITIONS.map((d) => d.name));
-
+    //Find values that have are in the schema ('defined') but are not in the models ('registered')
     const unregistered = [...defined].filter((n) => !registered.has(n) && !UNMANAGED_BY_CART.has(n));
     expect(
       unregistered,
@@ -65,6 +51,7 @@ describe('MODEL_DEFINITIONS completeness', () => {
         `builder-helper.ts + MODEL_DEFINITIONS, or add to UNMANAGED_BY_CART: ${unregistered.join(', ')}`,
     ).toEqual([]);
 
+    //Flip it, find values that are in the models (registered) but are not in the schema (defined)
     const stale = [...registered].filter((n) => !defined.has(n));
     expect(
       stale,
@@ -72,6 +59,7 @@ describe('MODEL_DEFINITIONS completeness', () => {
     ).toEqual([]);
   });
 
+  //Kinda just testing assignment here, but not hurting anything.
   it('builds each registered model to a shape whose name matches its definition', () => {
     for (const def of MODEL_DEFINITIONS) {
       const shape = def.getShape(idMap, EDIT_URL);
@@ -102,8 +90,6 @@ describe('MODEL_DEFINITIONS dependency graph', () => {
   });
 
   it('provisions every dependency in an earlier phase than its dependents', () => {
-    // syncAllModels runs phase-ascending, so a dependency must sit in a strictly
-    // earlier phase or its ID won't exist when the dependent is created.
     const outOfOrder = MODEL_DEFINITIONS.flatMap((d) =>
       d.dependencies
         .filter((dep) => phaseByName.has(dep) && phaseByName.get(dep)! >= d.phase)
