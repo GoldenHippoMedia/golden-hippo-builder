@@ -11,7 +11,7 @@ import BuilderApi from '../../../services/builder-api';
 import ChipMultiSelect, { type ChipOption } from './chip-multi-select';
 import ProductCardPreview from './product-card-preview';
 import type { PreviewProduct } from './card-previews';
-import { localize, setLocalized, DEFAULT_LOCALE } from '../localization';
+import { localize, DEFAULT_LOCALE } from '../localization';
 import {
   isProductFieldLocalized,
   PRODUCT_FORM_FIELDS,
@@ -19,6 +19,7 @@ import {
   type ProductFormField,
   type FieldSection,
 } from '../product-fields';
+import { FLAT, buildFieldPatch, readFieldValue, setByPath } from '../product-data';
 import { builderContentUrl } from '../builder-urls';
 
 interface ProductDetailProps {
@@ -35,72 +36,7 @@ interface ProductDetailProps {
 
 type ValueBag = Record<string, unknown>;
 
-// Buffer slot used for the (single, global) value of a non-localized field.
-const FLAT = '__flat__';
-
 const LOCALIZED_KEYS = PRODUCT_FORM_FIELDS.filter((f) => isProductFieldLocalized(f.modelField)).map((f) => f.key);
-const asStr = (v: unknown): string => (typeof v === 'string' ? v : '');
-const asArr = (v: unknown): string[] => (Array.isArray(v) ? (v as string[]) : []);
-const asIds = (v: unknown, refKey: string): string[] =>
-  (Array.isArray(v) ? v : []).map((entry) => entry?.[refKey]?.id).filter((id): id is string => Boolean(id));
-
-const getByPath = (obj: any, path: string): any => path.split('.').reduce((o, k) => (o == null ? o : o[k]), obj);
-
-const setByPath = (patch: Record<string, any>, raw: any, path: string, value: unknown): void => {
-  const parts = path.split('.');
-  let target = patch;
-  let rawLevel = raw;
-  for (let i = 0; i < parts.length - 1; i++) {
-    const k = parts[i];
-    rawLevel = rawLevel == null ? undefined : rawLevel[k];
-    if (!(k in target) || typeof target[k] !== 'object' || target[k] === null) {
-      target[k] = { ...(rawLevel ?? {}) };
-    }
-    target = target[k];
-  }
-  target[parts[parts.length - 1]] = value;
-};
-
-const readFieldValue = (data: any, d: ProductFormField, locale: string): unknown => {
-  const rawAt = getByPath(data, d.modelField);
-  const resolved = isProductFieldLocalized(d.modelField) ? localize(rawAt, locale) : rawAt;
-  switch (d.control) {
-    case 'text':
-    case 'textarea':
-      return asStr(resolved);
-    case 'tags':
-      return asArr(resolved);
-    case 'toggle':
-      return Boolean(resolved);
-    case 'refs':
-      return asIds(resolved, d.refKey!);
-    default: {
-      // Exhaustiveness guard: a new FieldControl must be handled here or this
-      // fails to compile.
-      const _exhaustive: never = d.control;
-      return _exhaustive;
-    }
-  }
-};
-
-const buildReference = (id: string, model: string) => ({
-  '@type': '@builder.io/core:Reference',
-  id,
-  model,
-});
-
-// Convert an edited value into its stored shape (refs → Builder reference entries).
-const toStored = (d: ProductFormField, value: unknown): unknown =>
-  d.control === 'refs' ? (value as string[]).map((id) => ({ [d.refKey!]: buildReference(id, d.refModel!) })) : value;
-
-const buildFieldPatch = (d: ProductFormField, raw: any, edits: Record<string, unknown>): unknown => {
-  if (isProductFieldLocalized(d.modelField)) {
-    let merged = getByPath(raw, d.modelField);
-    for (const [loc, val] of Object.entries(edits)) merged = setLocalized(merged, loc, toStored(d, val));
-    return merged;
-  }
-  return toStored(d, edits[FLAT]);
-};
 
 // Per-field locale control shown in each field's label row
 const FieldLocaleControl: React.FC<{

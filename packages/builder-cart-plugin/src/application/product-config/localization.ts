@@ -51,11 +51,7 @@ export const setLocalized = (existing: unknown, locale: string, value: unknown):
 const LOCALE_CODE = /^[a-z]{2,3}(-[A-Za-z0-9]{2,8})*$/;
 const isLocaleCode = (key: string): boolean => key !== '@type' && key !== DEFAULT_LOCALE && LOCALE_CODE.test(key);
 
-/**
- * Collect the set of locales actually present across the given entries'
- * localized fields. Default is always first; the rest are sorted. Used to
- * populate the locale picker without extra configuration.
- */
+//Grab all locales currently in use for locale picker
 export const collectLocales = (entries: Array<{ data?: Record<string, unknown> }>): string[] => {
   const found = new Set<string>();
   for (const entry of entries) {
