@@ -23,6 +23,27 @@ describe('collectLocales', () => {
     ];
     expect(collectLocales(entries)).toEqual(['Default', 'en-CA', 'es-MX', 'fr']);
   });
+
+  it('discovers locales nested inside object fields (e.g. packagingLabels.singular)', () => {
+    const entries = [{ data: { packagingLabels: { singular: loc({ Default: 'bottle', 'es-MX': 'botella' }) } } }];
+    expect(collectLocales(entries)).toEqual(['Default', 'es-MX']);
+  });
+
+  it('discovers locales nested inside list items', () => {
+    const entries = [
+      {
+        data: {
+          featuredIngredients: {
+            featuredIngredient: [
+              { featuredIngredientTitle: loc({ Default: 'Zinc', 'fr-CA': 'Zinc' }) },
+              { featuredIngredientTitle: loc({ Default: 'Iron', de: 'Eisen' }) },
+            ],
+          },
+        },
+      },
+    ];
+    expect(collectLocales(entries)).toEqual(['Default', 'de', 'fr-CA']);
+  });
 });
 
 describe('localize / setLocalized', () => {

@@ -51,17 +51,26 @@ export const setLocalized = (existing: unknown, locale: string, value: unknown):
 const LOCALE_CODE = /^[a-z]{2,3}(-[A-Za-z0-9]{2,8})*$/;
 const isLocaleCode = (key: string): boolean => key !== '@type' && key !== DEFAULT_LOCALE && LOCALE_CODE.test(key);
 
+//Recursively grab all the locales in use
+const collectLocalesInto = (value: unknown, found: Set<string>): void => {
+  if (Array.isArray(value)) {
+    for (const item of value) collectLocalesInto(item, found);
+    return;
+  }
+  if (value === null || typeof value !== 'object') return;
+  if (isLocalizedValue(value)) {
+    for (const key of Object.keys(value)) {
+      if (isLocaleCode(key)) found.add(key);
+    }
+  }
+  // Recurse into every nested value, including a LocalizedValue's own slices
+  // (which may themselves hold nested localized fields, e.g. localized lists).
+  for (const nested of Object.values(value)) collectLocalesInto(nested, found);
+};
+
 //Grab all locales currently in use for locale picker
 export const collectLocales = (entries: Array<{ data?: Record<string, unknown> }>): string[] => {
   const found = new Set<string>();
-  for (const entry of entries) {
-    for (const value of Object.values(entry.data ?? {})) {
-      if (isLocalizedValue(value)) {
-        for (const key of Object.keys(value)) {
-          if (isLocaleCode(key)) found.add(key);
-        }
-      }
-    }
-  }
+  for (const entry of entries) collectLocalesInto(entry.data ?? {}, found);
   return [DEFAULT_LOCALE, ...Array.from(found).sort()];
 };
