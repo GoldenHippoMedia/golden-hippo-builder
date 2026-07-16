@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { LoadingSection, PageHeader, Section } from '@goldenhippo/builder-ui';
 import type {
   BuilderProductContent,
@@ -32,6 +32,16 @@ const ProductConfigPage: React.FC<ProductConfigPageProps> = ({ context }) => {
   const [useCases, setUseCases] = useState<BuilderProductUseCaseContent[]>([]);
   const [view, setView] = useState<View>({ kind: 'list' });
 
+  // Tracks whether the component is still mounted so an in-flight load doesn't
+  // set state after unmount
+  const mounted = useRef(true);
+  useEffect(() => {
+    mounted.current = true;
+    return () => {
+      mounted.current = false;
+    };
+  }, []);
+
   const load = useCallback(
     async (initial: boolean) => {
       if (initial) setLoading(true);
@@ -53,30 +63,27 @@ const ProductConfigPage: React.FC<ProductConfigPageProps> = ({ context }) => {
             BuilderProductUseCaseContent[]
           >,
         ]);
+        if (!mounted.current) return;
         setProducts(productResults);
         setTags(tagResults);
         setCategories(categoryResults);
         setIngredients(ingredientResults);
         setUseCases(useCaseResults);
       } catch (e) {
+        if (!mounted.current) return;
         setError(e instanceof Error ? e.message : String(e));
       } finally {
-        if (initial) setLoading(false);
-        else setRefreshing(false);
+        if (mounted.current) {
+          if (initial) setLoading(false);
+          else setRefreshing(false);
+        }
       }
     },
     [api],
   );
 
   useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      if (cancelled) return;
-      await load(true);
-    })();
-    return () => {
-      cancelled = true;
-    };
+    void load(true);
   }, [load]);
 
   const tagsById = useMemo(() => {
