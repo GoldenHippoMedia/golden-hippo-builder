@@ -7,6 +7,8 @@ import { builderContentUrl } from '../builder-urls';
 // The list shows the Default locale; the per-locale editor lives in the detail view.
 const text = (v: unknown): string => localize<string>(v) ?? '';
 
+const normalize = (v: string): string => v.toLowerCase().replace(/[^a-z0-9]/g, '');
+
 interface ProductListProps {
   products: BuilderProductContent[];
   tagsById: Map<string, BuilderProductTagContent>;
@@ -50,12 +52,16 @@ const ProductRow: React.FC<{
   const displayName = text(data?.displayName) || data?.name || '(Untitled product)';
   const image = data?.featuredImage;
 
+  const internalName = data?.name;
+  const showInternalName = Boolean(internalName) && internalName !== displayName;
+
   return (
     <div className="flex items-center gap-4 p-4 rounded-xl border border-[var(--border-glass)] bg-[var(--bg-glass)] hover:bg-[var(--bg-glass-hover)] transition-colors">
       <CartLineThumb src={image} alt={displayName} />
 
       <div className="flex-1 min-w-0">
         <div className="text-sm font-semibold text-[var(--text-primary)] truncate">{displayName}</div>
+        {showInternalName && <div className="text-[11px] text-[var(--text-muted)] truncate">{internalName}</div>}
         {tagLabels.length > 0 ? (
           <div className="flex flex-wrap gap-1.5 mt-1.5">
             {tagLabels.map((label, i) => (
@@ -109,11 +115,12 @@ const ProductList: React.FC<ProductListProps> = ({ products, tagsById, onSelect 
   const [query, setQuery] = useState('');
 
   const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
+    const q = normalize(query.trim());
     if (!q) return products;
     return products.filter((p) => {
-      const name = (text(p.data?.displayName) || p.data?.name || '').toLowerCase();
-      return name.includes(q);
+      //Combined display name and product name as search key so both are findable.
+      const haystack = normalize(`${text(p.data?.displayName)} ${p.data?.name ?? ''}`);
+      return haystack.includes(q);
     });
   }, [products, query]);
 
