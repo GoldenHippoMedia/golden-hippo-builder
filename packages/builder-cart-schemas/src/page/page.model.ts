@@ -1011,7 +1011,6 @@ export const createPageModel = (props: PageModelInputProps): ModelShape => {
  */
 const validateImageAltText = `async function run() {
   const blocks = contentModel.data.get('blocks');
-  console.log('[BUILDER validationHook] validating Image altText');
 
   // Builder's \`options\` is a Map-like proxy (access via .get());
   // \`children\` / \`component\` / \`name\` are plain properties.
