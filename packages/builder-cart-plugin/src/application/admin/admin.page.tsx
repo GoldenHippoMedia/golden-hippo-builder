@@ -519,8 +519,9 @@ const AdminPage: React.FC<AdminPageProps> = observer(({ context }) => {
             >
               <div className="text-xs text-[var(--text-secondary)]">
                 The sync replaces each model&apos;s shape. Fields shown in green will be added; fields in red will be
-                removed along with any content stored in them. Validation/change hooks the sync will overwrite are shown
-                in blue.
+                removed along with any content stored in them. Hook changes are shown in blue:{' '}
+                <span className="font-mono">+</span> adds a hook, <span className="font-mono">−</span> removes one, and{' '}
+                <span className="font-mono">~</span> overwrites an existing hook.
               </div>
               <div className="mt-3 space-y-2.5">
                 {fieldDiffs.map((diff) => (
