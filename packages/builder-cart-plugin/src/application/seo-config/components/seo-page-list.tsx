@@ -4,6 +4,7 @@ import { builderContentUrl } from '../../product-config/builder-urls';
 import SeoPageDetail from './seo-page-detail';
 import {
   activeRobotsFlags,
+  annotateDuplicates,
   auditPage,
   descriptionSeverity,
   isExpired,
@@ -313,10 +314,13 @@ const SeoPageList: React.FC<SeoPageListProps> = ({ pages }) => {
   const audits = useMemo(() => {
     // Expired pages (scheduled end date in the past) are never relevant to the
     // audit and are dropped before anything else — counts, stats, and the table.
-    return pages
+    const list = pages
       .filter((p) => !isExpired(p))
       .map(auditPage)
       .sort((a, b) => a.path.localeCompare(b.path) || a.name.localeCompare(b.name));
+    // Cross-page pass: flags duplicate SEO titles/descriptions across distinct URLs.
+    annotateDuplicates(list);
+    return list;
   }, [pages]);
 
   // Counts per tab reflect the full set (independent of search / issues), so the

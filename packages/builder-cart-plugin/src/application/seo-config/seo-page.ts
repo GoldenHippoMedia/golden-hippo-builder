@@ -220,3 +220,56 @@ export const summarize = (audits: PageAudit[]): SeoSummary => ({
   missingDescription: audits.filter((a) => !a.description && !a.robots.noIndex).length,
   excluded: audits.filter((a) => !a.inSitemap).length,
 });
+
+const normText = (v: string): string => v.trim().toLowerCase().replace(/\s+/g, ' ');
+const normPath = (v: string): string => v.trim().toLowerCase().replace(/\/+$/, '') || '/';
+
+interface DupGroup {
+  paths: Set<string>;
+  members: PageAudit[];
+}
+
+const collect = (map: Map<string, DupGroup>, key: string, path: string, audit: PageAudit): void => {
+  let group = map.get(key);
+  if (!group) {
+    group = { paths: new Set(), members: [] };
+    map.set(key, group);
+  }
+  group.paths.add(path);
+  group.members.push(audit);
+};
+
+export const annotateDuplicates = (audits: PageAudit[]): void => {
+  const titles = new Map<string, DupGroup>();
+  const descriptions = new Map<string, DupGroup>();
+
+  for (const audit of audits) {
+    if (audit.robots.noIndex) continue;
+    const path = normPath(audit.path);
+    if (audit.seoTitle) collect(titles, normText(audit.seoTitle), path, audit);
+    if (audit.description) collect(descriptions, normText(audit.description), path, audit);
+  }
+
+  const flag = (map: Map<string, DupGroup>, label: string): void => {
+    for (const group of map.values()) {
+      if (group.paths.size < 2) continue;
+      const message = `${label} (${group.paths.size} URLs)`;
+      for (const audit of group.members) {
+        if (!audit.issues.includes(message)) audit.issues.push(message);
+      }
+    }
+  };
+
+  flag(titles, 'Duplicate SEO title');
+  flag(descriptions, 'Duplicate SEO description');
+};
+
+//This is sometimes intentional but going to flag it here in case.
+export const canonicalPointsElsewhere = (audit: Pick<PageAudit, 'canonical' | 'path'>): boolean => {
+  if (!audit.canonical || !audit.path) return false;
+  try {
+    return normPath(new URL(audit.canonical).pathname) !== normPath(audit.path);
+  } catch {
+    return false;
+  }
+};

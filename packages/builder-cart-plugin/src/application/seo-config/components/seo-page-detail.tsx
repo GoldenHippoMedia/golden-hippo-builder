@@ -3,6 +3,7 @@ import {
   DESC_MAX,
   DESC_MIN,
   TITLE_MAX,
+  canonicalPointsElsewhere,
   descriptionSeverity,
   titleSeverity,
   type PageAudit,
@@ -122,14 +123,21 @@ const SeoPageDetail: React.FC<{ audit: PageAudit }> = ({ audit }) => {
         {/* Canonical */}
         <Field label="Canonical URL">
           {audit.canonical ? (
-            <a
-              href={audit.canonical}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="break-all font-mono text-[12px] text-[var(--accent)] hover:underline"
-            >
-              {audit.canonical}
-            </a>
+            <>
+              <a
+                href={audit.canonical}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="break-all font-mono text-[12px] text-[var(--accent)] hover:underline"
+              >
+                {audit.canonical}
+              </a>
+              {canonicalPointsElsewhere(audit) && (
+                <div className="mt-0.5 text-[11px] text-[var(--text-muted)]">
+                  Points to a different URL than this page — intentional consolidation, or a mistake?
+                </div>
+              )}
+            </>
           ) : (
             <Empty>Inherited — uses the page URL</Empty>
           )}
