@@ -68,7 +68,7 @@ const collectLocalesInto = (value: unknown, found: Set<string>): void => {
   for (const nested of Object.values(value)) collectLocalesInto(nested, found);
 };
 
-//Grab all locales currently in use for locale picker
+// Grab all locales currently in use for locale picker
 export const collectLocales = (entries: Array<{ data?: Record<string, unknown> }>): string[] => {
   const found = new Set<string>();
   for (const entry of entries) collectLocalesInto(entry.data ?? {}, found);
