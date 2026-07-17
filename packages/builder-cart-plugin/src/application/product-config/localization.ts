@@ -51,7 +51,7 @@ export const setLocalized = (existing: unknown, locale: string, value: unknown):
 const LOCALE_CODE = /^[a-z]{2,3}(-[A-Za-z0-9]{2,8})*$/;
 const isLocaleCode = (key: string): boolean => key !== '@type' && key !== DEFAULT_LOCALE && LOCALE_CODE.test(key);
 
-//Recursively grab all the locales in use
+// Recursively grab all the locales in use
 const collectLocalesInto = (value: unknown, found: Set<string>): void => {
   if (Array.isArray(value)) {
     for (const item of value) collectLocalesInto(item, found);
