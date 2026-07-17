@@ -38,7 +38,23 @@ export interface PageAudit {
   robots: RobotsMeta;
   /** Published AND indexable — i.e. this page belongs in the sitemap. */
   inSitemap: boolean;
+  /** Meta defects that count against SEO health (indexable pages only). */
   issues: string[];
+  /** Same gaps, but on a noindexed page — informational, not defects. */
+  infoNotes: string[];
+  /** Internal site-search configuration (distinct from SEO/meta). */
+  search: SearchConfig;
+  /** Blog snippet — the model uses this as a meta-description fallback. */
+  blogSnippet: string;
+  /** Blog thumbnail — the model uses this as a social-image fallback. */
+  blogThumbnail: string;
+}
+
+export interface SearchConfig {
+  title: string;
+  description: string;
+  hide: boolean;
+  content: string;
 }
 
 interface PageQueryItem {
@@ -56,6 +72,8 @@ interface SeoData {
   description?: string;
   seoImage?: string;
   robotsMeta?: RobotsMeta;
+  search?: { title?: string; description?: string; hide?: boolean; content?: string };
+  blog?: { snippet?: string; thumbnail?: string };
 }
 
 /**
@@ -88,26 +106,32 @@ export const auditPage = (page: PageEntry): PageAudit => {
   const canonical = str(data.canonicalURL);
   const seoImage = str(data.seoImage);
   const robots: RobotsMeta = data.robotsMeta ?? {};
+  const search = data.search ?? {};
 
   const published = (page as { published?: string }).published === 'published';
   const inSitemap = published && !robots.noIndex;
 
-  const issues: string[] = [];
+  // Run the meta-completeness checks the same way for every page, then route
+  // them by intent: on a deliberately noindexed page these gaps are excluded
+  // from search on purpose, so they're informational rather than defects.
+  const checks: string[] = [];
   if (!seoTitle) {
-    issues.push('Missing SEO title');
+    checks.push('Missing SEO title');
   } else if (seoTitle.length > TITLE_MAX) {
-    issues.push(`SEO title long (${seoTitle.length} chars)`);
+    checks.push(`SEO title long (${seoTitle.length} chars)`);
   }
   if (!description) {
-    issues.push('Missing SEO description');
+    checks.push('Missing SEO description');
   } else if (description.length > DESC_MAX) {
-    issues.push(`Description long (${description.length} chars)`);
+    checks.push(`Description long (${description.length} chars)`);
   } else if (description.length < DESC_MIN) {
-    issues.push(`Description short (${description.length} chars)`);
+    checks.push(`Description short (${description.length} chars)`);
   }
   if (!seoImage) {
-    issues.push('No social image');
+    checks.push('No social image');
   }
+  const issues = robots.noIndex ? [] : checks;
+  const infoNotes = robots.noIndex ? checks : [];
 
   return {
     id: (page as { id?: string }).id ?? '',
@@ -123,6 +147,15 @@ export const auditPage = (page: PageEntry): PageAudit => {
     robots,
     inSitemap,
     issues,
+    infoNotes,
+    search: {
+      title: str(search.title),
+      description: str(search.description),
+      hide: !!search.hide,
+      content: str(search.content),
+    },
+    blogSnippet: str(data.blog?.snippet),
+    blogThumbnail: str(data.blog?.thumbnail),
   };
 };
 
@@ -192,6 +225,8 @@ export interface SeoSummary {
 export const summarize = (audits: PageAudit[]): SeoSummary => ({
   total: audits.length,
   inSitemap: audits.filter((a) => a.inSitemap).length,
-  missingDescription: audits.filter((a) => !a.description).length,
+  // Only counts pages where a description actually matters — noindexed pages are
+  // intentionally excluded from search, matching the issue-flagging rule.
+  missingDescription: audits.filter((a) => !a.description && !a.robots.noIndex).length,
   excluded: audits.filter((a) => !a.inSitemap).length,
 });

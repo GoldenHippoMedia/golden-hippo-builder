@@ -88,11 +88,11 @@ class BuilderApi {
 
   async getModelEntries<T extends BuilderContent = BuilderContent>(
     modelName: string,
-    options?: { bustCache?: boolean; raw?: boolean },
+    options?: { bustCache?: boolean; raw?: boolean; limit?: number },
   ): Promise<T[]> {
     return this.fetchContent<T>({
       modelName,
-      limit: 100,
+      limit: options?.limit ?? 100,
       bustCache: options?.bustCache ?? false,
       raw: options?.raw ?? false,
     });

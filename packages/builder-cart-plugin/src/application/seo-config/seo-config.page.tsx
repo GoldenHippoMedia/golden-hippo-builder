@@ -35,9 +35,7 @@ const SeoConfigPage: React.FC<SeoConfigPageProps> = ({ context }) => {
       else setRefreshing(true);
       setError(null);
       try {
-        // SEO fields (heading, description, canonicalURL, seoImage, robotsMeta)
-        // are non-localized, so a resolved fetch is safe and simplest.
-        const results = await api.getModelEntries<PageEntry>('page', { bustCache: true });
+        const results = await api.getModelEntries<PageEntry>('page', { bustCache: true, limit: 2000 });
         if (!mounted.current) return;
         setPages(results);
       } catch (e) {

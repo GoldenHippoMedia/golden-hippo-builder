@@ -1,6 +1,7 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { EmptyState, StatGridCard, StatGridContainer, StatusBadge } from '@goldenhippo/builder-ui';
 import { builderContentUrl } from '../../product-config/builder-urls';
+import SeoPageDetail from './seo-page-detail';
 import {
   activeRobotsFlags,
   auditPage,
@@ -148,17 +149,43 @@ const Chip: React.FC<{ label: string; tone: 'robot' | 'canonical'; title?: strin
   </span>
 );
 
-const PageRow: React.FC<{ audit: PageAudit }> = ({ audit }) => {
+const PageRow: React.FC<{ audit: PageAudit; expanded: boolean; onToggle: () => void }> = ({
+  audit,
+  expanded,
+  onToggle,
+}) => {
   const robotFlags = activeRobotsFlags(audit.robots);
   const hasIssues = audit.issues.length > 0;
   // A General page we're grouping under Blogs by naming/URL convention.
   const asBlog = looksLikeBlogCategory(audit);
 
   return (
-    <tr className="border-b border-[var(--border-glass)] align-top last:border-0 hover:bg-[var(--bg-glass-hover)]">
+    <tr
+      onClick={onToggle}
+      aria-expanded={expanded}
+      title={expanded ? 'Hide details' : 'Show details'}
+      className={`cursor-pointer border-b border-[var(--border-glass)] align-top last:border-0 hover:bg-[var(--bg-glass-hover)] ${
+        expanded ? 'bg-[var(--bg-glass-hover)]' : ''
+      }`}
+    >
       {/* Page */}
       <td className="px-3 py-3">
         <div className="flex items-start gap-2">
+          <span className="mt-0.5 flex-shrink-0 text-[var(--text-muted)]">
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className={`transition-transform ${expanded ? 'rotate-90' : ''}`}
+            >
+              <path d="m9 18 6-6-6-6" />
+            </svg>
+          </span>
           {hasIssues && (
             <span
               className="mt-0.5 flex-shrink-0 text-[var(--warning)]"
@@ -254,6 +281,7 @@ const PageRow: React.FC<{ audit: PageAudit }> = ({ audit }) => {
             href={builderContentUrl(audit.id)}
             target="_blank"
             rel="noopener noreferrer"
+            onClick={(e) => e.stopPropagation()}
             title="Open this page in the Builder.io content editor"
             className="inline-flex items-center justify-center rounded-lg border border-[var(--border-glass)] bg-[var(--bg-glass)] p-1.5 text-[var(--text-secondary)] transition-colors hover:bg-[var(--bg-glass-hover)] hover:text-[var(--accent)]"
           >
@@ -283,6 +311,14 @@ const SeoPageList: React.FC<SeoPageListProps> = ({ pages }) => {
   const [category, setCategory] = useState<CategoryFilter>('all');
   const [status, setStatus] = useState<StatusFilter>('all');
   const [sitemap, setSitemap] = useState<SitemapFilter>('all');
+  // Deliberately-noindexed pages are excluded from search on purpose, so hide
+  // them by default. Drafts stay visible — they're still intended for indexing.
+  const [hideNoindexed, setHideNoindexed] = useState(true);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [pageSize, setPageSize] = useState(25);
+  const [pageIndex, setPageIndex] = useState(0);
+
+  const toggleExpanded = (id: string) => setExpandedId((prev) => (prev === id ? null : id));
 
   const audits = useMemo(() => {
     return pages.map(auditPage).sort((a, b) => a.path.localeCompare(b.path) || a.name.localeCompare(b.name));
@@ -301,6 +337,7 @@ const SeoPageList: React.FC<SeoPageListProps> = ({ pages }) => {
   const filtered = useMemo(() => {
     const q = normalize(query.trim());
     return audits.filter((a) => {
+      if (hideNoindexed && a.robots.noIndex) return false;
       if (category !== 'all' && pageCategory(a) !== category) return false;
       if (status === 'published' && !a.published) return false;
       if (status === 'draft' && a.published) return false;
@@ -310,13 +347,27 @@ const SeoPageList: React.FC<SeoPageListProps> = ({ pages }) => {
       if (!q) return true;
       return normalize(`${a.name} ${a.path} ${a.seoTitle}`).includes(q);
     });
-  }, [audits, query, issuesOnly, category, status, sitemap]);
+  }, [audits, query, issuesOnly, category, status, sitemap, hideNoindexed]);
 
-  const anyFilter = query.trim() !== '' || issuesOnly || category !== 'all' || status !== 'all' || sitemap !== 'all';
+  // True when anything is hidden from the full set — drives the "of N total" hint.
+  const hiddenSome = filtered.length !== audits.length;
 
-  // Stats mirror the filtered view so they describe what's on screen. When a
-  // filter is active, the Pages card notes the full total for context.
+  // Stats mirror the filtered view so they describe what's on screen. When some
+  // pages are filtered out, the Pages card notes the full total for context.
   const summary = useMemo(() => summarize(filtered), [filtered]);
+
+  // Client-side pagination over the already-loaded filtered set.
+  const total = filtered.length;
+  const pageCount = Math.max(1, Math.ceil(total / pageSize));
+  // Clamp in case the filtered set shrank below the current page.
+  const safePage = Math.min(pageIndex, pageCount - 1);
+  const start = safePage * pageSize;
+  const paged = useMemo(() => filtered.slice(start, start + pageSize), [filtered, start, pageSize]);
+
+  // Any change that reshapes the filtered set sends us back to the first page.
+  useEffect(() => {
+    setPageIndex(0);
+  }, [query, issuesOnly, category, status, sitemap, hideNoindexed, pageSize]);
 
   return (
     <div className="space-y-4">
@@ -324,7 +375,7 @@ const SeoPageList: React.FC<SeoPageListProps> = ({ pages }) => {
         <StatGridCard
           title="Pages"
           metric={summary.total}
-          subtitle={anyFilter ? `of ${audits.length} total` : 'Across this brand'}
+          subtitle={hiddenSome ? `of ${audits.length} total` : 'Across this brand'}
         />
         <StatGridCard
           title="In Sitemap"
@@ -373,6 +424,18 @@ const SeoPageList: React.FC<SeoPageListProps> = ({ pages }) => {
           onChange={setSitemap}
           options={SITEMAP_OPTIONS}
         />
+        <label
+          className="flex cursor-pointer select-none items-center gap-2 text-xs text-[var(--text-secondary)]"
+          title="Hide pages with robots noindex — they're intentionally excluded from search"
+        >
+          <input
+            type="checkbox"
+            checked={hideNoindexed}
+            onChange={(e) => setHideNoindexed(e.target.checked)}
+            className="accent-[var(--accent)]"
+          />
+          Hide noindexed
+        </label>
         <label className="flex cursor-pointer select-none items-center gap-2 text-xs text-[var(--text-secondary)]">
           <input
             type="checkbox"
@@ -390,9 +453,7 @@ const SeoPageList: React.FC<SeoPageListProps> = ({ pages }) => {
       {filtered.length === 0 ? (
         <EmptyState
           message={
-            query || issuesOnly || category !== 'all' || status !== 'all' || sitemap !== 'all'
-              ? 'No pages match the current filter.'
-              : 'No pages are configured for this brand yet.'
+            audits.length === 0 ? 'No pages are configured for this brand yet.' : 'No pages match the current filter.'
           }
         />
       ) : (
@@ -421,11 +482,68 @@ const SeoPageList: React.FC<SeoPageListProps> = ({ pages }) => {
               </tr>
             </thead>
             <tbody>
-              {filtered.map((audit, i) => (
-                <PageRow key={audit.id || `page-${i}`} audit={audit} />
-              ))}
+              {paged.map((audit, i) => {
+                const rowId = audit.id || `page-${start + i}`;
+                const expanded = expandedId === rowId;
+                return (
+                  <React.Fragment key={rowId}>
+                    <PageRow audit={audit} expanded={expanded} onToggle={() => toggleExpanded(rowId)} />
+                    {expanded && (
+                      <tr className="border-b border-[var(--border-glass)] bg-[var(--bg-glass-hover)] last:border-0">
+                        <td colSpan={6} className="px-3 pb-4 pt-0">
+                          <SeoPageDetail audit={audit} />
+                        </td>
+                      </tr>
+                    )}
+                  </React.Fragment>
+                );
+              })}
             </tbody>
           </table>
+        </div>
+      )}
+
+      {total > 0 && (
+        <div className="flex flex-wrap items-center justify-between gap-3 text-xs text-[var(--text-secondary)]">
+          <label className="flex items-center gap-2">
+            Rows per page
+            <select
+              aria-label="Rows per page"
+              value={pageSize}
+              onChange={(e) => setPageSize(Number(e.target.value))}
+              className="cursor-pointer rounded-lg border border-[var(--border-glass)] bg-[var(--bg-glass)] px-2 py-1 text-xs text-[var(--text-secondary)] focus:outline-none"
+            >
+              {[25, 50, 100].map((n) => (
+                <option key={n} value={n}>
+                  {n}
+                </option>
+              ))}
+            </select>
+          </label>
+
+          <span className="tabular-nums text-[var(--text-muted)]">
+            {start + 1}–{Math.min(start + pageSize, total)} of {total}
+          </span>
+
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setPageIndex((p) => Math.max(0, p - 1))}
+              disabled={safePage === 0}
+              className="cursor-pointer rounded-lg border border-[var(--border-glass)] bg-[var(--bg-glass)] px-3 py-1.5 font-medium transition-colors hover:bg-[var(--bg-glass-hover)] disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              Prev
+            </button>
+            <span className="tabular-nums text-[var(--text-muted)]">
+              Page {safePage + 1} of {pageCount}
+            </span>
+            <button
+              onClick={() => setPageIndex((p) => Math.min(pageCount - 1, p + 1))}
+              disabled={safePage >= pageCount - 1}
+              className="cursor-pointer rounded-lg border border-[var(--border-glass)] bg-[var(--bg-glass)] px-3 py-1.5 font-medium transition-colors hover:bg-[var(--bg-glass-hover)] disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              Next
+            </button>
+          </div>
         </div>
       )}
     </div>
