@@ -14,3 +14,9 @@ export const adminIcon = `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="h
   <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
   <path d="m9 12 2 2 4-4"/>
 </svg>`)}`;
+
+// Product Config icon — tag for product tagging/categorization
+export const productConfigIcon = `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#C8A951" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M20.59 13.41 13.42 20.58a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/>
+  <circle cx="7" cy="7" r="1"/>
+</svg>`)}`;

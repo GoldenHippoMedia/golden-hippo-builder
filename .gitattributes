@@ -1,0 +1,17 @@
+# Normalize line endings across platforms so local Prettier matches CI.
+# Git stores text as LF and checks it out as LF everywhere, regardless of each
+# contributor's core.autocrlf setting.
+* text=auto eol=lf
+
+# Explicitly mark known-binary types so git never touches their bytes.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.ico binary
+*.svg text eol=lf
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.eot binary

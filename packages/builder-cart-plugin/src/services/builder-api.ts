@@ -7,6 +7,11 @@ interface FetchContentRequest {
   modelName: string;
   limit: number;
   bustCache?: boolean;
+  /**
+   * When true, fetch without resolving localization so localized fields are
+   * returned as raw LocalizedValue objects (required for safe editing).
+   */
+  raw?: boolean;
 }
 
 class BuilderApi {
@@ -81,15 +86,44 @@ class BuilderApi {
       .map((a: any) => ({ id: a.id, name: a.name ?? a.id, url: a.url, type: a.type }));
   }
 
-  async getModelEntries(modelName: string): Promise<BuilderContent[]> {
-    return this.fetchContent({ modelName, limit: 100 });
+  async getModelEntries<T extends BuilderContent = BuilderContent>(
+    modelName: string,
+    options?: { bustCache?: boolean; raw?: boolean },
+  ): Promise<T[]> {
+    return this.fetchContent<T>({
+      modelName,
+      limit: 100,
+      bustCache: options?.bustCache ?? false,
+      raw: options?.raw ?? false,
+    });
+  }
+
+  async saveProduct(productId: string, data: Record<string, any>): Promise<void> {
+    const resp = await fetch(`https://builder.io/api/v1/write/product/${productId}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${this.privateApiKey}`,
+      },
+      body: JSON.stringify({ data }),
+    });
+    if (!resp.ok) {
+      const body = await resp.text();
+      throw new Error(`Failed to save product: ${resp.status} ${body}`);
+    }
   }
 
   private async fetchContent<T extends BuilderContent = BuilderContent>(request: FetchContentRequest): Promise<T[]> {
-    const { modelName, limit = 20, bustCache = false } = request;
+    const { modelName, limit = 20, bustCache = false, raw = false } = request;
     const content: T[] = [];
     let offset = 0;
-    let baseUrl = `https://cdn.builder.io/api/v3/content/${modelName}?apiKey=${this.apiKey}&includeUnpublished=true&omit=data.blocks&limit=${Math.min(limit, 100)}&locale=en-US`;
+    // Without `raw`, resolve localization to en-US (display-only consumers). With
+    // `raw`, omit the locale param so localized fields stay as LocalizedValue
+    // objects that can be edited per-locale without clobbering other locales.
+    let baseUrl = `https://cdn.builder.io/api/v3/content/${modelName}?apiKey=${this.apiKey}&includeUnpublished=true&omit=data.blocks&limit=${Math.min(limit, 100)}`;
+    if (!raw) {
+      baseUrl += `&locale=en-US`;
+    }
     if (bustCache) {
       baseUrl += `&cachebust=true`;
     }

@@ -2,7 +2,8 @@ import { Builder } from '@builder.io/react';
 import appState from '@builder.io/app-context';
 import HippoCMSBrandConfiguration from '@application/HippoCMSBrandConfiguration';
 import HippoCMSAdmin from '@application/HippoCMSAdmin';
-import { adminIcon, configIcon, pluginId } from './constants';
+import HippoCMSProductConfig from '@application/HippoCMSProductConfig';
+import { adminIcon, configIcon, productConfigIcon, pluginId } from './constants';
 import { AppActions, OnSaveActions } from '@goldenhippo/builder-types';
 import UserManagementService from '@services/user-management';
 import { ExtendedApplicationContext } from './interfaces/application-context.interface';
@@ -116,5 +117,14 @@ if (user.permissions.admin) {
     path: 'gh/admin',
     icon: adminIcon,
     component: HippoCMSAdmin,
+  });
+}
+
+if (user.permissions.admin) {
+  Builder.register('appTab', {
+    name: 'Product Config',
+    path: 'gh/product-config',
+    icon: productConfigIcon,
+    component: HippoCMSProductConfig,
   });
 }
