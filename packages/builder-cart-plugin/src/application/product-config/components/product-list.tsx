@@ -118,7 +118,7 @@ const ProductList: React.FC<ProductListProps> = ({ products, tagsById, onSelect 
     const q = normalize(query.trim());
     if (!q) return products;
     return products.filter((p) => {
-      //Combined display name and product name as search key so both are findable.
+      // Combined display name and product name as search key so both are findable.
       const haystack = normalize(`${text(p.data?.displayName)} ${p.data?.name ?? ''}`);
       return haystack.includes(q);
     });
