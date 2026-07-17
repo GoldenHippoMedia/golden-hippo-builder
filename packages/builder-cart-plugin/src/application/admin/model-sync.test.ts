@@ -1,10 +1,11 @@
 import { describe, it, expect } from 'vitest';
 import { Model } from '@builder.io/app-context';
-import { MODEL_DEFINITIONS, diffFieldTrees, getUnmanagedModels, type NamedField } from './model-sync';
+import { MODEL_DEFINITIONS, diffFieldTrees, diffHooks, getUnmanagedModels, type NamedField } from './model-sync';
 
 // Guards that warn admins, before a sync, about content they could lose:
 //  - getUnmanagedModels: models on the brand this package doesn't define
 //  - diffFieldTrees: fields the sync would add/remove on an existing model
+//  - diffHooks: model-level hooks (e.g. validate) the sync would add/remove/overwrite
 
 const model = (name: string, kind?: string): Model =>
   ({ id: `id-${name}`, name, kind, fields: [] }) as unknown as Model;
@@ -81,5 +82,38 @@ describe('diffFieldTrees', () => {
       added: ['config.liveChatEnabled'],
       removed: [],
     });
+  });
+});
+
+describe('diffHooks', () => {
+  it('flags a hook the package adds when the brand has none (null live hooks)', () => {
+    expect(diffHooks({ validate: 'return run();' }, null)).toEqual([{ key: 'validate', change: 'added' }]);
+  });
+
+  it('treats an empty live value the same as absent (added)', () => {
+    expect(diffHooks({ validate: 'code' }, { validate: '' })).toEqual([{ key: 'validate', change: 'added' }]);
+  });
+
+  it('flags a hook removed when the package no longer defines it', () => {
+    expect(diffHooks(undefined, { validate: 'code' })).toEqual([{ key: 'validate', change: 'removed' }]);
+  });
+
+  it('flags a modified hook when the source differs', () => {
+    expect(diffHooks({ validate: 'a' }, { validate: 'b' })).toEqual([{ key: 'validate', change: 'modified' }]);
+  });
+
+  it('ignores insignificant surrounding whitespace', () => {
+    expect(diffHooks({ validate: 'code' }, { validate: '\n  code  \n' })).toEqual([]);
+  });
+
+  it('returns nothing when hooks match', () => {
+    expect(diffHooks({ validate: 'code' }, { validate: 'code' })).toEqual([]);
+  });
+
+  it('reports multiple hook keys sorted by key', () => {
+    expect(diffHooks({ validate: 'v', change: 'c' }, null)).toEqual([
+      { key: 'change', change: 'added' },
+      { key: 'validate', change: 'added' },
+    ]);
   });
 });

@@ -44,6 +44,13 @@ export interface UnmanagedModel {
   /** Builder.io model kind ('page' | 'component'/'section' | 'data'), when available. */
   kind?: string;
 }
+/** A model-level hook (e.g. `validate`) that the sync will add, remove, or overwrite. */
+export interface HookChange {
+  /** Hook key, e.g. `validate` or `change`. */
+  key: string;
+  change: 'added' | 'removed' | 'modified';
+}
+
 export interface FieldDiff {
   name: string;
   displayName: string;
@@ -51,6 +58,8 @@ export interface FieldDiff {
   added: string[];
   /** Field names the sync will remove (on the brand, not in the package shape). */
   removed: string[];
+  /** Hook keys whose value the sync will change. */
+  hooks: HookChange[];
 }
 
 // ---------------------------------------------------------------------------
@@ -372,6 +381,54 @@ export function diffFieldTrees(
 }
 
 /**
+ * Normalize a model's `hooks` into a plain `{ key: trimmedSource }` record.
+ *
+ * The live value is not the tidy JSON the Admin API returns: at runtime Builder
+ * stores hooks as a MobX/MST map (accessed via `.get()`/`.set()`), while the
+ * package shape is a plain object. This accepts either (anything exposing
+ * `.entries()` is treated as a map) and drops non-string / empty values so the
+ * diff never trips over an unexpected shape.
+ */
+function toHookRecord(hooks: unknown): Record<string, string> {
+  const out: Record<string, string> = {};
+  if (!hooks || typeof hooks !== 'object') return out;
+
+  const maybeMap = hooks as { entries?: unknown };
+  const entries: Iterable<[string, unknown]> =
+    typeof maybeMap.entries === 'function'
+      ? (maybeMap.entries() as Iterable<[string, unknown]>)
+      : Object.entries(hooks as Record<string, unknown>);
+
+  for (const [key, value] of entries) {
+    if (typeof value === 'string' && value.trim()) out[key] = value.trim();
+  }
+  return out;
+}
+
+/**
+ * Diff model-level hooks (e.g. the `validate` validation hook). Hook values are
+ * function-source strings, compared trimmed so insignificant surrounding
+ * whitespace doesn't register as a change. A `null`/absent/empty live value
+ * means the hook isn't set on the brand.
+ */
+export function diffHooks(desired: unknown, current: unknown): HookChange[] {
+  const d = toHookRecord(desired);
+  const c = toHookRecord(current);
+  const changes: HookChange[] = [];
+
+  for (const key of new Set([...Object.keys(d), ...Object.keys(c)])) {
+    const inDesired = key in d;
+    const inCurrent = key in c;
+
+    if (inDesired && !inCurrent) changes.push({ key, change: 'added' });
+    else if (!inDesired && inCurrent) changes.push({ key, change: 'removed' });
+    else if (d[key] !== c[key]) changes.push({ key, change: 'modified' });
+  }
+
+  return changes.sort((a, b) => a.key.localeCompare(b.key));
+}
+
+/**
  * For every managed model that already exists on the brand, diff its current
  * fields against the fields this package defines, recursing into subfields.
  */
@@ -393,19 +450,23 @@ export function getFieldDiffs(context: ApplicationContext): FieldDiff[] {
     const existing = models.find((m) => m.name === def.name);
     if (!existing) continue;
 
-    let desiredFields: readonly NamedField[];
+    let desiredShape: ModelShape;
     try {
-      desiredFields = (def.getShape(idMap, editUrl).fields ?? []) as readonly NamedField[];
+      desiredShape = def.getShape(idMap, editUrl);
     } catch {
       // If the shape can't be built (e.g. unresolved dependency), skip it
       // rather than reporting a misleading diff.
       continue;
     }
 
-    const { added, removed } = diffFieldTrees(desiredFields, (existing.fields ?? []) as readonly NamedField[]);
+    const { added, removed } = diffFieldTrees(
+      (desiredShape.fields ?? []) as readonly NamedField[],
+      (existing.fields ?? []) as readonly NamedField[],
+    );
+    const hooks = diffHooks(desiredShape.hooks, (existing as { hooks?: unknown }).hooks);
 
-    if (added.length > 0 || removed.length > 0) {
-      diffs.push({ name: def.name, displayName: def.displayName, added, removed });
+    if (added.length > 0 || removed.length > 0 || hooks.length > 0) {
+      diffs.push({ name: def.name, displayName: def.displayName, added, removed, hooks });
     }
   }
 
