@@ -8,16 +8,34 @@ export interface FormFieldProps {
   error?: string;
   children: React.ReactNode;
   className?: string;
+  htmlFor?: string;
   /** Optional control rendered right-aligned in the label row (e.g. a per-field locale selector). */
   labelAccessory?: React.ReactNode;
 }
 
-export function FormField({ label, required, helper, error, children, className, labelAccessory }: FormFieldProps) {
-  const labelEl = (
-    <label className="text-xs font-semibold text-[var(--text-secondary)] tracking-wide">
+export function FormField({
+  label,
+  required,
+  helper,
+  error,
+  children,
+  className,
+  htmlFor,
+  labelAccessory,
+}: FormFieldProps) {
+  const labelClassName = 'text-xs font-semibold text-[var(--text-secondary)] tracking-wide';
+  const labelContent = (
+    <>
       {label}
       {required && <span className="text-[var(--accent)] ml-0.5">*</span>}
+    </>
+  );
+  const labelEl = htmlFor ? (
+    <label htmlFor={htmlFor} className={labelClassName}>
+      {labelContent}
     </label>
+  ) : (
+    <span className={labelClassName}>{labelContent}</span>
   );
   return (
     <div className={clsx('space-y-2.5', className)}>
