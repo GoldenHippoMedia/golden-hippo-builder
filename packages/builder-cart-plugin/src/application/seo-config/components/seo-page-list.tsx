@@ -6,7 +6,7 @@ import {
   activeRobotsFlags,
   auditPage,
   descriptionSeverity,
-  looksLikeBlogCategory,
+  isExpired,
   pageCategory,
   summarize,
   titleSeverity,
@@ -156,8 +156,6 @@ const PageRow: React.FC<{ audit: PageAudit; expanded: boolean; onToggle: () => v
 }) => {
   const robotFlags = activeRobotsFlags(audit.robots);
   const hasIssues = audit.issues.length > 0;
-  // A General page we're grouping under Blogs by naming/URL convention.
-  const asBlog = looksLikeBlogCategory(audit);
 
   return (
     <tr
@@ -233,14 +231,6 @@ const PageRow: React.FC<{ audit: PageAudit; expanded: boolean; onToggle: () => v
       <td className="whitespace-nowrap px-3 py-3">
         <div className="flex flex-col items-start gap-1.5">
           <StatusBadge status="neutral" label={audit.pageType} />
-          {asBlog && (
-            <span
-              title="Grouped under Blogs by naming/URL convention (page type is General)"
-              className="text-[10px] italic text-[var(--text-muted)]"
-            >
-              ↳ as blog
-            </span>
-          )}
           <StatusBadge
             status={audit.published ? 'success' : 'warning'}
             label={audit.published ? 'Published' : 'Draft'}
@@ -321,7 +311,12 @@ const SeoPageList: React.FC<SeoPageListProps> = ({ pages }) => {
   const toggleExpanded = (id: string) => setExpandedId((prev) => (prev === id ? null : id));
 
   const audits = useMemo(() => {
-    return pages.map(auditPage).sort((a, b) => a.path.localeCompare(b.path) || a.name.localeCompare(b.name));
+    // Expired pages (scheduled end date in the past) are never relevant to the
+    // audit and are dropped before anything else — counts, stats, and the table.
+    return pages
+      .filter((p) => !isExpired(p))
+      .map(auditPage)
+      .sort((a, b) => a.path.localeCompare(b.path) || a.name.localeCompare(b.name));
   }, [pages]);
 
   // Counts per tab reflect the full set (independent of search / issues), so the
@@ -329,7 +324,7 @@ const SeoPageList: React.FC<SeoPageListProps> = ({ pages }) => {
   const categoryCounts = useMemo(() => {
     const counts: Record<CategoryFilter, number> = { all: audits.length, Product: 0, Blog: 0, Other: 0 };
     audits.forEach((a) => {
-      counts[pageCategory(a)] += 1;
+      counts[pageCategory(a.pageType)] += 1;
     });
     return counts;
   }, [audits]);
@@ -338,7 +333,7 @@ const SeoPageList: React.FC<SeoPageListProps> = ({ pages }) => {
     const q = normalize(query.trim());
     return audits.filter((a) => {
       if (hideNoindexed && a.robots.noIndex) return false;
-      if (category !== 'all' && pageCategory(a) !== category) return false;
+      if (category !== 'all' && pageCategory(a.pageType) !== category) return false;
       if (status === 'published' && !a.published) return false;
       if (status === 'draft' && a.published) return false;
       if (sitemap === 'in' && !a.inSitemap) return false;

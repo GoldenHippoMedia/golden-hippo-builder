@@ -94,6 +94,16 @@ export const getPagePath = (page: PageEntry): string => {
 const str = (v: unknown): string => (typeof v === 'string' ? v.trim() : '');
 
 /**
+ * A Builder page is "expired" when it has a scheduled end date in the past.
+ * These are never relevant to an SEO/sitemap audit, so they're excluded
+ * outright (no user-facing filter).
+ */
+export const isExpired = (page: PageEntry): boolean => {
+  const endDate = (page as { endDate?: number }).endDate;
+  return typeof endDate === 'number' && endDate > 0 && endDate < Date.now();
+};
+
+/**
  * Reduce a raw page entry to the SEO facts we surface, and run the health
  * checks that drive the dashboard's warnings and summary stats.
  */
@@ -159,34 +169,14 @@ export const auditPage = (page: PageEntry): PageAudit => {
   };
 };
 
-// Coarse buckets for the top-level page-type filter. Everything that isn't a
-// product or blog page (General, and any future types) falls into "Other".
+// Coarse buckets for the top-level page-type filter, keyed directly off the
+// page's own `pageType`. Everything that isn't a product or blog page (General,
+// and any future types) falls into "Other".
 export type PageCategory = 'Product' | 'Blog' | 'Other';
 
-// Some brands publish blog *category* pages as `General` (not `Blog`) — named
-// like "Blog Category - Dairy" and/or served under a `/c/` slug. There's no
-// structured flag for this, so we fall back to a name/path heuristic to group
-// them with blogs. Tune these two constants if the match is too loose/tight.
-export const BLOG_TITLE_PATTERN = /blog/i;
-const BLOG_PATH_PREFIXES = ['/c/'];
-
-type CategoryInput = Pick<PageAudit, 'pageType' | 'name' | 'seoTitle' | 'path'>;
-
-/**
- * True when a `General` page looks like a blog category page by naming/URL
- * convention. Only ever reclassifies General pages — Product/Blog are trusted.
- */
-export const looksLikeBlogCategory = (page: CategoryInput): boolean => {
-  if (page.pageType !== 'General') return false;
-  const path = page.path.toLowerCase();
-  if (BLOG_PATH_PREFIXES.some((prefix) => path.startsWith(prefix))) return true;
-  return BLOG_TITLE_PATTERN.test(page.name) || BLOG_TITLE_PATTERN.test(page.seoTitle);
-};
-
-export const pageCategory = (page: CategoryInput): PageCategory => {
-  if (page.pageType === 'Product') return 'Product';
-  if (page.pageType === 'Blog') return 'Blog';
-  if (looksLikeBlogCategory(page)) return 'Blog';
+export const pageCategory = (pageType: string): PageCategory => {
+  if (pageType === 'Product') return 'Product';
+  if (pageType === 'Blog') return 'Blog';
   return 'Other';
 };
 

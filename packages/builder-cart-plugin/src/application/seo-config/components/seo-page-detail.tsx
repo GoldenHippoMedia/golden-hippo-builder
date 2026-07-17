@@ -4,7 +4,6 @@ import {
   DESC_MIN,
   TITLE_MAX,
   descriptionSeverity,
-  looksLikeBlogCategory,
   titleSeverity,
   type PageAudit,
   type RobotsMeta,
@@ -45,7 +44,7 @@ const SeoPageDetail: React.FC<{ audit: PageAudit }> = ({ audit }) => {
   const descSev = descriptionSeverity(audit.description);
   const search = audit.search;
   const hasSearch = Boolean(search.title || search.description || search.content || search.hide);
-  const showBlog = audit.pageType === 'Blog' || looksLikeBlogCategory(audit);
+  const showBlog = audit.pageType === 'Blog';
   const hasBlogFallback = Boolean(audit.blogSnippet || audit.blogThumbnail);
 
   return (
