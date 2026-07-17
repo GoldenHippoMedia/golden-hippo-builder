@@ -130,10 +130,11 @@ if (user.permissions.admin) {
   });
 }
 
-// SEO Config is a read-only audit view, so it's available to all users (no admin gate).
-Builder.register('appTab', {
-  name: 'SEO Config',
-  path: 'gh/seo-config',
-  icon: seoConfigIcon,
-  component: HippoCMSSeoConfig,
-});
+if (user.permissions.admin) {
+  Builder.register('appTab', {
+    name: 'SEO Config',
+    path: 'gh/seo-config',
+    icon: seoConfigIcon,
+    component: HippoCMSSeoConfig,
+  });
+}
