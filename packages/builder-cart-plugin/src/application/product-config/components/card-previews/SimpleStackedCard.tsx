@@ -38,7 +38,12 @@ const SimpleStackedCard: React.FC<CardPreviewProps> = ({ product, sample }) => {
           <button className={`${btnPrimary} rounded-md px-4 py-2 text-sm`}>Add to Cart</button>
         )}
         <div className="mx-auto mt-2 w-fit">
-          <a href="#" onClick={(e) => e.preventDefault()} className="cursor-pointer text-sm underline" style={{ color: GOLD_DARK }}>
+          <a
+            href="#"
+            onClick={(e) => e.preventDefault()}
+            className="cursor-pointer text-sm underline"
+            style={{ color: GOLD_DARK }}
+          >
             Learn More
           </a>
         </div>

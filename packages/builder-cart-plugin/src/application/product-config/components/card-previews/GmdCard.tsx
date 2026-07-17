@@ -64,7 +64,11 @@ const GmdCard: React.FC<CardPreviewProps> = ({ product, sample }) => {
           </div>
         </div>
 
-        <a href="#" onClick={(e) => e.preventDefault()} className={`${btnOutline} mt-3 w-full rounded-full px-4 py-2 text-sm`}>
+        <a
+          href="#"
+          onClick={(e) => e.preventDefault()}
+          className={`${btnOutline} mt-3 w-full rounded-full px-4 py-2 text-sm`}
+        >
           Learn More
         </a>
         {oos ? (

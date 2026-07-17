@@ -67,7 +67,11 @@ const RhpCard: React.FC<CardPreviewProps> = ({ product, sample }) => {
             Add to Cart
           </button>
         )}
-        <a href="#" onClick={(e) => e.preventDefault()} className={`${btnOutline} mt-4 w-full rounded-md px-[30px] py-3 text-xl leading-none`}>
+        <a
+          href="#"
+          onClick={(e) => e.preventDefault()}
+          className={`${btnOutline} mt-4 w-full rounded-md px-[30px] py-3 text-xl leading-none`}
+        >
           Learn More
         </a>
       </div>
