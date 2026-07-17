@@ -159,9 +159,9 @@ const ProductList: React.FC<ProductListProps> = ({ products, tagsById, onSelect 
         />
       ) : (
         <div className="space-y-2">
-          {filtered.map((product) => (
+          {filtered.map((product, i) => (
             <ProductRow
-              key={product.id}
+              key={product.id ?? `product-row-${i}`}
               product={product}
               tagLabels={resolveTagLabels(product)}
               onSelect={() => product.id && onSelect(product.id)}
