@@ -28,6 +28,32 @@ export interface ModelShape extends Omit<Model, 'id' | 'fields'> {
   fields: BuilderIOFieldTypes[];
   editingUrlLogic?: string;
   hideFromUI?: boolean;
+  /**
+   * Model-level hooks run by Builder.io. Each value is the source of a function,
+   * serialized to a string (the same way `editingUrlLogic` is stored).
+   *
+   * `validate` runs when content is saved. It receives `contentModel` in scope
+   * and returns a validation result (`{ level, field, element, message }`) — or
+   * an array of them — to surface issues/warnings in the editor.
+   *
+   * Only `validate` is typed because it's the only hook this package has
+   * verified against Builder. Builder supports others (its editor references a
+   * `change` hook), but their exact keys/semantics aren't confirmed — add them
+   * here explicitly once verified rather than via an open-ended index signature
+   * that would invite unchecked, possibly-wrong hook names.
+   *
+   * NOTE: This type describes only the shape you AUTHOR and send (a plain object
+   * of string values). It is NOT the shape you get back when reading a live
+   * model. At runtime Builder stores hooks as a MobX/MST map (accessed via
+   * `.get()`/`.set()`), and reads come off the app-context `Model` type — which
+   * doesn't even declare `hooks`. So when reading an existing model, treat
+   * `model.hooks` as `unknown` and normalize it (map-like OR object, values may
+   * be non-strings); don't assume this plain-object shape. Assuming it here is
+   * what broke the admin field-diff (`.trim` on a non-string map value).
+   */
+  hooks?: {
+    validate?: string;
+  };
 }
 
 export type BuilderIOFieldTypes =
