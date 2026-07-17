@@ -116,4 +116,31 @@ describe('diffHooks', () => {
       { key: 'validate', change: 'added' },
     ]);
   });
+
+  // Regression cases for the actual runtime shape. Builder hands back a live
+  // model's hooks as a Map-like value (MobX/MST map), not the plain object the
+  // Admin API JSON suggests — and its values aren't guaranteed to be strings.
+  // This is precisely what crashed the admin field-diff with
+  // "c[key]?.trim is not a function".
+  it('reads a real Map with a string value (matches ⇒ no change)', () => {
+    const current = new Map<string, unknown>([['validate', 'code']]);
+    expect(diffHooks({ validate: 'code' }, current)).toEqual([]);
+  });
+
+  it('detects a modified hook when the Map value differs', () => {
+    const current = new Map<string, unknown>([['validate', 'old']]);
+    expect(diffHooks({ validate: 'new' }, current)).toEqual([{ key: 'validate', change: 'modified' }]);
+  });
+
+  it('does not throw on a Map whose value is not a string, and treats it as absent', () => {
+    // The exact crash shape: a non-string hook value (here an object).
+    const current = new Map<string, unknown>([['validate', { nested: 'object' }]]);
+    expect(() => diffHooks({ validate: 'code' }, current)).not.toThrow();
+    expect(diffHooks({ validate: 'code' }, current)).toEqual([{ key: 'validate', change: 'added' }]);
+  });
+
+  it('reads a Map-like value exposing .entries() (MST-style) the same as a real Map', () => {
+    const current = { entries: () => [['validate', 'code'] as [string, unknown]] };
+    expect(diffHooks({ validate: 'code' }, current)).toEqual([]);
+  });
 });
