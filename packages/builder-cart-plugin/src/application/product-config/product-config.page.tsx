@@ -51,17 +51,11 @@ const ProductConfigPage: React.FC<ProductConfigPageProps> = ({ context }) => {
         // Fetch raw (unresolved) so localized fields stay as LocalizedValue
         // objects — required to edit per-locale and to discover locales.
         const [productResults, tagResults, categoryResults, ingredientResults, useCaseResults] = await Promise.all([
-          api.getModelEntries('product', { bustCache: true, raw: true }) as Promise<BuilderProductContent[]>,
-          api.getModelEntries('product-tag', { bustCache: true, raw: true }) as Promise<BuilderProductTagContent[]>,
-          api.getModelEntries('product-category', { bustCache: true, raw: true }) as Promise<
-            BuilderProductCategoryContent[]
-          >,
-          api.getModelEntries('product-ingredient', { bustCache: true, raw: true }) as Promise<
-            BuilderIngredientContent[]
-          >,
-          api.getModelEntries('product-use-case', { bustCache: true, raw: true }) as Promise<
-            BuilderProductUseCaseContent[]
-          >,
+          api.getModelEntries<BuilderProductContent>('product', { bustCache: true, raw: true }),
+          api.getModelEntries<BuilderProductTagContent>('product-tag', { bustCache: true, raw: true }),
+          api.getModelEntries<BuilderProductCategoryContent>('product-category', { bustCache: true, raw: true }),
+          api.getModelEntries<BuilderIngredientContent>('product-ingredient', { bustCache: true, raw: true }),
+          api.getModelEntries<BuilderProductUseCaseContent>('product-use-case', { bustCache: true, raw: true }),
         ]);
         if (!mounted.current) return;
         setProducts(productResults);

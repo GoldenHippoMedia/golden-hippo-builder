@@ -86,11 +86,11 @@ class BuilderApi {
       .map((a: any) => ({ id: a.id, name: a.name ?? a.id, url: a.url, type: a.type }));
   }
 
-  async getModelEntries(
+  async getModelEntries<T extends BuilderContent = BuilderContent>(
     modelName: string,
     options?: { bustCache?: boolean; raw?: boolean },
-  ): Promise<BuilderContent[]> {
-    return this.fetchContent({
+  ): Promise<T[]> {
+    return this.fetchContent<T>({
       modelName,
       limit: 100,
       bustCache: options?.bustCache ?? false,
