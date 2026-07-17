@@ -394,6 +394,15 @@ export const createProductModel = (request: ProductModelProps): ModelShape => {
                 helperText: 'Title displayed alongside this featured icon',
               },
               {
+                name: 'featuredIconDescription',
+                friendlyName: 'Featured Icon Description',
+                type: 'html',
+                required: false,
+                localized: true,
+                defaultCollapsed: true,
+                helperText: 'Description displayed alongside this featured icon',
+              },
+              {
                 name: 'altText',
                 friendlyName: 'Alt Text',
                 type: 'text',
@@ -677,6 +686,7 @@ export type BuilderProductContent = BuilderContent &
         featuredIconLabel?: {
           featuredIconImage?: string;
           featuredIconTitle?: string;
+          featuredIconDescription?: string;
           altText?: string;
         }[];
       };
