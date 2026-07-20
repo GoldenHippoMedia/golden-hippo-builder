@@ -338,10 +338,6 @@ const TabAccessSection: React.FC<{ context: ExtendedApplicationContext }> = ({ c
         if (!cancelled) setGrantsError(e instanceof Error ? e.message : String(e));
       }
 
-      // The user roster is a convenience for populating rows. It's fetched via
-      // the Admin API (private key) since the logged-in session usually can't
-      // enumerate members. Treat any failure as non-fatal — admins can still
-      // grant access by email below.
       let roster: AccessRow[] = [];
       try {
         const list = await api.listUsers();
