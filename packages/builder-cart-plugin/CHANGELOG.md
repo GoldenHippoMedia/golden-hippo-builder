@@ -1,5 +1,11 @@
 # @goldenhippo/builder-cart-plugin
 
+## 0.15.1
+
+### Patch Changes
+
+- [#80](https://github.com/GoldenHippoMedia/golden-hippo-builder/pull/80) [`9a6f060`](https://github.com/GoldenHippoMedia/golden-hippo-builder/commit/9a6f0606cf292dac8be74fe4610c6282ed87caa4) - patch plugin version — [@dkidwell999](https://github.com/dkidwell999)
+
 ## 0.15.0
 
 ### Minor Changes
