@@ -1,5 +1,14 @@
 # @goldenhippo/builder-cart-schemas
 
+## 0.22.2
+
+### Patch Changes
+
+- [#68](https://github.com/GoldenHippoMedia/golden-hippo-builder/pull/68) [`f586da4`](https://github.com/GoldenHippoMedia/golden-hippo-builder/commit/f586da45d485501291d2b7504cd63ca483774827) - Add `disableZoom` field to PDP config — [@vbhavsargh](https://github.com/vbhavsargh)
+
+- Updated dependencies [[`792032b`](https://github.com/GoldenHippoMedia/golden-hippo-builder/commit/792032b056bf78d62ab41199c0adc62f371f1d2b)]:
+  - @goldenhippo/builder-shared-schemas@0.22.2
+
 ## 0.22.1
 
 ### Patch Changes

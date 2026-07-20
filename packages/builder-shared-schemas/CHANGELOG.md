@@ -1,5 +1,11 @@
 # @goldenhippo/builder-shared-schemas
 
+## 0.22.2
+
+### Patch Changes
+
+- [#67](https://github.com/GoldenHippoMedia/golden-hippo-builder/pull/67) [`792032b`](https://github.com/GoldenHippoMedia/golden-hippo-builder/commit/792032b056bf78d62ab41199c0adc62f371f1d2b) - add missed html field `featuredIconDescription` from `featuredIconLabel` repeater object — [@vbhavsargh](https://github.com/vbhavsargh)
+
 ## 0.22.0
 
 ### Minor Changes
