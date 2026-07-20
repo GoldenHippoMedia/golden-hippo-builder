@@ -515,11 +515,13 @@ const AdminPage: React.FC<AdminPageProps> = observer(({ context }) => {
           {fieldDiffs.length > 0 && (
             <CollapsibleBanner
               variant="neutral"
-              summary={`Field changes on ${fieldDiffs.length} existing model${fieldDiffs.length === 1 ? '' : 's'}`}
+              summary={`Changes on ${fieldDiffs.length} existing model${fieldDiffs.length === 1 ? '' : 's'}`}
             >
               <div className="text-xs text-[var(--text-secondary)]">
                 The sync replaces each model&apos;s shape. Fields shown in green will be added; fields in red will be
-                removed along with any content stored in them.
+                removed along with any content stored in them. Hook changes are shown in blue:{' '}
+                <span className="font-mono">+</span> adds a hook, <span className="font-mono">−</span> removes one, and{' '}
+                <span className="font-mono">~</span> overwrites an existing hook.
               </div>
               <div className="mt-3 space-y-2.5">
                 {fieldDiffs.map((diff) => (
@@ -542,6 +544,15 @@ const AdminPage: React.FC<AdminPageProps> = observer(({ context }) => {
                           className="text-[11px] px-2 py-0.5 rounded font-mono bg-[var(--error)]/15 text-[var(--error)]"
                         >
                           − {f}
+                        </span>
+                      ))}
+                      {diff.hooks.map((h) => (
+                        <span
+                          key={`hook-${h.key}`}
+                          className="text-[11px] px-2 py-0.5 rounded font-mono bg-[var(--accent)]/15 text-[var(--accent)]"
+                          title={`Validation/change hook "${h.key}" will be ${h.change}`}
+                        >
+                          {h.change === 'added' ? '+' : h.change === 'removed' ? '−' : '~'} hook: {h.key}
                         </span>
                       ))}
                     </div>

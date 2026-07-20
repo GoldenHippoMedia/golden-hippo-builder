@@ -1008,8 +1008,58 @@ export const createPageModel = (props: PageModelInputProps): ModelShape => {
       },
     ],
     editingUrlLogic: 'return `' + editUrl + '${targeting.urlPath}?builder.preview=true&builder.frameEditing=true`',
+    hooks: {
+      validate: validateImageAltText,
+    },
   };
 };
+
+/**
+ * Model validation hook (serialized to a string for Builder.io). Runs on save and
+ * warns when any Image block is missing `altText`, walking nested blocks depth-first.
+ */
+const validateImageAltText = `async function run() {
+  const blocks = contentModel.data.get('blocks');
+
+  // Builder's \`options\` is a Map-like proxy (access via .get());
+  // \`children\` / \`component\` / \`name\` are plain properties.
+  const readOption = (el, key) => {
+    const options = el?.component?.options;
+    if (!options) return undefined;
+    return typeof options.get === 'function' ? options.get(key) : options[key];
+  };
+
+  // Depth-first walk; returns the first Image element missing altText, or null.
+  const findImageMissingAlt = (nodes) => {
+    for (const el of nodes ?? []) {
+      if (!el) continue;
+
+      if (el.component?.name === 'Image') {
+        const alt = readOption(el, 'altText');
+        if (typeof alt !== 'string' || alt.trim().length === 0) {
+          return el;
+        }
+      }
+
+      const nested = findImageMissingAlt(el.children);
+      if (nested) return nested;
+    }
+    return null;
+  };
+
+  const offender = findImageMissingAlt(blocks);
+
+  if (offender) {
+    return {
+      level: 'warning',
+      field: { name: 'altText', target: 'block' },
+      element: offender,
+      message: 'Image elements must have altText for accessibility.',
+    };
+  }
+}
+
+return run();`;
 
 type BasePageData = {
   title: string;
