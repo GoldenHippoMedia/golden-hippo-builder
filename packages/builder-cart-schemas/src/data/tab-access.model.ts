@@ -72,14 +72,10 @@ export type BuilderTabAccessContent = BuilderContent &
     };
   }>;
 
-/**
- * Resolve a user's access level for a single tab from their grant. Legacy
- * `tabs` entries (pre-read/write) are treated as write access.
- */
+/** Resolve a user's access level for a single tab from their grant. */
 export const grantLevelForTab = (grant: TabAccessGrant | undefined, tabPath: string): TabAccessLevel => {
   if (!grant) return 'none';
-  const write = new Set([...(grant.writeTabs ?? []), ...(grant.tabs ?? [])]);
-  if (write.has(tabPath)) return 'write';
+  if ((grant.writeTabs ?? []).includes(tabPath)) return 'write';
   if ((grant.readTabs ?? []).includes(tabPath)) return 'read';
   return 'none';
 };
