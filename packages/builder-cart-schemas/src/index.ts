@@ -11,6 +11,8 @@ export {
   createProductUseCaseModel,
   createProfileReferenceRuleModel,
   createRecommendationConfigModel,
+  createTabAccessModel,
+  grantLevelForTab,
   type BuilderBrandConfigContent,
   HeaderType,
   FooterType,
@@ -34,6 +36,9 @@ export {
   type BuilderProductGroupContent,
   type BuilderProfileReferenceRuleContent,
   type BuilderRecommendationConfigContent,
+  type BuilderTabAccessContent,
+  type TabAccessGrant,
+  type TabAccessLevel,
 } from './data';
 
 export {

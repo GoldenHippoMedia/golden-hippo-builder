@@ -4,11 +4,13 @@ import HippoCMSBrandConfiguration from '@application/HippoCMSBrandConfiguration'
 import HippoCMSAdmin from '@application/HippoCMSAdmin';
 import HippoCMSProductConfig from '@application/HippoCMSProductConfig';
 import HippoCMSSeoConfig from '@application/HippoCMSSeoConfig';
-import { adminIcon, configIcon, productConfigIcon, seoConfigIcon, pluginId } from './constants';
+import { adminIcon, configIcon, productConfigIcon, seoConfigIcon, pluginId, CONTROLLABLE_TABS } from './constants';
 import { AppActions, OnSaveActions } from '@goldenhippo/builder-types';
+import { grantLevelForTab } from '@goldenhippo/builder-cart-schemas';
 import UserManagementService from '@services/user-management';
 import { ExtendedApplicationContext } from './interfaces/application-context.interface';
 import { captureTriggerSettingsDialog } from './plugin-actions';
+import BuilderApi from '@services/builder-api';
 
 Builder.register('plugin', {
   id: pluginId,
@@ -103,38 +105,38 @@ Builder.register('app.onLoad', async ({ triggerSettingsDialog }: AppActions) => 
 
 const user = UserManagementService.getUserDetails(appState as ExtendedApplicationContext);
 
-if (user.permissions.admin) {
-  Builder.register('appTab', {
-    name: 'Hippo Config',
-    path: 'gh/brand-config',
-    icon: configIcon,
-    component: HippoCMSBrandConfiguration,
-  });
+const TAB_REGISTRY: Record<string, { name: string; icon: string; component: unknown; adminOnly?: boolean }> = {
+  'gh/brand-config': { name: 'Hippo Config', icon: configIcon, component: HippoCMSBrandConfiguration },
+  'gh/product-config': { name: 'Product Config', icon: productConfigIcon, component: HippoCMSProductConfig },
+  'gh/seo-config': { name: 'SEO Config', icon: seoConfigIcon, component: HippoCMSSeoConfig },
+  'gh/admin': { name: 'Hippo Admin', icon: adminIcon, component: HippoCMSAdmin, adminOnly: true },
+};
+
+function registerTab(path: string): void {
+  const tab = TAB_REGISTRY[path];
+  if (!tab) return;
+  Builder.register('appTab', { name: tab.name, path, icon: tab.icon, component: tab.component });
 }
 
+// NOTE: This is a convenience/visibility layer enforced client-side at tab
+// registration time — it hides tabs a user hasn't been granted, but is not a
+// security boundary (content remains reachable via the Builder API directly).
 if (user.permissions.admin) {
-  Builder.register('appTab', {
-    name: 'Hippo Admin',
-    path: 'gh/admin',
-    icon: adminIcon,
-    component: HippoCMSAdmin,
-  });
-}
-
-if (user.permissions.admin) {
-  Builder.register('appTab', {
-    name: 'Product Config',
-    path: 'gh/product-config',
-    icon: productConfigIcon,
-    component: HippoCMSProductConfig,
-  });
-}
-
-if (user.permissions.admin) {
-  Builder.register('appTab', {
-    name: 'SEO Config',
-    path: 'gh/seo-config',
-    icon: seoConfigIcon,
-    component: HippoCMSSeoConfig,
-  });
+  // Admins always see every tab.
+  Object.keys(TAB_REGISTRY).forEach(registerTab);
+} else {
+  //For non-admins check their tab access grants
+  void (async () => {
+    try {
+      const api = new BuilderApi(appState as ExtendedApplicationContext);
+      const entry = await api.getTabAccess();
+      const grant = entry?.data?.grants?.find(
+        (g) => (g.userId && g.userId === user.id) || (g.email && g.email === user.email),
+      );
+      // A tab is visible when the user has read or write access to it.
+      CONTROLLABLE_TABS.filter((t) => grantLevelForTab(grant, t.path) !== 'none').forEach((t) => registerTab(t.path));
+    } catch (e) {
+      console.error('[Hippo Commerce - CART] Failed to load tab access grants', e);
+    }
+  })();
 }

@@ -21,6 +21,7 @@ import {
   createFooterModel,
   createOfferSelectorContentModel,
   createPromotionalCardModel,
+  createTabAccessModel,
 } from '@goldenhippo/builder-cart-schemas';
 
 class BuilderHelper {
@@ -32,6 +33,7 @@ class BuilderHelper {
   profileReferenceRuleModel = createProfileReferenceRuleModel();
   recommendationConfigModel = createRecommendationConfigModel();
   blogCategoryModel = createBlogCategoryModel();
+  tabAccessModel = createTabAccessModel();
 
   // Factory models (require model IDs from cascading creation)
   productModel(request: {

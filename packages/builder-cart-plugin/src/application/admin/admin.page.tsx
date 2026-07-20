@@ -1,9 +1,11 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { observer } from 'mobx-react';
 import { Section, PageHeader, LoadingSection } from '@goldenhippo/builder-ui';
+import { grantLevelForTab, TabAccessGrant, TabAccessLevel } from '@goldenhippo/builder-cart-schemas';
 import { ExtendedApplicationContext } from '../../interfaces/application-context.interface';
 import UserManagementService from '@services/user-management';
-import { pluginId } from '../../constants';
+import BuilderApi from '@services/builder-api';
+import { pluginId, CONTROLLABLE_TABS } from '../../constants';
 import { openPluginSettings } from '../../plugin-actions';
 import {
   MODEL_DEFINITIONS,
@@ -273,6 +275,290 @@ const ModelRow: React.FC<{
 };
 
 // ---------------------------------------------------------------------------
+// Tab access control
+// ---------------------------------------------------------------------------
+
+interface AccessRow {
+  email: string;
+  /** Builder user id when known (from the roster or an existing grant); '' for manually added rows. */
+  userId: string;
+  name?: string;
+  /** Builder role name (e.g. 'admin', 'editor') when known from the roster. */
+  role?: string;
+}
+
+// row key -> tab path -> access level. Tabs absent from a row's map are 'none'.
+type TabAccessDraft = Record<string, Record<string, TabAccessLevel>>;
+
+/** Stable key for a row/grant: prefer email (always present for manual adds), fall back to userId. */
+const rowKey = (r: { email: string; userId: string }): string => r.email || r.userId;
+
+const ACCESS_LEVELS: { value: TabAccessLevel; label: string }[] = [
+  { value: 'none', label: 'No access' },
+  { value: 'read', label: 'Read only' },
+  { value: 'write', label: 'Read & write' },
+];
+
+/** Admins/owners already see every tab, so their per-tab grants are moot. */
+const isFullAccessRole = (role?: string): boolean => {
+  const r = role?.toLowerCase() ?? '';
+  return r === 'admin' || r === 'owner';
+};
+
+const TabAccessSection: React.FC<{ context: ExtendedApplicationContext }> = ({ context }) => {
+  const [loading, setLoading] = useState(true);
+  // Hard failure loading existing grants — without them we can't safely save.
+  const [grantsError, setGrantsError] = useState<string | null>(null);
+  // Soft failure loading the user roster — grants still work via manual add.
+  const [rosterWarning, setRosterWarning] = useState<string | null>(null);
+  const [rows, setRows] = useState<AccessRow[]>([]);
+  const [draft, setDraft] = useState<TabAccessDraft>({});
+  const [entryId, setEntryId] = useState<string | undefined>(undefined);
+  const [newEmail, setNewEmail] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [saveState, setSaveState] = useState<'idle' | 'success' | 'error'>('idle');
+  const [saveError, setSaveError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      setLoading(true);
+      setGrantsError(null);
+      setRosterWarning(null);
+      const api = new BuilderApi(context);
+
+      // Existing grants are the source of truth — load them on their own so a
+      // failure here is distinct from the roster failing.
+      let grants: TabAccessGrant[] = [];
+      try {
+        const entry = await api.getTabAccess();
+        grants = entry?.data?.grants ?? [];
+        if (!cancelled) setEntryId(entry?.id);
+      } catch (e) {
+        if (!cancelled) setGrantsError(e instanceof Error ? e.message : String(e));
+      }
+
+      let roster: AccessRow[] = [];
+      try {
+        const list = await api.listUsers();
+        roster = list.map((u) => ({ email: u.email, userId: u.id, name: u.name, role: u.role }));
+      } catch (e) {
+        if (!cancelled) setRosterWarning(e instanceof Error ? e.message : String(e));
+      }
+
+      if (cancelled) return;
+
+      // Merge roster ∪ users already present in grants, keyed so each appears once.
+      const byKey = new Map<string, AccessRow>();
+      roster.forEach((r) => byKey.set(rowKey(r), r));
+      grants.forEach((g: TabAccessGrant) => {
+        const r: AccessRow = { email: g.email ?? '', userId: g.userId ?? '' };
+        byKey.set(rowKey(r), { ...byKey.get(rowKey(r)), ...r });
+      });
+
+      const nextDraft: TabAccessDraft = {};
+      byKey.forEach((r, key) => {
+        const grant = grants.find((g: TabAccessGrant) => g.userId === r.userId || g.email === r.email);
+        const levels: Record<string, TabAccessLevel> = {};
+        CONTROLLABLE_TABS.forEach((t) => {
+          levels[t.path] = grantLevelForTab(grant, t.path);
+        });
+        nextDraft[key] = levels;
+      });
+
+      setRows([...byKey.values()].sort((a, b) => a.email.localeCompare(b.email)));
+      setDraft(nextDraft);
+      setLoading(false);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [context]);
+
+  const setLevel = useCallback((key: string, tabPath: string, level: TabAccessLevel) => {
+    setSaveState('idle');
+    setDraft((prev) => ({ ...prev, [key]: { ...(prev[key] ?? {}), [tabPath]: level } }));
+  }, []);
+
+  const addUser = useCallback(() => {
+    const email = newEmail.trim().toLowerCase();
+    if (!email) return;
+    setSaveState('idle');
+    setRows((prev) => {
+      if (prev.some((r) => r.email.toLowerCase() === email)) return prev;
+      const next = [...prev, { email, userId: '' }];
+      return next.sort((a, b) => a.email.localeCompare(b.email));
+    });
+    setDraft((prev) => (prev[email] ? prev : { ...prev, [email]: {} }));
+    setNewEmail('');
+  }, [newEmail]);
+
+  const handleSave = useCallback(async () => {
+    setSaving(true);
+    setSaveState('idle');
+    setSaveError(null);
+    try {
+      const api = new BuilderApi(context);
+      const grants: TabAccessGrant[] = rows
+        .map((r) => {
+          const levels = draft[rowKey(r)] ?? {};
+          const readTabs = Object.keys(levels).filter((path) => levels[path] === 'read');
+          const writeTabs = Object.keys(levels).filter((path) => levels[path] === 'write');
+          return { userId: r.userId, email: r.email, readTabs, writeTabs };
+        })
+        .filter((g) => g.readTabs.length > 0 || g.writeTabs.length > 0);
+      const savedId = await api.saveTabAccess(grants, entryId);
+      setEntryId(savedId);
+      setSaveState('success');
+    } catch (e) {
+      setSaveState('error');
+      setSaveError(e instanceof Error ? e.message : String(e));
+    } finally {
+      setSaving(false);
+    }
+  }, [context, rows, draft, entryId]);
+
+  return (
+    <Section
+      title="Tab Access"
+      subtitle="Grant individual users access to specific plugin tabs"
+      actions={
+        <AccentButton onClick={handleSave} disabled={saving || loading || !!grantsError}>
+          {saving ? 'Saving...' : 'Save Access'}
+        </AccentButton>
+      }
+    >
+      <div className="mb-4 text-xs text-[var(--text-secondary)]">
+        Admins always have access to every tab. For each non-admin user, choose their access per tab: <em>No access</em>{' '}
+        hides the tab, <em>Read only</em> shows it without letting them save changes, and <em>Read &amp; write</em>{' '}
+        grants full editing. The Administration tab itself is always restricted to admins.
+      </div>
+
+      {saveState === 'success' && (
+        <div className="mb-4 rounded-lg bg-[var(--success)]/10 border border-[var(--success)]/20 px-4 py-3 text-sm text-[var(--success)]">
+          Tab access saved. Affected users will see the change the next time they reload the editor.
+        </div>
+      )}
+      {saveState === 'error' && (
+        <div className="mb-4 rounded-lg bg-[var(--error)]/10 border border-[var(--error)]/20 px-4 py-3 text-sm text-[var(--error)]">
+          Failed to save tab access.{saveError ? ` ${saveError}` : ''}
+        </div>
+      )}
+
+      {loading ? (
+        <LoadingSection />
+      ) : grantsError ? (
+        <div className="rounded-lg bg-[var(--error)]/10 border border-[var(--error)]/20 px-4 py-3 text-sm text-[var(--error)]">
+          Could not load existing grants: {grantsError}. Make sure the <span className="font-mono">gh-tab-access</span>{' '}
+          model has been synced (see Model Sync below).
+        </div>
+      ) : (
+        <>
+          {rosterWarning && (
+            <div className="mb-4 rounded-lg bg-[var(--warning)]/10 border border-[var(--warning)]/20 px-4 py-3 text-xs text-[var(--warning)]">
+              Couldn&apos;t load the full user list ({rosterWarning}). You can still grant access by entering a
+              user&apos;s email below.
+            </div>
+          )}
+
+          {/* Add a user by email — fallback for when the roster can't be listed
+              or for granting access to a user not yet in the space list. */}
+          <div className="mb-4 flex items-center gap-2">
+            <input
+              type="email"
+              value={newEmail}
+              onChange={(e) => setNewEmail(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  addUser();
+                }
+              }}
+              placeholder="user@email.com"
+              className="flex-1 max-w-xs px-3 py-1.5 rounded-lg text-sm bg-[var(--bg-glass)] border border-[var(--border-glass)] text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--accent)]"
+            />
+            <SmallButton onClick={addUser} disabled={!newEmail.trim()}>
+              Add user
+            </SmallButton>
+          </div>
+
+          {rows.length === 0 ? (
+            <div className="text-sm text-[var(--text-muted)]">
+              No users yet. Add a user by email above to grant tab access.
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-left">
+                <thead>
+                  <tr className="border-b border-[var(--border-glass)]">
+                    <th className="pb-3 text-xs font-semibold text-[var(--text-secondary)] tracking-wide">User</th>
+                    {CONTROLLABLE_TABS.map((t) => (
+                      <th
+                        key={t.path}
+                        className="pb-3 px-3 text-xs font-semibold text-[var(--text-secondary)] tracking-wide text-center"
+                      >
+                        {t.name}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {rows.map((r) => {
+                    const key = rowKey(r);
+                    const fullAccess = isFullAccessRole(r.role);
+                    return (
+                      <tr key={key} className="border-b border-[var(--border-glass)] last:border-b-0">
+                        <td className="py-3 pr-4">
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm text-[var(--text-primary)] break-all">
+                              {r.name || r.email || '(no email)'}
+                            </span>
+                            {r.role && (
+                              <span className="text-[10px] px-1.5 py-0.5 rounded font-medium bg-[var(--bg-glass)] text-[var(--text-muted)] capitalize">
+                                {r.role}
+                              </span>
+                            )}
+                          </div>
+                          {r.name && r.email && (
+                            <div className="text-[11px] text-[var(--text-muted)] break-all">{r.email}</div>
+                          )}
+                        </td>
+                        {fullAccess ? (
+                          <td colSpan={CONTROLLABLE_TABS.length} className="py-3 px-3 text-center">
+                            <StatusBadge variant="success" label="Full access" />
+                          </td>
+                        ) : (
+                          CONTROLLABLE_TABS.map((t) => (
+                            <td key={t.path} className="py-3 px-3 text-center">
+                              <select
+                                value={draft[key]?.[t.path] ?? 'none'}
+                                onChange={(e) => setLevel(key, t.path, e.target.value as TabAccessLevel)}
+                                aria-label={`${r.email} access to ${t.name}`}
+                                className="px-2 py-1 rounded-lg text-xs bg-[var(--bg-glass)] border border-[var(--border-glass)] text-[var(--text-primary)] cursor-pointer focus:outline-none focus:border-[var(--accent)]"
+                              >
+                                {ACCESS_LEVELS.map((lvl) => (
+                                  <option key={lvl.value} value={lvl.value}>
+                                    {lvl.label}
+                                  </option>
+                                ))}
+                              </select>
+                            </td>
+                          ))
+                        )}
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </>
+      )}
+    </Section>
+  );
+};
+
+// ---------------------------------------------------------------------------
 // Main admin page
 // ---------------------------------------------------------------------------
 
@@ -469,7 +755,10 @@ const AdminPage: React.FC<AdminPageProps> = observer(({ context }) => {
           </div>
         </Section>
 
-        {/* ---- Section 4: Model Sync ---- */}
+        {/* ---- Section 4: Tab Access ---- */}
+        <TabAccessSection context={context} />
+
+        {/* ---- Section 5: Model Sync ---- */}
         <Section
           title="Model Sync"
           subtitle={`${modelStatuses.filter((s) => s.exists).length} of ${MODEL_DEFINITIONS.length} models synced`}
