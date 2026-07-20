@@ -5,6 +5,7 @@ import { LoadingSection, EmptyState, PageHeader } from '@goldenhippo/builder-ui'
 import { ExtendedApplicationContext } from '../../interfaces/application-context.interface';
 import BuilderApi from '../../services/builder-api';
 import UserManagementService from '@services/user-management';
+import { resolveCurrentUserTabLevel } from '@services/tab-access';
 import GeneralSection from './sections/general.section';
 import HeaderSection from './sections/header.section';
 import FooterSection from './sections/footer.section';
@@ -29,6 +30,7 @@ const BrandConfigPage: React.FC<BrandConfigPageProps> = ({ context }) => {
     saving: false,
     error: null as string | null,
     dirty: false,
+    canWrite: true,
     activeTab: 'General' as Tab,
   }));
 
@@ -65,7 +67,7 @@ const BrandConfigPage: React.FC<BrandConfigPageProps> = ({ context }) => {
   }, [api, brand, loadConfig, store]);
 
   const saveConfig = useCallback(async () => {
-    if (!store.config?.id || !store.dirty) return;
+    if (!store.canWrite || !store.config?.id || !store.dirty) return;
     store.saving = true;
     try {
       const cleanData = JSON.parse(JSON.stringify(store.data));
@@ -105,6 +107,9 @@ const BrandConfigPage: React.FC<BrandConfigPageProps> = ({ context }) => {
 
   useEffect(() => {
     loadConfig();
+    resolveCurrentUserTabLevel(context, 'gh/brand-config').then((level) => {
+      store.canWrite = level === 'write';
+    });
   }, []);
 
   return useObserver(() => {
@@ -164,15 +169,27 @@ const BrandConfigPage: React.FC<BrandConfigPageProps> = ({ context }) => {
         <PageHeader
           title="Brand Configuration"
           actions={
-            <button
-              className="px-5 py-2 rounded-lg bg-[var(--accent)] text-[#1a1a2e] font-semibold text-sm cursor-pointer transition-all hover:brightness-110 hover:shadow-[0_0_20px_var(--accent-glow)] disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:brightness-100 disabled:hover:shadow-none"
-              disabled={!store.dirty || store.saving}
-              onClick={saveConfig}
-            >
-              {store.saving ? 'Saving...' : 'Save'}
-            </button>
+            store.canWrite ? (
+              <button
+                className="px-5 py-2 rounded-lg bg-[var(--accent)] text-[#1a1a2e] font-semibold text-sm cursor-pointer transition-all hover:brightness-110 hover:shadow-[0_0_20px_var(--accent-glow)] disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:brightness-100 disabled:hover:shadow-none"
+                disabled={!store.dirty || store.saving}
+                onClick={saveConfig}
+              >
+                {store.saving ? 'Saving...' : 'Save'}
+              </button>
+            ) : (
+              <span className="px-3 py-1.5 rounded-full text-xs font-medium bg-[var(--warning)]/15 text-[var(--warning)]">
+                Read-only access
+              </span>
+            )
           }
         />
+
+        {!store.canWrite && (
+          <div className="mb-6 rounded-lg bg-[var(--warning)]/10 border border-[var(--warning)]/20 px-4 py-3 text-sm text-[var(--warning)]">
+            You have read-only access to Brand Configuration. Changes can be viewed but not saved.
+          </div>
+        )}
 
         <div className="flex gap-0.5 p-1 bg-[var(--bg-glass)] border border-[var(--border-glass)] rounded-xl mb-7 overflow-x-auto">
           {TABS.map((tab) => (

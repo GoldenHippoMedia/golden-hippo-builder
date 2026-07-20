@@ -30,6 +30,8 @@ interface ProductDetailProps {
   ingredients: BuilderIngredientContent[];
   useCases: BuilderProductUseCaseContent[];
   locales: string[];
+  /** When false, the user has read-only access — editing controls are disabled. */
+  canWrite: boolean;
   onBack: () => void;
   onSaved: (updated: BuilderProductContent) => void;
 }
@@ -146,6 +148,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
   ingredients,
   useCases,
   locales,
+  canWrite,
   onBack,
   onSaved,
 }) => {
@@ -198,6 +201,8 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
   // Values equal to the saved baseline clear their buffer entry so `dirty` stays honest.
   const update = useCallback(
     (key: string, value: unknown) => {
+      // Read-only users can't stage edits — controlled inputs simply won't change.
+      if (!canWrite) return;
       const d = PRODUCT_FORM_FIELD_BY_KEY.get(key);
       if (!d) return;
       const slot = localeSlot(d);
@@ -215,7 +220,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
         return next;
       });
     },
-    [fieldLocale, product],
+    [fieldLocale, product, canWrite],
   );
 
   const changeFieldLocale = useCallback((key: string, next: string) => {
@@ -328,7 +333,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
   );
 
   const handleSave = async () => {
-    if (!product.id) return;
+    if (!canWrite || !product.id) return;
     setSaving(true);
     setSaveError(null);
     try {
@@ -493,22 +498,36 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
               </svg>
             </a>
           )}
-          <button
-            onClick={handleCancel}
-            disabled={!dirty || saving}
-            className="px-3 py-1.5 rounded-lg text-xs font-medium border border-[var(--border-glass)] bg-[var(--bg-glass)] text-[var(--text-secondary)] cursor-pointer hover:bg-[var(--bg-glass-hover)] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={handleSave}
-            disabled={!dirty || saving}
-            className="px-5 py-1.5 rounded-lg bg-[var(--accent)] text-[#1a1a2e] font-semibold text-xs cursor-pointer hover:brightness-110 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
-          >
-            {saving ? 'Saving...' : dirty ? 'Save changes' : 'Saved'}
-          </button>
+          {canWrite ? (
+            <>
+              <button
+                onClick={handleCancel}
+                disabled={!dirty || saving}
+                className="px-3 py-1.5 rounded-lg text-xs font-medium border border-[var(--border-glass)] bg-[var(--bg-glass)] text-[var(--text-secondary)] cursor-pointer hover:bg-[var(--bg-glass-hover)] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSave}
+                disabled={!dirty || saving}
+                className="px-5 py-1.5 rounded-lg bg-[var(--accent)] text-[#1a1a2e] font-semibold text-xs cursor-pointer hover:brightness-110 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+              >
+                {saving ? 'Saving...' : dirty ? 'Save changes' : 'Saved'}
+              </button>
+            </>
+          ) : (
+            <span className="px-3 py-1.5 rounded-full text-xs font-medium bg-[var(--warning)]/15 text-[var(--warning)]">
+              Read-only access
+            </span>
+          )}
         </div>
       </div>
+
+      {!canWrite && (
+        <div className="mb-4 rounded-lg bg-[var(--warning)]/10 border border-[var(--warning)]/20 px-4 py-3 text-sm text-[var(--warning)]">
+          You have read-only access to Product Config. Fields can be viewed but not edited.
+        </div>
+      )}
 
       {saveError && (
         <div className="mb-4 rounded-lg bg-[var(--error)]/10 border border-[var(--error)]/20 px-4 py-3 text-sm text-[var(--error)] break-all">

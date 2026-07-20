@@ -44,3 +44,10 @@ export {
   type BuilderProductGridFilterGroupContent,
   FilterApplicationType,
 } from './product-grid-filter-group.model';
+export {
+  createTabAccessModel,
+  grantLevelForTab,
+  type BuilderTabAccessContent,
+  type TabAccessGrant,
+  type TabAccessLevel,
+} from './tab-access.model';

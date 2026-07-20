@@ -1,7 +1,7 @@
 import { BuilderContent } from '@builder.io/sdk';
-import { BuilderBrandConfigContent } from '@goldenhippo/builder-cart-schemas';
+import { BuilderBrandConfigContent, BuilderTabAccessContent, TabAccessGrant } from '@goldenhippo/builder-cart-schemas';
 import { ExtendedApplicationContext } from '../interfaces/application-context.interface';
-import { pluginId } from '../constants';
+import { pluginId, TAB_ACCESS_MODEL } from '../constants';
 
 interface FetchContentRequest {
   modelName: string;
@@ -59,6 +59,68 @@ class BuilderApi {
       const body = await resp.text();
       throw new Error(`Failed to save brand config: ${resp.status} ${body}`);
     }
+  }
+
+  async getTabAccess(): Promise<BuilderTabAccessContent | null> {
+    const entries = await this.fetchContent<BuilderTabAccessContent>({
+      modelName: TAB_ACCESS_MODEL,
+      limit: 1,
+      bustCache: true,
+    });
+    return entries[0] ?? null;
+  }
+
+  async saveTabAccess(grants: TabAccessGrant[], existingId?: string): Promise<string> {
+    let entryId = existingId;
+    if (!entryId) {
+      const created = await this.context.createContent(TAB_ACCESS_MODEL, {
+        name: 'Tab Access',
+        published: 'published',
+        data: { grants },
+      } as Partial<BuilderContent>);
+      entryId = created.id;
+      if (!entryId) {
+        throw new Error('Failed to create tab-access entry: no id returned.');
+      }
+      return entryId;
+    }
+
+    const resp = await fetch(`https://builder.io/api/v1/write/${TAB_ACCESS_MODEL}/${entryId}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${this.privateApiKey}`,
+      },
+      body: JSON.stringify({ data: { grants } }),
+    });
+    if (!resp.ok) {
+      const body = await resp.text();
+      throw new Error(`Failed to save tab access: ${resp.status} ${body}`);
+    }
+    return entryId;
+  }
+
+  async listUsers(): Promise<{ id: string; email: string; name?: string; role?: string }[]> {
+    const query = `{ users { id name email role } }`;
+    const resp = await fetch('https://cdn.builder.io/api/v2/admin', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${this.privateApiKey}`,
+      },
+      body: JSON.stringify({ query }),
+    });
+    if (!resp.ok) {
+      const body = await resp.text();
+      throw new Error(`Failed to fetch users: ${resp.status} ${body}`);
+    }
+    const json = await resp.json();
+    if (json.errors?.length) {
+      throw new Error(`GraphQL error: ${json.errors[0].message}`);
+    }
+    return (json?.data?.users ?? [])
+      .filter((u: any) => u?.email)
+      .map((u: any) => ({ id: u.id, email: u.email, name: u.name ?? undefined, role: u.role ?? undefined }));
   }
 
   async listAssets(): Promise<{ id: string; name: string; url: string; type: string }[]> {
