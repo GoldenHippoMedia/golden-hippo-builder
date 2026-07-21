@@ -94,6 +94,13 @@ export const MODEL_DEFINITIONS: ModelDefinition[] = [
     dependencies: [],
     getShape: () => BuilderHelper.profileReferenceRuleModel,
   },
+  {
+    name: 'gh-tab-access',
+    displayName: 'Tab Access',
+    phase: 1,
+    dependencies: [],
+    getShape: () => BuilderHelper.tabAccessModel,
+  },
   // Phase 2 — needs phase 1 IDs
   {
     name: 'recommendation-config',

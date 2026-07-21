@@ -9,6 +9,7 @@ import type {
 } from '@goldenhippo/builder-shared-schemas';
 import { ExtendedApplicationContext } from '../../interfaces/application-context.interface';
 import BuilderApi from '../../services/builder-api';
+import { resolveCurrentUserTabLevel } from '../../services/tab-access';
 import ProductList from './components/product-list';
 import ProductDetail from './components/product-detail';
 import { collectLocales } from './localization';
@@ -31,6 +32,7 @@ const ProductConfigPage: React.FC<ProductConfigPageProps> = ({ context }) => {
   const [ingredients, setIngredients] = useState<BuilderIngredientContent[]>([]);
   const [useCases, setUseCases] = useState<BuilderProductUseCaseContent[]>([]);
   const [view, setView] = useState<View>({ kind: 'list' });
+  const [canWrite, setCanWrite] = useState(false);
 
   // Tracks whether the component is still mounted so an in-flight load doesn't
   // set state after unmount
@@ -79,6 +81,16 @@ const ProductConfigPage: React.FC<ProductConfigPageProps> = ({ context }) => {
   useEffect(() => {
     void load(true);
   }, [load]);
+
+  useEffect(() => {
+    let active = true;
+    void resolveCurrentUserTabLevel(context, 'gh/product-config').then((level) => {
+      if (active) setCanWrite(level === 'write');
+    });
+    return () => {
+      active = false;
+    };
+  }, [context]);
 
   const tagsById = useMemo(() => {
     const map = new Map<string, BuilderProductTagContent>();
@@ -176,6 +188,7 @@ const ProductConfigPage: React.FC<ProductConfigPageProps> = ({ context }) => {
           ingredients={ingredients}
           useCases={useCases}
           locales={availableLocales}
+          canWrite={canWrite}
           onBack={() => setView({ kind: 'list' })}
           onSaved={handleProductSaved}
         />
