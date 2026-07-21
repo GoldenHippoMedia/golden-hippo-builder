@@ -1,5 +1,16 @@
 # @goldenhippo/builder-cart-plugin
 
+## 0.16.0
+
+### Minor Changes
+
+- [#79](https://github.com/GoldenHippoMedia/golden-hippo-builder/pull/79) [`efe4df2`](https://github.com/GoldenHippoMedia/golden-hippo-builder/commit/efe4df2998e8c1695a68f81d38ac7d1d702f59e6) - Add per-user tab access control. Admins can now grant individual non-admin users access to specific plugin tabs (Hippo Config, Product Config, SEO Config) from a new "Tab Access" section on the Hippo Admin page. Grants are persisted in a new `gh-tab-access` data model and read at plugin load: non-admins only see the tabs they've been granted, while admins continue to see every tab (the Administration tab itself stays admin-only). This is a client-side visibility layer, not a security boundary. — [@dkidwell999](https://github.com/dkidwell999)
+
+### Patch Changes
+
+- Updated dependencies [[`efe4df2`](https://github.com/GoldenHippoMedia/golden-hippo-builder/commit/efe4df2998e8c1695a68f81d38ac7d1d702f59e6)]:
+  - @goldenhippo/builder-cart-schemas@0.23.0
+
 ## 0.15.1
 
 ### Patch Changes
