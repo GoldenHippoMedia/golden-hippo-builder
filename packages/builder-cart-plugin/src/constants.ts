@@ -15,6 +15,7 @@ export const CONTROLLABLE_TABS: ControllableTab[] = [
   { path: 'gh/brand-config', name: 'Hippo Config' },
   { path: 'gh/product-config', name: 'Product Config' },
   { path: 'gh/seo-config', name: 'SEO Config' },
+  { path: 'gh/ada-config', name: 'Accessibility' },
 ];
 
 // Config icon — gear/settings for brand configuration
@@ -41,4 +42,13 @@ export const seoConfigIcon = `data:image/svg+xml,${encodeURIComponent(`<svg xmln
   <path d="M3 11h16"/>
   <path d="M11 3a13 13 0 0 1 0 16 13 13 0 0 1 0-16z"/>
   <path d="m21 21-3.5-3.5"/>
+</svg>`)}`;
+
+// Accessibility icon — the universal "person in a circle" access symbol
+export const adaConfigIcon = `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#C8A951" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+  <circle cx="12" cy="12" r="10"/>
+  <circle cx="12" cy="7" r="1.2" fill="#C8A951"/>
+  <path d="M7 9.5c1.6.7 3.2 1 5 1s3.4-.3 5-1"/>
+  <path d="M12 10.5V15"/>
+  <path d="m9.5 19 2.5-4 2.5 4"/>
 </svg>`)}`;

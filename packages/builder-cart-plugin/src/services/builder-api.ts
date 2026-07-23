@@ -12,6 +12,12 @@ interface FetchContentRequest {
    * returned as raw LocalizedValue objects (required for safe editing).
    */
   raw?: boolean;
+  /**
+   * When true, include the visual block tree (`data.blocks`) in the response.
+   * Omitted by default because blocks are heavy and most consumers only need
+   * meta fields; the accessibility audit needs them to inspect on-page content.
+   */
+  includeBlocks?: boolean;
 }
 
 class BuilderApi {
@@ -150,13 +156,14 @@ class BuilderApi {
 
   async getModelEntries<T extends BuilderContent = BuilderContent>(
     modelName: string,
-    options?: { bustCache?: boolean; raw?: boolean; limit?: number },
+    options?: { bustCache?: boolean; raw?: boolean; limit?: number; includeBlocks?: boolean },
   ): Promise<T[]> {
     return this.fetchContent<T>({
       modelName,
       limit: options?.limit ?? 100,
       bustCache: options?.bustCache ?? false,
       raw: options?.raw ?? false,
+      includeBlocks: options?.includeBlocks ?? false,
     });
   }
 
@@ -176,13 +183,15 @@ class BuilderApi {
   }
 
   private async fetchContent<T extends BuilderContent = BuilderContent>(request: FetchContentRequest): Promise<T[]> {
-    const { modelName, limit = 20, bustCache = false, raw = false } = request;
+    const { modelName, limit = 20, bustCache = false, raw = false, includeBlocks = false } = request;
     const content: T[] = [];
     let offset = 0;
     // Without `raw`, resolve localization to en-US (display-only consumers). With
     // `raw`, omit the locale param so localized fields stay as LocalizedValue
     // objects that can be edited per-locale without clobbering other locales.
-    let baseUrl = `https://cdn.builder.io/api/v3/content/${modelName}?apiKey=${this.apiKey}&includeUnpublished=true&omit=data.blocks&limit=${Math.min(limit, 100)}`;
+    // `data.blocks` (the heavy visual tree) is omitted unless a consumer opts in.
+    const omit = includeBlocks ? '' : '&omit=data.blocks';
+    let baseUrl = `https://cdn.builder.io/api/v3/content/${modelName}?apiKey=${this.apiKey}&includeUnpublished=true${omit}&limit=${Math.min(limit, 100)}`;
     if (!raw) {
       baseUrl += `&locale=en-US`;
     }

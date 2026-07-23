@@ -22,7 +22,6 @@ export interface HippoUser {
 class UserManagementService {
   static getUserDetails(context: ExtendedApplicationContext): HippoUser {
     const { user } = context;
-    console.info('[Hippo Commerce] USER', JSON.parse(JSON.stringify(user)));
     const currentOrg = user.organizations.find((org) => org.value.id === user.currentOrganization);
     const appSettings = currentOrg?.value.settings.plugins.toJSON()[pluginId];
     const brand = (appSettings?.brand as string) ?? 'Brand not configured';
