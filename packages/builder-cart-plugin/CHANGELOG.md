@@ -1,5 +1,11 @@
 # @goldenhippo/builder-cart-plugin
 
+## 0.17.0
+
+### Minor Changes
+
+- [#83](https://github.com/GoldenHippoMedia/golden-hippo-builder/pull/83) [`919400b`](https://github.com/GoldenHippoMedia/golden-hippo-builder/commit/919400b1053063d4926e3738db8543cc261b3300) - Add ada config page to cart plugin, clean up logs in cart and funnel plugin — [@dkidwell999](https://github.com/dkidwell999)
+
 ## 0.16.0
 
 ### Minor Changes
