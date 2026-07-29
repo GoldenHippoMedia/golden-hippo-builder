@@ -25,4 +25,23 @@ export const CARD_VARIANTS: CardVariant[] = [
   { key: 'simpleHorizontal', label: 'Simple — Horizontal', Component: SimpleHorizontalCard },
 ];
 
+/** Card layout that best matches each configured brand's real storefront. */
+export const FALLBACK_CARD_KEY: CardVariantKey = 'simpleStacked';
+
+/**
+ * Maps a plugin brand-setting display name (see plugin.ts `brand` enum) to the
+ * card variant that resembles that brand's storefront. Brands without a
+ * dedicated card (and any unconfigured/unknown value) fall back to
+ * FALLBACK_CARD_KEY.
+ */
+export const BRAND_CARD_VARIANTS: Record<string, CardVariantKey> = {
+  'Gundry MD': 'gmd',
+  'Dr. Marty': 'dmp',
+  'Roundhouse Provisions': 'rhp',
+  'Badlands Ranch': 'brp',
+};
+
+export const brandToCardKey = (brand?: string): CardVariantKey =>
+  (brand && BRAND_CARD_VARIANTS[brand]) || FALLBACK_CARD_KEY;
+
 export * from './types';

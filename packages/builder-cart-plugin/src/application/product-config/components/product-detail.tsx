@@ -10,7 +10,7 @@ import type {
 import BuilderApi from '../../../services/builder-api';
 import ChipMultiSelect, { type ChipOption } from './chip-multi-select';
 import ProductCardPreview from './product-card-preview';
-import type { PreviewProduct } from './card-previews';
+import type { PreviewProduct, CardVariantKey } from './card-previews';
 import { localize, DEFAULT_LOCALE } from '../localization';
 import {
   isProductFieldLocalized,
@@ -32,6 +32,8 @@ interface ProductDetailProps {
   locales: string[];
   /** When false, the user has read-only access — editing controls are disabled. */
   canWrite: boolean;
+  /** Initial card-preview variant, derived from the active brand. */
+  defaultCardKey?: CardVariantKey;
   onBack: () => void;
   onSaved: (updated: BuilderProductContent) => void;
 }
@@ -149,6 +151,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
   useCases,
   locales,
   canWrite,
+  defaultCardKey,
   onBack,
   onSaved,
 }) => {
@@ -554,7 +557,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
 
         {/* ---- Preview column ---- */}
         <div>
-          <ProductCardPreview product={previewProduct} />
+          <ProductCardPreview product={previewProduct} defaultCardKey={defaultCardKey} />
         </div>
       </div>
     </div>
