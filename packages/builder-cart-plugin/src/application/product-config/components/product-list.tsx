@@ -1,6 +1,10 @@
 import React, { useMemo, useState } from 'react';
 import { EmptyState } from '@goldenhippo/builder-ui';
-import type { BuilderProductContent, BuilderProductTagContent } from '@goldenhippo/builder-shared-schemas';
+import type {
+  BuilderProductContent,
+  BuilderProductTagContent,
+  BuilderProductCategoryContent,
+} from '@goldenhippo/builder-shared-schemas';
 import { localize } from '../localization';
 import { builderContentUrl } from '../builder-urls';
 
@@ -12,13 +16,45 @@ const normalize = (v: string): string => v.toLowerCase().replace(/[^a-z0-9]/g, '
 interface ProductListProps {
   products: BuilderProductContent[];
   tagsById: Map<string, BuilderProductTagContent>;
+  categoriesById: Map<string, BuilderProductCategoryContent>;
   onSelect: (productId: string) => void;
 }
 
-const TagChip: React.FC<{ label: string }> = ({ label }) => (
-  <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-medium bg-[var(--accent-subtle)] text-[var(--accent)] border border-[var(--accent)]/20">
+type ChipVariant = 'tag' | 'category';
+
+// Tags keep the accent color; categories use a neutral tone so the two groups
+// read as distinct at a glance.
+const CHIP_STYLES: Record<ChipVariant, string> = {
+  tag: 'bg-[var(--accent-subtle)] text-[var(--accent)] border-[var(--accent)]/20',
+  category: 'bg-[var(--bg-glass)] text-[var(--text-secondary)] border-[var(--border-glass)]',
+};
+
+const TagChip: React.FC<{ label: string; variant?: ChipVariant }> = ({ label, variant = 'tag' }) => (
+  <span
+    className={`inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-medium border ${CHIP_STYLES[variant]}`}
+  >
     {label}
   </span>
+);
+
+/**
+ * A labeled row of chips ("Categories: [a] [b]") with a shared empty-state
+ * placeholder, so categories and tags render through the same markup.
+ */
+const ChipGroup: React.FC<{
+  label: string;
+  labels: string[];
+  emptyText: string;
+  variant: ChipVariant;
+}> = ({ label, labels, emptyText, variant }) => (
+  <div className="flex flex-wrap items-center gap-1.5 mt-1.5">
+    <span className="text-[11px] font-medium text-[var(--text-muted)]">{label}:</span>
+    {labels.length > 0 ? (
+      labels.map((l, i) => <TagChip key={`${l}-${i}`} label={l} variant={variant} />)
+    ) : (
+      <span className="text-[11px] text-[var(--text-muted)] italic">{emptyText}</span>
+    )}
+  </div>
 );
 
 /**
@@ -45,9 +81,10 @@ const CartLineThumb: React.FC<{ src?: string; alt: string }> = ({ src, alt }) =>
 
 const ProductRow: React.FC<{
   product: BuilderProductContent;
+  categoryLabels: string[];
   tagLabels: string[];
   onSelect: () => void;
-}> = ({ product, tagLabels, onSelect }) => {
+}> = ({ product, categoryLabels, tagLabels, onSelect }) => {
   const data = product.data;
   const displayName = text(data?.displayName) || data?.name || '(Untitled product)';
   const image = data?.featuredImage;
@@ -62,15 +99,8 @@ const ProductRow: React.FC<{
       <div className="flex-1 min-w-0">
         <div className="text-sm font-semibold text-[var(--text-primary)] truncate">{displayName}</div>
         {showInternalName && <div className="text-[11px] text-[var(--text-muted)] truncate">{internalName}</div>}
-        {tagLabels.length > 0 ? (
-          <div className="flex flex-wrap gap-1.5 mt-1.5">
-            {tagLabels.map((label, i) => (
-              <TagChip key={`${label}-${i}`} label={label} />
-            ))}
-          </div>
-        ) : (
-          <div className="text-[11px] text-[var(--text-muted)] mt-1.5 italic">No tags assigned</div>
-        )}
+        <ChipGroup label="Tags" labels={tagLabels} emptyText="No tags assigned" variant="tag" />
+        <ChipGroup label="Categories" labels={categoryLabels} emptyText="No categories assigned" variant="category" />
       </div>
 
       <div className="flex flex-shrink-0 items-center gap-2">
@@ -111,7 +141,7 @@ const ProductRow: React.FC<{
   );
 };
 
-const ProductList: React.FC<ProductListProps> = ({ products, tagsById, onSelect }) => {
+const ProductList: React.FC<ProductListProps> = ({ products, tagsById, categoriesById, onSelect }) => {
   const [query, setQuery] = useState('');
 
   const filtered = useMemo(() => {
@@ -133,6 +163,20 @@ const ProductList: React.FC<ProductListProps> = ({ products, tagsById, onSelect 
         const tagId = (ref?.tag as { id?: string } | undefined)?.id;
         if (!tagId) return null;
         const entry = tagsById.get(tagId);
+        return text(entry?.data?.name) || entry?.name || null;
+      })
+      .filter((label): label is string => Boolean(label));
+  };
+
+  const resolveCategoryLabels = (product: BuilderProductContent): string[] => {
+    // Mirrors resolveTagLabels: the categories list is localized, and each
+    // referenced category's name is itself localized.
+    const refs = localize<NonNullable<BuilderProductContent['data']>['categories']>(product.data?.categories) ?? [];
+    return refs
+      .map((ref) => {
+        const categoryId = (ref?.category as { id?: string } | undefined)?.id;
+        if (!categoryId) return null;
+        const entry = categoriesById.get(categoryId);
         return text(entry?.data?.name) || entry?.name || null;
       })
       .filter((label): label is string => Boolean(label));
@@ -163,6 +207,7 @@ const ProductList: React.FC<ProductListProps> = ({ products, tagsById, onSelect 
             <ProductRow
               key={product.id ?? `product-row-${i}`}
               product={product}
+              categoryLabels={resolveCategoryLabels(product)}
               tagLabels={resolveTagLabels(product)}
               onSelect={() => product.id && onSelect(product.id)}
             />
