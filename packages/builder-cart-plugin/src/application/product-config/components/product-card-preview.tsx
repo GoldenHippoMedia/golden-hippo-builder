@@ -3,10 +3,12 @@ import { CARD_VARIANTS, type CardVariantKey, type PreviewProduct, SAMPLE } from 
 
 interface ProductCardPreviewProps {
   product: PreviewProduct;
+  /** Initial card variant (derived from the active brand); user can still switch. */
+  defaultCardKey?: CardVariantKey;
 }
 
-const ProductCardPreview: React.FC<ProductCardPreviewProps> = ({ product }) => {
-  const [cardKey, setCardKey] = useState<CardVariantKey>('gmd');
+const ProductCardPreview: React.FC<ProductCardPreviewProps> = ({ product, defaultCardKey = 'gmd' }) => {
+  const [cardKey, setCardKey] = useState<CardVariantKey>(defaultCardKey);
 
   const CardComponent = (CARD_VARIANTS.find((v) => v.key === cardKey) ?? CARD_VARIANTS[0]).Component;
 

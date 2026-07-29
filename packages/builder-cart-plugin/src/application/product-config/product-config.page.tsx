@@ -12,6 +12,8 @@ import BuilderApi from '../../services/builder-api';
 import { resolveCurrentUserTabLevel } from '../../services/tab-access';
 import ProductList from './components/product-list';
 import ProductDetail from './components/product-detail';
+import { brandToCardKey } from './components/card-previews';
+import UserManagementService from '../../services/user-management';
 import { collectLocales } from './localization';
 
 interface ProductConfigPageProps {
@@ -99,6 +101,17 @@ const ProductConfigPage: React.FC<ProductConfigPageProps> = ({ context }) => {
     });
     return map;
   }, [tags]);
+
+  const categoriesById = useMemo(() => {
+    const map = new Map<string, BuilderProductCategoryContent>();
+    categories.forEach((c) => {
+      if (c.id) map.set(c.id, c);
+    });
+    return map;
+  }, [categories]);
+
+  // Seed the product card preview to the layout that matches the active brand.
+  const defaultCardKey = useMemo(() => brandToCardKey(UserManagementService.getUserDetails(context).brand), [context]);
 
   const selectedProduct = useMemo(() => {
     if (view.kind !== 'detail') return null;
@@ -189,6 +202,7 @@ const ProductConfigPage: React.FC<ProductConfigPageProps> = ({ context }) => {
           useCases={useCases}
           locales={availableLocales}
           canWrite={canWrite}
+          defaultCardKey={defaultCardKey}
           onBack={() => setView({ kind: 'list' })}
           onSaved={handleProductSaved}
         />
@@ -202,6 +216,7 @@ const ProductConfigPage: React.FC<ProductConfigPageProps> = ({ context }) => {
       <ProductList
         products={products}
         tagsById={tagsById}
+        categoriesById={categoriesById}
         onSelect={(productId) => setView({ kind: 'detail', productId })}
       />
     </div>
