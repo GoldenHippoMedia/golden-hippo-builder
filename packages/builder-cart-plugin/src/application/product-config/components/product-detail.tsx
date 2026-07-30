@@ -131,6 +131,16 @@ const SECTIONS: { id: FieldSection; title: string; subtitle?: string; bodyClass:
   },
 ];
 
+// Default chip color per taxonomy field (used when an option has no custom
+// color). Tags fall back to orange, categories yellow, plus distinct colors for
+// ingredients and use cases. Colors are theme-aware vars from builder-ui.
+const CHIP_DEFAULT_COLORS: Record<string, string> = {
+  tagIds: 'var(--tag)',
+  categoryIds: 'var(--category)',
+  ingredientIds: 'var(--ingredient)',
+  useCaseIds: 'var(--use-case)',
+};
+
 const textInputClass = (mono?: boolean): string =>
   `w-full px-3 py-2 rounded-lg border border-[var(--border-glass)] bg-[var(--bg-glass)] text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent)]/50${
     mono ? ' font-mono' : ''
@@ -425,6 +435,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({
             onChange={(ids) => update(d.key, ids)}
             placeholder={d.placeholder}
             labelAccessory={accessory}
+            defaultColor={CHIP_DEFAULT_COLORS[d.key]}
           />
         );
       default: {

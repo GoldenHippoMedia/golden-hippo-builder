@@ -108,6 +108,22 @@ const ProductConfigPage: React.FC<ProductConfigPageProps> = ({ context }) => {
     return map;
   }, [categories]);
 
+  const ingredientsById = useMemo(() => {
+    const map = new Map<string, BuilderIngredientContent>();
+    ingredients.forEach((i) => {
+      if (i.id) map.set(i.id, i);
+    });
+    return map;
+  }, [ingredients]);
+
+  const useCasesById = useMemo(() => {
+    const map = new Map<string, BuilderProductUseCaseContent>();
+    useCases.forEach((u) => {
+      if (u.id) map.set(u.id, u);
+    });
+    return map;
+  }, [useCases]);
+
   const selectedProduct = useMemo(() => {
     if (view.kind !== 'detail') return null;
     return products.find((p) => p.id === view.productId) ?? null;
@@ -211,6 +227,8 @@ const ProductConfigPage: React.FC<ProductConfigPageProps> = ({ context }) => {
         products={products}
         tagsById={tagsById}
         categoriesById={categoriesById}
+        ingredientsById={ingredientsById}
+        useCasesById={useCasesById}
         onSelect={(productId) => setView({ kind: 'detail', productId })}
       />
     </div>
