@@ -29,6 +29,11 @@
   --success: #34d399;
   --error: #f87171;
   --warning: #fbbf24;
+  /* Taxonomy chip colors — tags, categories, ingredients, use cases */
+  --tag: #fb923c;
+  --category: #facc15;
+  --ingredient: #4ade80;
+  --use-case: #60a5fa;
   --radius-sm: 8px;
   --radius-md: 12px;
   --radius-lg: 16px;
@@ -58,6 +63,11 @@
   --success: #059669;
   --error: #dc2626;
   --warning: #d97706;
+  /* Taxonomy chip colors — tags, categories, ingredients, use cases */
+  --tag: #ea580c;
+  --category: #ca8a04;
+  --ingredient: #16a34a;
+  --use-case: #2563eb;
   color-scheme: light;
 }
 

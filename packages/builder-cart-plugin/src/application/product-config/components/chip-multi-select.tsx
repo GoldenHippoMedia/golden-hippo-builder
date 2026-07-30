@@ -17,6 +17,12 @@ interface ChipMultiSelectProps {
   placeholder?: string;
   /** Optional control rendered right-aligned in the label row (e.g. a per-field locale selector). */
   labelAccessory?: React.ReactNode;
+  /**
+   * Color for every chip in this group (a CSS color or var, e.g. `var(--tag)`).
+   * Per-option `color` is intentionally ignored so each taxonomy group renders
+   * one uniform color. Defaults to the gold accent.
+   */
+  defaultColor?: string;
 }
 
 const ChipMultiSelect: React.FC<ChipMultiSelectProps> = ({
@@ -27,6 +33,7 @@ const ChipMultiSelect: React.FC<ChipMultiSelectProps> = ({
   onChange,
   placeholder = 'Search to add...',
   labelAccessory,
+  defaultColor = 'var(--accent)',
 }) => {
   const [query, setQuery] = useState('');
   const [open, setOpen] = useState(false);
@@ -80,19 +87,11 @@ const ChipMultiSelect: React.FC<ChipMultiSelectProps> = ({
           <span
             key={chip.id}
             className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-medium border"
-            style={
-              chip.color
-                ? {
-                    background: `${chip.color}22`,
-                    color: chip.color,
-                    borderColor: `${chip.color}55`,
-                  }
-                : {
-                    background: 'var(--accent-subtle)',
-                    color: 'var(--accent)',
-                    borderColor: 'rgba(200,169,81,0.3)',
-                  }
-            }
+            style={{
+              background: `color-mix(in srgb, ${defaultColor} 13%, transparent)`,
+              color: defaultColor,
+              borderColor: `color-mix(in srgb, ${defaultColor} 33%, transparent)`,
+            }}
           >
             {chip.label}
             <button
@@ -134,12 +133,10 @@ const ChipMultiSelect: React.FC<ChipMultiSelectProps> = ({
                 }}
                 className="w-full text-left px-3 py-2 text-xs hover:bg-[var(--bg-glass-hover)] cursor-pointer flex items-center gap-2"
               >
-                {opt.color && (
-                  <span
-                    className="w-2.5 h-2.5 rounded-full border border-[var(--border-glass)] flex-shrink-0"
-                    style={{ background: opt.color }}
-                  />
-                )}
+                <span
+                  className="w-2.5 h-2.5 rounded-full border border-[var(--border-glass)] flex-shrink-0"
+                  style={{ background: defaultColor }}
+                />
                 <span className="text-[var(--text-primary)]">{opt.label}</span>
               </button>
             ))}

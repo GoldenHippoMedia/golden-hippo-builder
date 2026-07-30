@@ -4,6 +4,8 @@ import type {
   BuilderProductContent,
   BuilderProductTagContent,
   BuilderProductCategoryContent,
+  BuilderIngredientContent,
+  BuilderProductUseCaseContent,
 } from '@goldenhippo/builder-shared-schemas';
 import { localize } from '../localization';
 import { builderContentUrl } from '../builder-urls';
@@ -13,20 +15,45 @@ const text = (v: unknown): string => localize<string>(v) ?? '';
 
 const normalize = (v: string): string => v.toLowerCase().replace(/[^a-z0-9]/g, '');
 
+/** Minimal shape every taxonomy content type shares for label resolution. */
+type LabeledRef = { name?: string; data?: { name?: unknown } };
+
+/**
+ * Resolve a product's localized reference list (e.g. `data.tags`) to display
+ * labels via an id→entry map. The list is itself localized, and each entry's
+ * `name` is localized too. `refKey` is the wrapper field on each ref
+ * (`tag`, `category`, `ingredient`, `useCase`).
+ */
+const resolveRefLabels = <T extends LabeledRef>(rawRefs: unknown, refKey: string, byId: Map<string, T>): string[] => {
+  const refs = localize<Array<Record<string, { id?: string } | undefined>>>(rawRefs) ?? [];
+  return refs
+    .map((ref) => {
+      const id = ref?.[refKey]?.id;
+      if (!id) return null;
+      const entry = byId.get(id);
+      return text(entry?.data?.name) || entry?.name || null;
+    })
+    .filter((label): label is string => Boolean(label));
+};
+
 interface ProductListProps {
   products: BuilderProductContent[];
   tagsById: Map<string, BuilderProductTagContent>;
   categoriesById: Map<string, BuilderProductCategoryContent>;
+  ingredientsById: Map<string, BuilderIngredientContent>;
+  useCasesById: Map<string, BuilderProductUseCaseContent>;
   onSelect: (productId: string) => void;
 }
 
-type ChipVariant = 'tag' | 'category';
+type ChipVariant = 'tag' | 'category' | 'ingredient' | 'useCase';
 
-// Tags keep the accent color; categories use a neutral tone so the two groups
-// read as distinct at a glance.
+// Each taxonomy type gets its own color so the groups read as distinct at a
+// glance (colors defined per-theme in builder-ui styles.css).
 const CHIP_STYLES: Record<ChipVariant, string> = {
-  tag: 'bg-[var(--accent-subtle)] text-[var(--accent)] border-[var(--accent)]/20',
-  category: 'bg-[var(--bg-glass)] text-[var(--text-secondary)] border-[var(--border-glass)]',
+  tag: 'bg-[var(--tag)]/10 text-[var(--tag)] border-[var(--tag)]/30',
+  category: 'bg-[var(--category)]/10 text-[var(--category)] border-[var(--category)]/30',
+  ingredient: 'bg-[var(--ingredient)]/10 text-[var(--ingredient)] border-[var(--ingredient)]/30',
+  useCase: 'bg-[var(--use-case)]/10 text-[var(--use-case)] border-[var(--use-case)]/30',
 };
 
 const TagChip: React.FC<{ label: string; variant?: ChipVariant }> = ({ label, variant = 'tag' }) => (
@@ -81,10 +108,12 @@ const CartLineThumb: React.FC<{ src?: string; alt: string }> = ({ src, alt }) =>
 
 const ProductRow: React.FC<{
   product: BuilderProductContent;
-  categoryLabels: string[];
   tagLabels: string[];
+  categoryLabels: string[];
+  ingredientLabels: string[];
+  useCaseLabels: string[];
   onSelect: () => void;
-}> = ({ product, categoryLabels, tagLabels, onSelect }) => {
+}> = ({ product, tagLabels, categoryLabels, ingredientLabels, useCaseLabels, onSelect }) => {
   const data = product.data;
   const displayName = text(data?.displayName) || data?.name || '(Untitled product)';
   const image = data?.featuredImage;
@@ -101,6 +130,13 @@ const ProductRow: React.FC<{
         {showInternalName && <div className="text-[11px] text-[var(--text-muted)] truncate">{internalName}</div>}
         <ChipGroup label="Tags" labels={tagLabels} emptyText="No tags assigned" variant="tag" />
         <ChipGroup label="Categories" labels={categoryLabels} emptyText="No categories assigned" variant="category" />
+        <ChipGroup
+          label="Ingredients"
+          labels={ingredientLabels}
+          emptyText="No ingredients assigned"
+          variant="ingredient"
+        />
+        <ChipGroup label="Use Cases" labels={useCaseLabels} emptyText="No use cases assigned" variant="useCase" />
       </div>
 
       <div className="flex flex-shrink-0 items-center gap-2">
@@ -141,7 +177,14 @@ const ProductRow: React.FC<{
   );
 };
 
-const ProductList: React.FC<ProductListProps> = ({ products, tagsById, categoriesById, onSelect }) => {
+const ProductList: React.FC<ProductListProps> = ({
+  products,
+  tagsById,
+  categoriesById,
+  ingredientsById,
+  useCasesById,
+  onSelect,
+}) => {
   const [query, setQuery] = useState('');
 
   const filtered = useMemo(() => {
@@ -153,34 +196,6 @@ const ProductList: React.FC<ProductListProps> = ({ products, tagsById, categorie
       return haystack.includes(q);
     });
   }, [products, query]);
-
-  const resolveTagLabels = (product: BuilderProductContent): string[] => {
-    // The tags list is itself localized; resolve to Default, then resolve each
-    // referenced tag's (localized) name.
-    const refs = localize<NonNullable<BuilderProductContent['data']>['tags']>(product.data?.tags) ?? [];
-    return refs
-      .map((ref) => {
-        const tagId = (ref?.tag as { id?: string } | undefined)?.id;
-        if (!tagId) return null;
-        const entry = tagsById.get(tagId);
-        return text(entry?.data?.name) || entry?.name || null;
-      })
-      .filter((label): label is string => Boolean(label));
-  };
-
-  const resolveCategoryLabels = (product: BuilderProductContent): string[] => {
-    // Mirrors resolveTagLabels: the categories list is localized, and each
-    // referenced category's name is itself localized.
-    const refs = localize<NonNullable<BuilderProductContent['data']>['categories']>(product.data?.categories) ?? [];
-    return refs
-      .map((ref) => {
-        const categoryId = (ref?.category as { id?: string } | undefined)?.id;
-        if (!categoryId) return null;
-        const entry = categoriesById.get(categoryId);
-        return text(entry?.data?.name) || entry?.name || null;
-      })
-      .filter((label): label is string => Boolean(label));
-  };
 
   return (
     <div className="space-y-4">
@@ -207,8 +222,10 @@ const ProductList: React.FC<ProductListProps> = ({ products, tagsById, categorie
             <ProductRow
               key={product.id ?? `product-row-${i}`}
               product={product}
-              categoryLabels={resolveCategoryLabels(product)}
-              tagLabels={resolveTagLabels(product)}
+              tagLabels={resolveRefLabels(product.data?.tags, 'tag', tagsById)}
+              categoryLabels={resolveRefLabels(product.data?.categories, 'category', categoriesById)}
+              ingredientLabels={resolveRefLabels(product.data?.ingredients, 'ingredient', ingredientsById)}
+              useCaseLabels={resolveRefLabels(product.data?.useCases, 'useCase', useCasesById)}
               onSelect={() => product.id && onSelect(product.id)}
             />
           ))}
