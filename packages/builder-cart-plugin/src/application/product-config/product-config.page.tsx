@@ -100,6 +100,14 @@ const ProductConfigPage: React.FC<ProductConfigPageProps> = ({ context }) => {
     return map;
   }, [tags]);
 
+  const categoriesById = useMemo(() => {
+    const map = new Map<string, BuilderProductCategoryContent>();
+    categories.forEach((c) => {
+      if (c.id) map.set(c.id, c);
+    });
+    return map;
+  }, [categories]);
+
   const selectedProduct = useMemo(() => {
     if (view.kind !== 'detail') return null;
     return products.find((p) => p.id === view.productId) ?? null;
@@ -202,6 +210,7 @@ const ProductConfigPage: React.FC<ProductConfigPageProps> = ({ context }) => {
       <ProductList
         products={products}
         tagsById={tagsById}
+        categoriesById={categoriesById}
         onSelect={(productId) => setView({ kind: 'detail', productId })}
       />
     </div>
