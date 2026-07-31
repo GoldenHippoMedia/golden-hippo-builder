@@ -16,6 +16,6 @@ export {
   type BuilderSubscriptionCancellationPanelContent,
 } from './subscription-cancellation-panel.model';
 
-export { createUpsellTemplateModel, type BuilderUpsellTemplateContent } from './upsell-template.model';
+export { createOfferTemplateModel, type BuilderOfferTemplateContent } from './offer-template.model';
 
 export { createPromotionalCardModel, type BuilderPromotionalCardContent } from './promotional-card.model';

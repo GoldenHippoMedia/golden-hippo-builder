@@ -30,6 +30,13 @@ export { createBlogCategoryModel, type BuilderBlogCategoryContent } from './blog
 export { createBlogCommentModel, type BuilderBlogCommentContent } from './blog-comment.model';
 export { createProductGroupModel, type BuilderProductGroupContent, ProductGroupType } from './product-group.model';
 export {
+  createOfferFlowModel,
+  type BuilderOfferFlowContent,
+  OfferType,
+  OfferFlowConditionType,
+  PreviousPurchaseLookback,
+} from './offer-flow.model';
+export {
   createProfileReferenceRuleModel,
   type BuilderProfileReferenceRuleContent,
   ProfileFieldReference,

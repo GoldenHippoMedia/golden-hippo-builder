@@ -153,11 +153,11 @@ export const MODEL_DEFINITIONS: ModelDefinition[] = [
     getShape: (_ids, editUrl) => BuilderHelper.subscriptionCancellationPanel(editUrl),
   },
   {
-    name: 'upsell-template',
-    displayName: 'Upsell Template',
+    name: 'offer-template',
+    displayName: 'Offer Template',
     phase: 3,
     dependencies: [],
-    getShape: (_ids, editUrl) => BuilderHelper.upsellTemplate(editUrl),
+    getShape: (_ids, editUrl) => BuilderHelper.offerTemplate(editUrl),
   },
   {
     name: 'header',
@@ -186,6 +186,13 @@ export const MODEL_DEFINITIONS: ModelDefinition[] = [
     phase: 4,
     dependencies: ['product'],
     getShape: (ids, editUrl) => BuilderHelper.promotionalCardModel(ids['product'], editUrl),
+  },
+  {
+    name: 'offer-flow',
+    displayName: 'Offer Flow',
+    phase: 4,
+    dependencies: ['offer-template', 'product'],
+    getShape: (ids) => BuilderHelper.offerFlow(ids['offer-template'], ids['product']),
   },
 
   // Phase 3b — needs product + section
