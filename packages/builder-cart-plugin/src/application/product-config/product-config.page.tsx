@@ -7,6 +7,7 @@ import type {
   BuilderIngredientContent,
   BuilderProductUseCaseContent,
 } from '@goldenhippo/builder-shared-schemas';
+import type { BuilderProductGroupContent } from '@goldenhippo/builder-cart-schemas';
 import { ExtendedApplicationContext } from '../../interfaces/application-context.interface';
 import BuilderApi from '../../services/builder-api';
 import { resolveCurrentUserTabLevel } from '../../services/tab-access';
@@ -27,6 +28,7 @@ const ProductConfigPage: React.FC<ProductConfigPageProps> = ({ context }) => {
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [products, setProducts] = useState<BuilderProductContent[]>([]);
+  const [groups, setGroups] = useState<BuilderProductGroupContent[]>([]);
   const [tags, setTags] = useState<BuilderProductTagContent[]>([]);
   const [categories, setCategories] = useState<BuilderProductCategoryContent[]>([]);
   const [ingredients, setIngredients] = useState<BuilderIngredientContent[]>([]);
@@ -52,15 +54,18 @@ const ProductConfigPage: React.FC<ProductConfigPageProps> = ({ context }) => {
       try {
         // Fetch raw (unresolved) so localized fields stay as LocalizedValue
         // objects — required to edit per-locale and to discover locales.
-        const [productResults, tagResults, categoryResults, ingredientResults, useCaseResults] = await Promise.all([
-          api.getModelEntries<BuilderProductContent>('product', { bustCache: true, raw: true }),
-          api.getModelEntries<BuilderProductTagContent>('product-tag', { bustCache: true, raw: true }),
-          api.getModelEntries<BuilderProductCategoryContent>('product-category', { bustCache: true, raw: true }),
-          api.getModelEntries<BuilderIngredientContent>('product-ingredient', { bustCache: true, raw: true }),
-          api.getModelEntries<BuilderProductUseCaseContent>('product-use-case', { bustCache: true, raw: true }),
-        ]);
+        const [productResults, groupResults, tagResults, categoryResults, ingredientResults, useCaseResults] =
+          await Promise.all([
+            api.getModelEntries<BuilderProductContent>('product', { bustCache: true, raw: true }),
+            api.getModelEntries<BuilderProductGroupContent>('product-group', { bustCache: true, raw: true }),
+            api.getModelEntries<BuilderProductTagContent>('product-tag', { bustCache: true, raw: true }),
+            api.getModelEntries<BuilderProductCategoryContent>('product-category', { bustCache: true, raw: true }),
+            api.getModelEntries<BuilderIngredientContent>('product-ingredient', { bustCache: true, raw: true }),
+            api.getModelEntries<BuilderProductUseCaseContent>('product-use-case', { bustCache: true, raw: true }),
+          ]);
         if (!mounted.current) return;
         setProducts(productResults);
+        setGroups(groupResults);
         setTags(tagResults);
         setCategories(categoryResults);
         setIngredients(ingredientResults);
@@ -131,8 +136,8 @@ const ProductConfigPage: React.FC<ProductConfigPageProps> = ({ context }) => {
 
   // Locales discovered across all fetched content (Default first).
   const availableLocales = useMemo(
-    () => collectLocales([...products, ...tags, ...categories, ...ingredients, ...useCases]),
-    [products, tags, categories, ingredients, useCases],
+    () => collectLocales([...products, ...groups, ...tags, ...categories, ...ingredients, ...useCases]),
+    [products, groups, tags, categories, ingredients, useCases],
   );
 
   const handleProductSaved = useCallback((updated: BuilderProductContent) => {
@@ -169,7 +174,7 @@ const ProductConfigPage: React.FC<ProductConfigPageProps> = ({ context }) => {
   const header = (
     <PageHeader
       title="Product Configuration"
-      subtitle={`${products.length} product${products.length === 1 ? '' : 's'} • ${tags.length} tag${tags.length === 1 ? '' : 's'}`}
+      subtitle={`${products.length} product${products.length === 1 ? '' : 's'} • ${groups.length} group${groups.length === 1 ? '' : 's'} • ${tags.length} tag${tags.length === 1 ? '' : 's'}`}
       actions={refreshAction}
     />
   );
@@ -225,6 +230,7 @@ const ProductConfigPage: React.FC<ProductConfigPageProps> = ({ context }) => {
       {header}
       <ProductList
         products={products}
+        groups={groups}
         tagsById={tagsById}
         categoriesById={categoriesById}
         ingredientsById={ingredientsById}
