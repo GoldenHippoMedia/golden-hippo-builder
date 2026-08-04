@@ -3,7 +3,6 @@ import { BuilderContent } from '@builder.io/sdk';
 import { BuilderProductContent } from '@goldenhippo/builder-shared-schemas';
 import { BuilderOfferTemplateContent } from '../section';
 
-/** Analytics label for an individual offer within a step. Does not affect progression. */
 export enum OfferType {
   Upsell = 'Upsell',
   Downsell = 'Downsell',
@@ -123,15 +122,6 @@ export const createOfferFlowModel = (offerTemplateModelId: string, productModelI
                 defaultCollapsed: false,
                 helperText: 'Offer identifier (from the offers datasource). Placeholder until the datasource is wired.',
               },
-              {
-                name: 'type',
-                friendlyName: 'Type',
-                type: 'select',
-                enum: [OfferType.Upsell, OfferType.Downsell],
-                defaultValue: OfferType.Upsell,
-                defaultCollapsed: false,
-                helperText: 'Whether this offer is an upsell or a downsell (metrics only).',
-              },
             ],
           },
         ],
@@ -248,7 +238,6 @@ export type BuilderOfferFlowContent = BuilderContent &
         template?: BuilderContentReference<BuilderOfferTemplateContent['data']>;
         offers?: {
           offer?: string;
-          type?: OfferType;
         }[];
       }[];
       conditions?: {
