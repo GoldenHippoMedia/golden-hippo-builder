@@ -1,5 +1,23 @@
 # @goldenhippo/builder-cart-plugin
 
+## 0.18.0
+
+### Minor Changes
+
+- [#92](https://github.com/GoldenHippoMedia/golden-hippo-builder/pull/92) [`827886a`](https://github.com/GoldenHippoMedia/golden-hippo-builder/commit/827886a256e6303f10c0e952b1c06aa41a34c7f1) - Some UI enhancements for the product config — [@dkidwell999](https://github.com/dkidwell999)
+
+- [#86](https://github.com/GoldenHippoMedia/golden-hippo-builder/pull/86) [`61e2586`](https://github.com/GoldenHippoMedia/golden-hippo-builder/commit/61e25862512073002f01bc500def54e73d5f791a) - Adding categories to the product list admin panel — [@jnuttGH](https://github.com/jnuttGH)
+
+- [#91](https://github.com/GoldenHippoMedia/golden-hippo-builder/pull/91) [`6542ef7`](https://github.com/GoldenHippoMedia/golden-hippo-builder/commit/6542ef71b25f1b42a89224fa04cf161a44ff6140) - Show product groups and hidden state in the Product Configuration list — [@jnuttGH](https://github.com/jnuttGH)
+
+- [#90](https://github.com/GoldenHippoMedia/golden-hippo-builder/pull/90) [`29228a7`](https://github.com/GoldenHippoMedia/golden-hippo-builder/commit/29228a795f575d4f6ea7e5735e1c2d7a22665ab2) - adding all taxonomies to the product list item and standardizing colors — [@jnuttGH](https://github.com/jnuttGH)
+
+### Patch Changes
+
+- Updated dependencies [[`17fc988`](https://github.com/GoldenHippoMedia/golden-hippo-builder/commit/17fc988707460737899c3580e307e19a4dd96cda), [`29228a7`](https://github.com/GoldenHippoMedia/golden-hippo-builder/commit/29228a795f575d4f6ea7e5735e1c2d7a22665ab2)]:
+  - @goldenhippo/builder-cart-schemas@0.24.0
+  - @goldenhippo/builder-ui@0.3.0
+
 ## 0.17.0
 
 ### Minor Changes
