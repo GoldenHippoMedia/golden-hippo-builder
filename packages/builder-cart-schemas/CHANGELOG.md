@@ -1,5 +1,11 @@
 # @goldenhippo/builder-cart-schemas
 
+## 0.24.0
+
+### Minor Changes
+
+- [#85](https://github.com/GoldenHippoMedia/golden-hippo-builder/pull/85) [`17fc988`](https://github.com/GoldenHippoMedia/golden-hippo-builder/commit/17fc988707460737899c3580e307e19a4dd96cda) - Add `reviewConfirmation` object (title, message) to the PDP configuration on the page model to override the Yotpo review confirmation popup — [@vbhavsargh](https://github.com/vbhavsargh)
+
 ## 0.23.0
 
 ### Minor Changes

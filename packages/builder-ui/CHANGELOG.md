@@ -1,5 +1,11 @@
 # @goldenhippo/builder-ui
 
+## 0.3.0
+
+### Minor Changes
+
+- [#90](https://github.com/GoldenHippoMedia/golden-hippo-builder/pull/90) [`29228a7`](https://github.com/GoldenHippoMedia/golden-hippo-builder/commit/29228a795f575d4f6ea7e5735e1c2d7a22665ab2) - adding all taxonomies to the product list item and standardizing colors — [@jnuttGH](https://github.com/jnuttGH)
+
 ## 0.2.0
 
 ### Minor Changes
