@@ -50,14 +50,6 @@ export const createOfferFlowModel = (offerTemplateModelId: string, productModelI
         helperText: 'Internal name for this offer flow.',
       },
       {
-        name: 'brand',
-        friendlyName: 'Brand',
-        type: 'text',
-        required: true,
-        defaultCollapsed: true,
-        helperText: 'The brand this flow belongs to.',
-      },
-      {
         name: 'active',
         friendlyName: 'Active',
         type: 'boolean',
@@ -111,6 +103,7 @@ export const createOfferFlowModel = (offerTemplateModelId: string, productModelI
             friendlyName: 'Offers',
             type: 'list',
             defaultCollapsed: false,
+            min: 1,
             helperText:
               "Ordered pool of offers for this step. Provide at least the template's Offer Count; extras are backups.",
             subFields: [
@@ -160,6 +153,15 @@ export const createOfferFlowModel = (offerTemplateModelId: string, productModelI
                 defaultCollapsed: false,
                 helperText: 'A product that triggers this flow.',
               },
+              {
+                name: 'purchaseType',
+                friendlyName: 'Purchase Type',
+                type: 'select',
+                enum: ['sub', 'otp', 'both'],
+                defaultValue: 'both',
+                defaultCollapsed: false,
+                helperText: 'Subscription or one-time purchase',
+              },
             ],
           },
         ],
@@ -198,29 +200,6 @@ export const createOfferFlowModel = (offerTemplateModelId: string, productModelI
         showIf: "return options.get('excludePreviouslyPurchased') === true",
         helperText: 'How far back to look for a previous purchase. "Ever" excludes any past purchase.',
       },
-      {
-        name: 'gh',
-        friendlyName: 'Golden Hippo',
-        type: 'object',
-        defaultCollapsed: true,
-        helperText: 'Integration data for Golden Hippo. Do not modify these values.',
-        subFields: [
-          {
-            name: 'productionId',
-            friendlyName: 'Production ID',
-            type: 'text',
-            defaultCollapsed: false,
-            helperText: 'The production environment content ID for this offer flow.',
-          },
-          {
-            name: 'slug',
-            friendlyName: 'Slug',
-            type: 'text',
-            defaultCollapsed: false,
-            helperText: 'URL slug for this offer flow.',
-          },
-        ],
-      },
     ],
   };
 };
@@ -229,7 +208,6 @@ export type BuilderOfferFlowContent = BuilderContent &
   Partial<{
     data: BuilderResponseBaseData & {
       name: string;
-      brand: string;
       active?: boolean;
       isDefault?: boolean;
       priority?: number;
@@ -249,9 +227,5 @@ export type BuilderOfferFlowContent = BuilderContent &
       excludeSubscribedProducts?: boolean;
       excludePreviouslyPurchased?: boolean;
       previousPurchaseLookback?: PreviousPurchaseLookback;
-      gh?: {
-        productionId?: string;
-        slug?: string;
-      };
     };
   }>;

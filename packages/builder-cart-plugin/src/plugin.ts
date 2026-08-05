@@ -112,6 +112,8 @@ Builder.register('app.onLoad', async ({ triggerSettingsDialog }: AppActions) => 
   }
 });
 
+//TODO: builder.register "ui-plugin"
+
 const user = UserManagementService.getUserDetails(appState as ExtendedApplicationContext);
 
 const TAB_REGISTRY: Record<string, { name: string; icon: string; component: unknown; adminOnly?: boolean }> = {
