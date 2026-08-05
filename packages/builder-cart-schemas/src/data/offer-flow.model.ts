@@ -13,6 +13,13 @@ export enum OfferFlowConditionType {
   PurchasedProduct = 'Purchased Product',
 }
 
+/** How a product was purchased, for a "Purchased Product" condition. `Both` matches either. */
+export enum OfferFlowOrderType {
+  Subscription = 'Subscription',
+  OneTimePurchase = 'One-time Purchase',
+  Both = 'Both',
+}
+
 /** Lookback window for the "exclude previously purchased" filter. `Ever` = any past purchase. */
 export enum PreviousPurchaseLookback {
   OneMonth = '1 month',
@@ -154,13 +161,23 @@ export const createOfferFlowModel = (offerTemplateModelId: string, productModelI
                 helperText: 'A product that triggers this flow.',
               },
               {
-                name: 'purchaseType',
-                friendlyName: 'Purchase Type',
-                type: 'select',
-                enum: ['sub', 'otp', 'both'],
-                defaultValue: 'both',
+                name: 'quantity',
+                friendlyName: 'Quantity',
+                type: 'number',
+                required: false,
+                defaultValue: undefined,
                 defaultCollapsed: false,
-                helperText: 'Subscription or one-time purchase',
+                helperText: 'Only match at this purchased quantity. Blank = any quantity.',
+              },
+              {
+                name: 'orderType',
+                friendlyName: 'Order Type',
+                type: 'select',
+                enum: [OfferFlowOrderType.Subscription, OfferFlowOrderType.OneTimePurchase, OfferFlowOrderType.Both],
+                required: false,
+                defaultValue: OfferFlowOrderType.Both,
+                defaultCollapsed: false,
+                helperText: 'Only match when the product was purchased this way. "Both" matches either.',
               },
             ],
           },
@@ -222,6 +239,8 @@ export type BuilderOfferFlowContent = BuilderContent &
         conditionType?: OfferFlowConditionType;
         products?: {
           product: BuilderContentReference<BuilderProductContent['data']>;
+          quantity?: number;
+          orderType?: OfferFlowOrderType;
         }[];
       }[];
       excludeSubscribedProducts?: boolean;

@@ -34,6 +34,7 @@ export {
   type BuilderOfferFlowContent,
   OfferType,
   OfferFlowConditionType,
+  OfferFlowOrderType,
   PreviousPurchaseLookback,
 } from './offer-flow.model';
 export {

@@ -28,6 +28,7 @@ export {
   ProfileReferenceApplicationType,
   OfferType,
   OfferFlowConditionType,
+  OfferFlowOrderType,
   PreviousPurchaseLookback,
   type BuilderOfferFlowContent,
   type BuilderBlogCategoryContent,
