@@ -27,19 +27,28 @@ const doesItemMatchConditionProduct = (item: PurchasedLineItem, entry: OfferFlow
   }
 };
 
-export const doesFlowMatchOrder = (orderItems: PurchasedLineItem[], flow: BuilderOfferFlowContent): boolean => {
-  const conditions = flow.data?.conditions;
-  if (!conditions?.length || !orderItems.length) return false;
+/** The order's distinct products (by family id) that this flow's conditions target. */
+const matchedProductionIds = (orderItems: PurchasedLineItem[], flow: BuilderOfferFlowContent): Set<string> => {
+  const matched = new Set<string>();
 
-  return conditions.some((condition) => {
-    if (condition.conditionType && condition.conditionType !== OfferFlowConditionType.PurchasedProduct) return false;
+  for (const condition of flow.data?.conditions ?? []) {
+    if (condition.conditionType && condition.conditionType !== OfferFlowConditionType.PurchasedProduct) continue;
 
-    return (
-      condition.products?.some((entry) => orderItems.some((item) => doesItemMatchConditionProduct(item, entry))) ??
-      false
-    );
-  });
+    for (const entry of condition.products ?? []) {
+      for (const item of orderItems) {
+        if (doesItemMatchConditionProduct(item, entry)) matched.add(item.productionId);
+      }
+    }
+  }
+
+  return matched;
 };
+
+export const doesFlowMatchOrder = (orderItems: PurchasedLineItem[], flow: BuilderOfferFlowContent): boolean =>
+  matchedProductionIds(orderItems, flow).size > 0;
+
+export const countMatchedProducts = (orderItems: PurchasedLineItem[], flow: BuilderOfferFlowContent): number =>
+  matchedProductionIds(orderItems, flow).size;
 
 /**
  * Highest priority first, then most recently updated, then id.
@@ -55,8 +64,11 @@ export const selectOfferFlow = (
 ): BuilderOfferFlowContent | null => {
   const active = flows.filter((flow) => flow.data?.active !== false);
 
-  const matched = active.filter((flow) => doesFlowMatchOrder(orderItems, flow));
-  if (matched.length) return matched.sort(byPrecedence)[0];
+  const matched = active
+    .map((flow) => ({ flow, coverage: countMatchedProducts(orderItems, flow) }))
+    .filter(({ coverage }) => coverage > 0)
+    .sort((a, b) => b.coverage - a.coverage || byPrecedence(a.flow, b.flow));
+  if (matched.length) return matched[0].flow;
 
   return active.filter((flow) => flow.data?.isDefault === true).sort(byPrecedence)[0] ?? null;
 };

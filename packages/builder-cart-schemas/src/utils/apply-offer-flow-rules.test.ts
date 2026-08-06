@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { doesFlowMatchOrder, selectOfferFlow, type PurchasedLineItem } from './apply-offer-flow-rules';
+import {
+  countMatchedProducts,
+  doesFlowMatchOrder,
+  selectOfferFlow,
+  type PurchasedLineItem,
+} from './apply-offer-flow-rules';
 import { BuilderOfferFlowContent, OfferFlowConditionType, OfferFlowOrderType } from '../data/offer-flow.model';
 
 type ConditionProduct = NonNullable<
@@ -139,6 +144,59 @@ describe('doesFlowMatchOrder', () => {
   });
 });
 
+describe('countMatchedProducts', () => {
+  const order = [item({ productionId: 'PROD-A' }), item({ productionId: 'PROD-B' })];
+
+  it('counts the distinct purchased products a flow targets', () => {
+    const one = flow({ conditions: [purchasedProduct([{ product: productRef('PROD-A') }])] });
+    const two = flow({
+      conditions: [purchasedProduct([{ product: productRef('PROD-A') }, { product: productRef('PROD-B') }])],
+    });
+
+    expect(countMatchedProducts(order, one)).toBe(1);
+    expect(countMatchedProducts(order, two)).toBe(2);
+  });
+
+  it('ignores products the order does not contain', () => {
+    const f = flow({
+      conditions: [purchasedProduct([{ product: productRef('PROD-A') }, { product: productRef('PROD-Z') }])],
+    });
+    expect(countMatchedProducts(order, f)).toBe(1);
+  });
+
+  it('scores the same whether products are split across conditions or listed in one', () => {
+    const grouped = flow({
+      conditions: [purchasedProduct([{ product: productRef('PROD-A') }, { product: productRef('PROD-B') }])],
+    });
+    const split = flow({
+      conditions: [
+        purchasedProduct([{ product: productRef('PROD-A') }]),
+        purchasedProduct([{ product: productRef('PROD-B') }]),
+      ],
+    });
+
+    expect(countMatchedProducts(order, grouped)).toBe(2);
+    expect(countMatchedProducts(order, split)).toBe(2);
+  });
+
+  // Otherwise a family-wide condition would outrank a SKU-specific one just by spanning more lines.
+  it('counts two SKUs of one family as a single product covered', () => {
+    const twoSkusOfOneFamily = [item({ quantity: 3 }), item({ quantity: 6 })];
+    const familyWide = flow({ conditions: [purchasedProduct([{ product: productRef('PROD-A') }])] });
+    const skuSpecific = flow({ conditions: [purchasedProduct([{ product: productRef('PROD-A'), quantity: 6 }])] });
+
+    expect(countMatchedProducts(twoSkusOfOneFamily, familyWide)).toBe(1);
+    expect(countMatchedProducts(twoSkusOfOneFamily, skuSpecific)).toBe(1);
+  });
+
+  it('is zero for a flow that matches nothing', () => {
+    expect(countMatchedProducts(order, flow({}))).toBe(0);
+    expect(
+      countMatchedProducts([], flow({ conditions: [purchasedProduct([{ product: productRef('PROD-A') }])] })),
+    ).toBe(0);
+  });
+});
+
 describe('selectOfferFlow', () => {
   const matching = purchasedProduct([{ product: productRef('PROD-A') }]);
 
@@ -152,6 +210,32 @@ describe('selectOfferFlow', () => {
     const conditional = flow({ conditions: [matching] }, { id: 'conditional' });
     const fallback = flow({ isDefault: true }, { id: 'fallback' });
     expect(selectOfferFlow([item({ productionId: 'PROD-Z' })], [conditional, fallback])?.id).toBe('fallback');
+  });
+
+  it('prefers the flow covering more of the order, even over a higher priority', () => {
+    const order = [item({ productionId: 'PROD-A' }), item({ productionId: 'PROD-B' })];
+    const coversOne = flow(
+      { conditions: [purchasedProduct([{ product: productRef('PROD-A') }])], priority: 99 },
+      { id: 'covers-one' },
+    );
+    const coversBoth = flow(
+      {
+        conditions: [purchasedProduct([{ product: productRef('PROD-A') }, { product: productRef('PROD-B') }])],
+        priority: 0,
+      },
+      { id: 'covers-both' },
+    );
+
+    expect(selectOfferFlow(order, [coversOne, coversBoth])?.id).toBe('covers-both');
+  });
+
+  it('falls back to priority when two flows cover the order equally', () => {
+    const order = [item({ productionId: 'PROD-A' }), item({ productionId: 'PROD-B' })];
+    const both = [{ product: productRef('PROD-A') }, { product: productRef('PROD-B') }];
+    const low = flow({ conditions: [purchasedProduct(both)], priority: 1 }, { id: 'low' });
+    const high = flow({ conditions: [purchasedProduct(both)], priority: 5 }, { id: 'high' });
+
+    expect(selectOfferFlow(order, [low, high])?.id).toBe('high');
   });
 
   it('breaks ties among matching flows by priority, then recency, then id', () => {

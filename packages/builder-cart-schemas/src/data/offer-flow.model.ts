@@ -78,7 +78,9 @@ export const createOfferFlowModel = (offerTemplateModelId: string, productModelI
         type: 'number',
         defaultValue: 0,
         defaultCollapsed: true,
-        helperText: 'Tiebreak among matching conditional flows — higher wins.',
+        helperText:
+          'Tiebreak among matching conditional flows — higher wins. Applies only between flows that match the' +
+          " same number of the order's products; a flow matching more of them wins regardless of priority.",
       },
       {
         name: 'stepTarget',
