@@ -75,3 +75,4 @@ export {
 } from './page';
 
 export { applyProfileReferenceRules } from './utils';
+export { selectOfferFlow, doesFlowMatchOrder, type PurchasedLineItem } from './utils';

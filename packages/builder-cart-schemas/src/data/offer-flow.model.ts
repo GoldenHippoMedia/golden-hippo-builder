@@ -167,7 +167,9 @@ export const createOfferFlowModel = (offerTemplateModelId: string, productModelI
                 required: false,
                 defaultValue: undefined,
                 defaultCollapsed: false,
-                helperText: 'Only match at this purchased quantity. Blank = any quantity.',
+                helperText:
+                  'Only match this exact quantity — each quantity is its own SKU, so 3 will not match a' +
+                  ' purchase of 6. Blank = any quantity of this product.',
               },
               {
                 name: 'orderType',
