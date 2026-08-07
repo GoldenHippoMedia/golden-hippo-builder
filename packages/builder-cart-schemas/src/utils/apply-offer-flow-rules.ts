@@ -1,9 +1,10 @@
 import { BuilderOfferFlowContent, OfferFlowConditionType, OfferFlowOrderType } from '../data/offer-flow.model';
 
 export interface PurchasedLineItem {
-  productionId: string;
-  quantity: number;
-  isSubscription: boolean;
+  /** Salesforce id of the Product Family, matched against the condition product's `gh.productionId`. */
+  familyId: string;
+  representsQuantity?: number;
+  isSubscription?: boolean;
 }
 
 type OfferFlowCondition = NonNullable<NonNullable<BuilderOfferFlowContent['data']>['conditions']>[number];
@@ -11,24 +12,25 @@ type OfferFlowConditionProduct = NonNullable<OfferFlowCondition['products']>[num
 
 /** True when a line item satisfies one condition-product entry, including its optional narrowing. */
 const doesItemMatchConditionProduct = (item: PurchasedLineItem, entry: OfferFlowConditionProduct): boolean => {
-  const productionId = entry.product?.value?.data?.gh?.productionId;
-  if (!productionId || productionId !== item.productionId) return false;
+  const familyId = entry.product?.value?.data?.gh?.productionId;
+  if (!familyId || familyId !== item.familyId) return false;
 
-  if (typeof entry.quantity === 'number' && entry.quantity > 0 && item.quantity !== entry.quantity) return false;
+  const repQty = entry.representsQuantity;
+  if (typeof repQty === 'number' && repQty > 0 && item.representsQuantity !== repQty) return false;
 
   switch (entry.orderType) {
     case OfferFlowOrderType.Subscription:
-      return item.isSubscription;
+      return item.isSubscription === true;
     case OfferFlowOrderType.OneTimePurchase:
-      return !item.isSubscription;
+      return item.isSubscription === false;
     default:
-      // `Both`, and an unset value, match either.
+      // `Either`, and an unset value, ignore purchase type.
       return true;
   }
 };
 
-/** The order's distinct products (by family id) that this flow's conditions target. */
-const matchedProductionIds = (orderItems: PurchasedLineItem[], flow: BuilderOfferFlowContent): Set<string> => {
+/** The order's distinct product families that this flow's conditions target. */
+const matchedFamilyIds = (orderItems: PurchasedLineItem[], flow: BuilderOfferFlowContent): Set<string> => {
   const matched = new Set<string>();
 
   for (const condition of flow.data?.conditions ?? []) {
@@ -36,7 +38,7 @@ const matchedProductionIds = (orderItems: PurchasedLineItem[], flow: BuilderOffe
 
     for (const entry of condition.products ?? []) {
       for (const item of orderItems) {
-        if (doesItemMatchConditionProduct(item, entry)) matched.add(item.productionId);
+        if (doesItemMatchConditionProduct(item, entry)) matched.add(item.familyId);
       }
     }
   }
@@ -45,14 +47,11 @@ const matchedProductionIds = (orderItems: PurchasedLineItem[], flow: BuilderOffe
 };
 
 export const doesFlowMatchOrder = (orderItems: PurchasedLineItem[], flow: BuilderOfferFlowContent): boolean =>
-  matchedProductionIds(orderItems, flow).size > 0;
+  matchedFamilyIds(orderItems, flow).size > 0;
 
 export const countMatchedProducts = (orderItems: PurchasedLineItem[], flow: BuilderOfferFlowContent): number =>
-  matchedProductionIds(orderItems, flow).size;
+  matchedFamilyIds(orderItems, flow).size;
 
-/**
- * Highest priority first, then most recently updated, then id.
- */
 const byPrecedence = (a: BuilderOfferFlowContent, b: BuilderOfferFlowContent): number =>
   (b.data?.priority ?? 0) - (a.data?.priority ?? 0) ||
   (b.lastUpdated ?? 0) - (a.lastUpdated ?? 0) ||

@@ -13,11 +13,10 @@ export enum OfferFlowConditionType {
   PurchasedProduct = 'Purchased Product',
 }
 
-/** How a product was purchased, for a "Purchased Product" condition. `Both` matches either. */
 export enum OfferFlowOrderType {
   Subscription = 'Subscription',
   OneTimePurchase = 'One-time Purchase',
-  Both = 'Both',
+  Either = 'Either',
 }
 
 /** Lookback window for the "exclude previously purchased" filter. `Ever` = any past purchase. */
@@ -163,25 +162,25 @@ export const createOfferFlowModel = (offerTemplateModelId: string, productModelI
                 helperText: 'A product that triggers this flow.',
               },
               {
-                name: 'quantity',
-                friendlyName: 'Quantity',
+                name: 'representsQuantity',
+                friendlyName: 'Represents Quantity',
                 type: 'number',
                 required: false,
                 defaultValue: undefined,
                 defaultCollapsed: false,
                 helperText:
-                  'Only match this exact quantity — each quantity is its own SKU, so 3 will not match a' +
-                  ' purchase of 6. Blank = any quantity of this product.',
+                  'The number of units the purchased SKU ships — enter 3 to match the 3-jar SKU, 6 for the' +
+                  ' 6-jar SKU.',
               },
               {
                 name: 'orderType',
                 friendlyName: 'Order Type',
                 type: 'select',
-                enum: [OfferFlowOrderType.Subscription, OfferFlowOrderType.OneTimePurchase, OfferFlowOrderType.Both],
+                enum: [OfferFlowOrderType.Subscription, OfferFlowOrderType.OneTimePurchase, OfferFlowOrderType.Either],
                 required: false,
-                defaultValue: OfferFlowOrderType.Both,
+                defaultValue: OfferFlowOrderType.Either,
                 defaultCollapsed: false,
-                helperText: 'Only match when the product was purchased this way. "Both" matches either.',
+                helperText: 'Only match when this item was purchased this way. "Either" ignores purchase type.',
               },
             ],
           },
@@ -243,7 +242,7 @@ export type BuilderOfferFlowContent = BuilderContent &
         conditionType?: OfferFlowConditionType;
         products?: {
           product: BuilderContentReference<BuilderProductContent['data']>;
-          quantity?: number;
+          representsQuantity?: number;
           orderType?: OfferFlowOrderType;
         }[];
       }[];

@@ -11,7 +11,7 @@ type ConditionProduct = NonNullable<
   NonNullable<NonNullable<BuilderOfferFlowContent['data']>['conditions']>[number]['products']
 >[number];
 
-/** Minimal enriched product reference — only `gh.productionId` is read by the matcher. */
+/** Minimal enriched product reference — only `gh.productionId` (the family id) is read by the matcher. */
 const productRef = (productionId: string): ConditionProduct['product'] =>
   ({
     id: `ref-${productionId}`,
@@ -29,91 +29,141 @@ const purchasedProduct = (products: ConditionProduct[]) => ({
 });
 
 const item = (over: Partial<PurchasedLineItem> = {}): PurchasedLineItem => ({
-  productionId: 'PROD-A',
-  quantity: 1,
+  familyId: 'a19FAM000van',
+  representsQuantity: 1,
   isSubscription: false,
   ...over,
 });
 
 describe('doesFlowMatchOrder', () => {
   it('matches on the product reference alone', () => {
-    const f = flow({ conditions: [purchasedProduct([{ product: productRef('PROD-A') }])] });
+    const f = flow({ conditions: [purchasedProduct([{ product: productRef('a19FAM000van') }])] });
     expect(doesFlowMatchOrder([item()], f)).toBe(true);
-    expect(doesFlowMatchOrder([item({ productionId: 'PROD-B' })], f)).toBe(false);
+    expect(doesFlowMatchOrder([item({ familyId: 'a19FAM000choc' })], f)).toBe(false);
   });
 
-  // Quantity identifies a SKU within the product family, so a 3-pack condition must not
-  // fire for the 6-pack — that separation is the whole point of exposing the field.
-  it('matches quantity exactly, not as a threshold', () => {
-    const f = flow({ conditions: [purchasedProduct([{ product: productRef('PROD-A'), quantity: 3 }])] });
-    expect(doesFlowMatchOrder([item({ quantity: 3 })], f)).toBe(true);
-    expect(doesFlowMatchOrder([item({ quantity: 6 })], f)).toBe(false);
-    expect(doesFlowMatchOrder([item({ quantity: 2 })], f)).toBe(false);
+  // `representsQuantity` is the units the SKU ships, not the line quantity: buying one 3-jar SKU
+  // is representsQuantity 3. A 3-jar condition must not fire for the 6-jar SKU.
+  it('matches representsQuantity exactly, not as a threshold', () => {
+    const f = flow({
+      conditions: [purchasedProduct([{ product: productRef('a19FAM000van'), representsQuantity: 3 }])],
+    });
+    expect(doesFlowMatchOrder([item({ representsQuantity: 3 })], f)).toBe(true);
+    expect(doesFlowMatchOrder([item({ representsQuantity: 6 })], f)).toBe(false);
+    expect(doesFlowMatchOrder([item({ representsQuantity: 2 })], f)).toBe(false);
   });
 
-  it('ignores an unset or non-positive quantity', () => {
-    const unset = flow({ conditions: [purchasedProduct([{ product: productRef('PROD-A') }])] });
-    const zero = flow({ conditions: [purchasedProduct([{ product: productRef('PROD-A'), quantity: 0 }])] });
-    expect(doesFlowMatchOrder([item({ quantity: 6 })], unset)).toBe(true);
-    expect(doesFlowMatchOrder([item({ quantity: 6 })], zero)).toBe(true);
+  it('ignores an unset or non-positive representsQuantity', () => {
+    const unset = flow({ conditions: [purchasedProduct([{ product: productRef('a19FAM000van') }])] });
+    const zero = flow({
+      conditions: [purchasedProduct([{ product: productRef('a19FAM000van'), representsQuantity: 0 }])],
+    });
+    expect(doesFlowMatchOrder([item({ representsQuantity: 6 })], unset)).toBe(true);
+    expect(doesFlowMatchOrder([item({ representsQuantity: 6 })], zero)).toBe(true);
+  });
+
+  // A caller that cannot resolve the SKU's pack size or rebill flag still matches family-only
+  // conditions, but must not satisfy one that narrows on the fact it is missing.
+  it('fails closed when the line lacks the narrowed fact', () => {
+    const bare: PurchasedLineItem = { familyId: 'a19FAM000van' };
+    const familyOnly = flow({ conditions: [purchasedProduct([{ product: productRef('a19FAM000van') }])] });
+    const needsQty = flow({
+      conditions: [purchasedProduct([{ product: productRef('a19FAM000van'), representsQuantity: 3 }])],
+    });
+    const needsSub = flow({
+      conditions: [
+        purchasedProduct([{ product: productRef('a19FAM000van'), orderType: OfferFlowOrderType.Subscription }]),
+      ],
+    });
+
+    expect(doesFlowMatchOrder([bare], familyOnly)).toBe(true);
+    expect(doesFlowMatchOrder([bare], needsQty)).toBe(false);
+    expect(doesFlowMatchOrder([bare], needsSub)).toBe(false);
+  });
+
+  // Salesforce ids appear in both 15- and 18-character forms, which differ in case.
+  it('compares family ids case-insensitively', () => {
+    const f = flow({ conditions: [purchasedProduct([{ product: productRef('A19FAM000VAN') }])] });
+    expect(doesFlowMatchOrder([item({ familyId: 'a19fam000van' })], f)).toBe(true);
+  });
+
+  // Flavor lives at the family level, so each flavor is its own family and must be listed
+  // separately — there is no way to target a whole family group from one product entry.
+  it('treats flavors of one product as separate families', () => {
+    const vanillaOnly = flow({ conditions: [purchasedProduct([{ product: productRef('a19FAM000van') }])] });
+    expect(doesFlowMatchOrder([item({ familyId: 'a19FAM000van' })], vanillaOnly)).toBe(true);
+    expect(doesFlowMatchOrder([item({ familyId: 'a19FAM000choc' })], vanillaOnly)).toBe(false);
   });
 
   it('matches distinct SKUs of one family to distinct flows', () => {
-    const threePack = flow({ conditions: [purchasedProduct([{ product: productRef('PROD-A'), quantity: 3 }])] });
-    const sixPack = flow({ conditions: [purchasedProduct([{ product: productRef('PROD-A'), quantity: 6 }])] });
-    const order = [item({ quantity: 6 })];
+    const threePack = flow({
+      conditions: [purchasedProduct([{ product: productRef('a19FAM000van'), representsQuantity: 3 }])],
+    });
+    const sixPack = flow({
+      conditions: [purchasedProduct([{ product: productRef('a19FAM000van'), representsQuantity: 6 }])],
+    });
+    const order = [item({ representsQuantity: 6 })];
 
     expect(doesFlowMatchOrder(order, threePack)).toBe(false);
     expect(doesFlowMatchOrder(order, sixPack)).toBe(true);
   });
 
-  it('narrows by order type, with Both matching either', () => {
+  it('narrows by order type, with Either ignoring purchase type', () => {
     const sub = flow({
-      conditions: [purchasedProduct([{ product: productRef('PROD-A'), orderType: OfferFlowOrderType.Subscription }])],
+      conditions: [
+        purchasedProduct([{ product: productRef('a19FAM000van'), orderType: OfferFlowOrderType.Subscription }]),
+      ],
     });
     const otp = flow({
       conditions: [
-        purchasedProduct([{ product: productRef('PROD-A'), orderType: OfferFlowOrderType.OneTimePurchase }]),
+        purchasedProduct([{ product: productRef('a19FAM000van'), orderType: OfferFlowOrderType.OneTimePurchase }]),
       ],
     });
-    const both = flow({
-      conditions: [purchasedProduct([{ product: productRef('PROD-A'), orderType: OfferFlowOrderType.Both }])],
+    const either = flow({
+      conditions: [purchasedProduct([{ product: productRef('a19FAM000van'), orderType: OfferFlowOrderType.Either }])],
     });
 
     expect(doesFlowMatchOrder([item({ isSubscription: true })], sub)).toBe(true);
     expect(doesFlowMatchOrder([item({ isSubscription: false })], sub)).toBe(false);
     expect(doesFlowMatchOrder([item({ isSubscription: false })], otp)).toBe(true);
     expect(doesFlowMatchOrder([item({ isSubscription: true })], otp)).toBe(false);
-    expect(doesFlowMatchOrder([item({ isSubscription: true })], both)).toBe(true);
-    expect(doesFlowMatchOrder([item({ isSubscription: false })], both)).toBe(true);
+    expect(doesFlowMatchOrder([item({ isSubscription: true })], either)).toBe(true);
+    expect(doesFlowMatchOrder([item({ isSubscription: false })], either)).toBe(true);
   });
 
-  it('requires quantity and order type to hold on the same line item', () => {
+  it('requires representsQuantity and order type to hold on the same line item', () => {
     const f = flow({
       conditions: [
-        purchasedProduct([{ product: productRef('PROD-A'), quantity: 3, orderType: OfferFlowOrderType.Subscription }]),
+        purchasedProduct([
+          { product: productRef('a19FAM000van'), representsQuantity: 3, orderType: OfferFlowOrderType.Subscription },
+        ]),
       ],
     });
     // Two items each satisfy half the entry; neither satisfies both.
-    const items = [item({ quantity: 3, isSubscription: false }), item({ quantity: 1, isSubscription: true })];
+    const items = [
+      item({ representsQuantity: 3, isSubscription: false }),
+      item({ representsQuantity: 1, isSubscription: true }),
+    ];
     expect(doesFlowMatchOrder(items, f)).toBe(false);
-    expect(doesFlowMatchOrder([item({ quantity: 3, isSubscription: true })], f)).toBe(true);
+    expect(doesFlowMatchOrder([item({ representsQuantity: 3, isSubscription: true })], f)).toBe(true);
   });
 
   it('ORs across products within a condition and across conditions', () => {
     const withinCondition = flow({
-      conditions: [purchasedProduct([{ product: productRef('PROD-A') }, { product: productRef('PROD-B') }])],
+      conditions: [
+        purchasedProduct([{ product: productRef('a19FAM000van') }, { product: productRef('a19FAM000choc') }]),
+      ],
     });
     const acrossConditions = flow({
       conditions: [
-        purchasedProduct([{ product: productRef('PROD-A') }]),
-        purchasedProduct([{ product: productRef('PROD-B') }]),
+        purchasedProduct([{ product: productRef('a19FAM000van') }]),
+        purchasedProduct([{ product: productRef('a19FAM000choc') }]),
       ],
     });
 
     for (const f of [withinCondition, acrossConditions]) {
-      expect(doesFlowMatchOrder([item({ productionId: 'PROD-B' })], f)).toBe(true);
-      expect(doesFlowMatchOrder([item({ productionId: 'PROD-C' })], f)).toBe(false);
+      expect(doesFlowMatchOrder([item({ familyId: 'a19FAM000choc' })], f)).toBe(true);
+      expect(doesFlowMatchOrder([item({ familyId: 'a19FAM000other' })], f)).toBe(false);
     }
   });
 
@@ -124,15 +174,17 @@ describe('doesFlowMatchOrder', () => {
   });
 
   it('matches on an empty order never, even with conditions configured', () => {
-    const f = flow({ conditions: [purchasedProduct([{ product: productRef('PROD-A') }])] });
+    const f = flow({ conditions: [purchasedProduct([{ product: productRef('a19FAM000van') }])] });
     expect(doesFlowMatchOrder([], f)).toBe(false);
   });
 
   it('fails closed on an unrecognized condition type but honors an unset one', () => {
     const unknown = flow({
-      conditions: [{ ...purchasedProduct([{ product: productRef('PROD-A') }]), conditionType: 'Cart Value' as never }],
+      conditions: [
+        { ...purchasedProduct([{ product: productRef('a19FAM000van') }]), conditionType: 'Cart Value' as never },
+      ],
     });
-    const unset = flow({ conditions: [{ products: [{ product: productRef('PROD-A') }] }] });
+    const unset = flow({ conditions: [{ products: [{ product: productRef('a19FAM000van') }] }] });
 
     expect(doesFlowMatchOrder([item()], unknown)).toBe(false);
     expect(doesFlowMatchOrder([item()], unset)).toBe(true);
@@ -145,12 +197,14 @@ describe('doesFlowMatchOrder', () => {
 });
 
 describe('countMatchedProducts', () => {
-  const order = [item({ productionId: 'PROD-A' }), item({ productionId: 'PROD-B' })];
+  const order = [item({ familyId: 'a19FAM000van' }), item({ familyId: 'a19FAM000choc' })];
 
   it('counts the distinct purchased products a flow targets', () => {
-    const one = flow({ conditions: [purchasedProduct([{ product: productRef('PROD-A') }])] });
+    const one = flow({ conditions: [purchasedProduct([{ product: productRef('a19FAM000van') }])] });
     const two = flow({
-      conditions: [purchasedProduct([{ product: productRef('PROD-A') }, { product: productRef('PROD-B') }])],
+      conditions: [
+        purchasedProduct([{ product: productRef('a19FAM000van') }, { product: productRef('a19FAM000choc') }]),
+      ],
     });
 
     expect(countMatchedProducts(order, one)).toBe(1);
@@ -159,19 +213,23 @@ describe('countMatchedProducts', () => {
 
   it('ignores products the order does not contain', () => {
     const f = flow({
-      conditions: [purchasedProduct([{ product: productRef('PROD-A') }, { product: productRef('PROD-Z') }])],
+      conditions: [
+        purchasedProduct([{ product: productRef('a19FAM000van') }, { product: productRef('a19FAM000none') }]),
+      ],
     });
     expect(countMatchedProducts(order, f)).toBe(1);
   });
 
   it('scores the same whether products are split across conditions or listed in one', () => {
     const grouped = flow({
-      conditions: [purchasedProduct([{ product: productRef('PROD-A') }, { product: productRef('PROD-B') }])],
+      conditions: [
+        purchasedProduct([{ product: productRef('a19FAM000van') }, { product: productRef('a19FAM000choc') }]),
+      ],
     });
     const split = flow({
       conditions: [
-        purchasedProduct([{ product: productRef('PROD-A') }]),
-        purchasedProduct([{ product: productRef('PROD-B') }]),
+        purchasedProduct([{ product: productRef('a19FAM000van') }]),
+        purchasedProduct([{ product: productRef('a19FAM000choc') }]),
       ],
     });
 
@@ -181,9 +239,11 @@ describe('countMatchedProducts', () => {
 
   // Otherwise a family-wide condition would outrank a SKU-specific one just by spanning more lines.
   it('counts two SKUs of one family as a single product covered', () => {
-    const twoSkusOfOneFamily = [item({ quantity: 3 }), item({ quantity: 6 })];
-    const familyWide = flow({ conditions: [purchasedProduct([{ product: productRef('PROD-A') }])] });
-    const skuSpecific = flow({ conditions: [purchasedProduct([{ product: productRef('PROD-A'), quantity: 6 }])] });
+    const twoSkusOfOneFamily = [item({ representsQuantity: 3 }), item({ representsQuantity: 6 })];
+    const familyWide = flow({ conditions: [purchasedProduct([{ product: productRef('a19FAM000van') }])] });
+    const skuSpecific = flow({
+      conditions: [purchasedProduct([{ product: productRef('a19FAM000van'), representsQuantity: 6 }])],
+    });
 
     expect(countMatchedProducts(twoSkusOfOneFamily, familyWide)).toBe(1);
     expect(countMatchedProducts(twoSkusOfOneFamily, skuSpecific)).toBe(1);
@@ -192,13 +252,13 @@ describe('countMatchedProducts', () => {
   it('is zero for a flow that matches nothing', () => {
     expect(countMatchedProducts(order, flow({}))).toBe(0);
     expect(
-      countMatchedProducts([], flow({ conditions: [purchasedProduct([{ product: productRef('PROD-A') }])] })),
+      countMatchedProducts([], flow({ conditions: [purchasedProduct([{ product: productRef('a19FAM000van') }])] })),
     ).toBe(0);
   });
 });
 
 describe('selectOfferFlow', () => {
-  const matching = purchasedProduct([{ product: productRef('PROD-A') }]);
+  const matching = purchasedProduct([{ product: productRef('a19FAM000van') }]);
 
   it('prefers a matching conditional flow over the default', () => {
     const conditional = flow({ conditions: [matching] }, { id: 'conditional' });
@@ -209,18 +269,20 @@ describe('selectOfferFlow', () => {
   it('falls back to the default flow when nothing matches', () => {
     const conditional = flow({ conditions: [matching] }, { id: 'conditional' });
     const fallback = flow({ isDefault: true }, { id: 'fallback' });
-    expect(selectOfferFlow([item({ productionId: 'PROD-Z' })], [conditional, fallback])?.id).toBe('fallback');
+    expect(selectOfferFlow([item({ familyId: 'a19FAM000none' })], [conditional, fallback])?.id).toBe('fallback');
   });
 
   it('prefers the flow covering more of the order, even over a higher priority', () => {
-    const order = [item({ productionId: 'PROD-A' }), item({ productionId: 'PROD-B' })];
+    const order = [item({ familyId: 'a19FAM000van' }), item({ familyId: 'a19FAM000choc' })];
     const coversOne = flow(
-      { conditions: [purchasedProduct([{ product: productRef('PROD-A') }])], priority: 99 },
+      { conditions: [purchasedProduct([{ product: productRef('a19FAM000van') }])], priority: 99 },
       { id: 'covers-one' },
     );
     const coversBoth = flow(
       {
-        conditions: [purchasedProduct([{ product: productRef('PROD-A') }, { product: productRef('PROD-B') }])],
+        conditions: [
+          purchasedProduct([{ product: productRef('a19FAM000van') }, { product: productRef('a19FAM000choc') }]),
+        ],
         priority: 0,
       },
       { id: 'covers-both' },
@@ -230,8 +292,8 @@ describe('selectOfferFlow', () => {
   });
 
   it('falls back to priority when two flows cover the order equally', () => {
-    const order = [item({ productionId: 'PROD-A' }), item({ productionId: 'PROD-B' })];
-    const both = [{ product: productRef('PROD-A') }, { product: productRef('PROD-B') }];
+    const order = [item({ familyId: 'a19FAM000van' }), item({ familyId: 'a19FAM000choc' })];
+    const both = [{ product: productRef('a19FAM000van') }, { product: productRef('a19FAM000choc') }];
     const low = flow({ conditions: [purchasedProduct(both)], priority: 1 }, { id: 'low' });
     const high = flow({ conditions: [purchasedProduct(both)], priority: 5 }, { id: 'high' });
 
@@ -274,7 +336,7 @@ describe('selectOfferFlow', () => {
 
   it('returns null when there is no match and no default', () => {
     expect(selectOfferFlow([item()], [])).toBeNull();
-    expect(selectOfferFlow([item({ productionId: 'PROD-Z' })], [flow({ conditions: [matching] })])).toBeNull();
+    expect(selectOfferFlow([item({ familyId: 'a19FAM000none' })], [flow({ conditions: [matching] })])).toBeNull();
   });
 
   it('does not reorder the caller’s array', () => {
