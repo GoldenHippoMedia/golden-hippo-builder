@@ -3,9 +3,22 @@ import {
   countMatchedProducts,
   doesFlowMatchOrder,
   selectOfferFlow,
+  isOfferAllowed,
+  filterOffers,
+  resolveOfferFlow,
+  nextResolvedStep,
+  stepBranchAccepted,
+  canAdvanceStep,
   type PurchasedLineItem,
+  type FlowOffer,
+  type ResolvedOfferStep,
 } from './apply-offer-flow-rules';
-import { BuilderOfferFlowContent, OfferFlowConditionType, OfferFlowOrderType } from '../data/offer-flow.model';
+import {
+  BuilderOfferFlowContent,
+  OfferFlowConditionType,
+  OfferFlowOrderType,
+  PreviousPurchaseLookback,
+} from '../data/offer-flow.model';
 
 type ConditionProduct = NonNullable<
   NonNullable<NonNullable<BuilderOfferFlowContent['data']>['conditions']>[number]['products']
@@ -81,10 +94,10 @@ describe('doesFlowMatchOrder', () => {
     expect(doesFlowMatchOrder([bare], needsSub)).toBe(false);
   });
 
-  // Salesforce ids appear in both 15- and 18-character forms, which differ in case.
-  it('compares family ids case-insensitively', () => {
+  it('compares family ids exactly (case-sensitive)', () => {
     const f = flow({ conditions: [purchasedProduct([{ product: productRef('A19FAM000VAN') }])] });
-    expect(doesFlowMatchOrder([item({ familyId: 'a19fam000van' })], f)).toBe(true);
+    expect(doesFlowMatchOrder([item({ familyId: 'A19FAM000VAN' })], f)).toBe(true);
+    expect(doesFlowMatchOrder([item({ familyId: 'a19fam000van' })], f)).toBe(false);
   });
 
   // Flavor lives at the family level, so each flavor is its own family and must be listed
@@ -345,5 +358,188 @@ describe('selectOfferFlow', () => {
     const flows = [low, high];
     selectOfferFlow([item()], flows);
     expect(flows.map((f) => f.id)).toEqual(['low', 'high']);
+  });
+});
+
+// --- Offer filtering & step resolution ---
+
+const offer = (id: string, familyId: string): FlowOffer => ({ id, product: { familyId } });
+const offersMap = (offers: FlowOffer[]) => new Map(offers.map((o) => [o.id, o]));
+
+type FlowStep = NonNullable<NonNullable<BuilderOfferFlowContent['data']>['steps']>[number];
+const template = (offerCount: number) => ({ value: { data: { offerCount } } }) as FlowStep['template'];
+const step = (over: {
+  offerCount?: number;
+  offerIds?: string[];
+  acc?: number;
+  dec?: number;
+  min?: number;
+}): FlowStep => ({
+  template: template(over.offerCount ?? 1),
+  offers: (over.offerIds ?? []).map((id) => ({ offer: id })),
+  stepCountOnAccept: over.acc,
+  stepCountOnDecline: over.dec,
+  minResponses: over.min,
+});
+
+describe('isOfferAllowed', () => {
+  const o = offer('off-1', 'a19FAM000van');
+
+  it('allows any offer when no exclusions are configured', () => {
+    expect(isOfferAllowed(o, flow({}))).toBe(true);
+    expect(isOfferAllowed(o, flow({}), { subscribedFamilyIds: ['a19FAM000van'] })).toBe(true);
+  });
+
+  it('drops an offer whose product the customer already subscribes to', () => {
+    const f = flow({ excludeSubscribedProducts: true });
+    expect(isOfferAllowed(o, f, { subscribedFamilyIds: ['a19FAM000van'] })).toBe(false);
+    expect(isOfferAllowed(o, f, { subscribedFamilyIds: ['a19FAM000choc'] })).toBe(true);
+  });
+
+  it('matches the excluded family exactly (case-sensitive)', () => {
+    const f = flow({ excludeSubscribedProducts: true });
+    expect(isOfferAllowed(offer('off-1', 'a19FAM000van'), f, { subscribedFamilyIds: ['a19FAM000van'] })).toBe(false);
+    expect(isOfferAllowed(offer('off-1', 'a19FAM000van'), f, { subscribedFamilyIds: ['A19FAM000VAN'] })).toBe(true);
+  });
+
+  it('drops an offer purchased within the lookback window but keeps older ones', () => {
+    const now = Date.parse('2026-06-01T00:00:00Z');
+    const f = flow({
+      excludePreviouslyPurchased: true,
+      previousPurchaseLookback: PreviousPurchaseLookback.ThreeMonths,
+    });
+    const recent = { familyId: 'a19FAM000van', purchasedAt: Date.parse('2026-05-01T00:00:00Z') };
+    const old = { familyId: 'a19FAM000van', purchasedAt: Date.parse('2026-01-01T00:00:00Z') };
+    expect(isOfferAllowed(o, f, { previousPurchases: [recent], now })).toBe(false);
+    expect(isOfferAllowed(o, f, { previousPurchases: [old], now })).toBe(true);
+  });
+
+  it('excludes any past purchase when the lookback is "Ever"', () => {
+    const now = Date.parse('2026-06-01T00:00:00Z');
+    const f = flow({ excludePreviouslyPurchased: true, previousPurchaseLookback: PreviousPurchaseLookback.Ever });
+    const ancient = { familyId: 'a19FAM000van', purchasedAt: Date.parse('2000-01-01T00:00:00Z') };
+    expect(isOfferAllowed(o, f, { previousPurchases: [ancient], now })).toBe(false);
+  });
+
+  it('defaults the lookback to three months when unset', () => {
+    const now = Date.parse('2026-06-01T00:00:00Z');
+    const f = flow({ excludePreviouslyPurchased: true });
+    const withinThree = { familyId: 'a19FAM000van', purchasedAt: Date.parse('2026-04-15T00:00:00Z') };
+    const beforeThree = { familyId: 'a19FAM000van', purchasedAt: Date.parse('2026-02-15T00:00:00Z') };
+    expect(isOfferAllowed(o, f, { previousPurchases: [withinThree], now })).toBe(false);
+    expect(isOfferAllowed(o, f, { previousPurchases: [beforeThree], now })).toBe(true);
+  });
+
+  it('allows an offer with no family id to key an exclusion on', () => {
+    const f = flow({ excludeSubscribedProducts: true });
+    expect(isOfferAllowed(offer('off-1', ''), f, { subscribedFamilyIds: [''] })).toBe(true);
+  });
+});
+
+describe('filterOffers', () => {
+  it('keeps allowed offers in input order', () => {
+    const f = flow({ excludeSubscribedProducts: true });
+    const offers = [offer('a', 'famA'), offer('b', 'famB'), offer('c', 'famC')];
+    expect(filterOffers(offers, f, { subscribedFamilyIds: ['famB'] }).map((o) => o.id)).toEqual(['a', 'c']);
+  });
+});
+
+describe('resolveOfferFlow', () => {
+  const offers = offersMap([offer('o1', 'famA'), offer('o2', 'famB'), offer('o3', 'famC'), offer('o4', 'famD')]);
+
+  it('keeps a fillable step and preserves offer order — shown first, backups after', () => {
+    const f = flow({ steps: [step({ offerCount: 2, offerIds: ['o1', 'o2', 'o3'] })] });
+    const [resolved] = resolveOfferFlow(f, offers);
+    expect(resolved.offerCount).toBe(2);
+    expect(resolved.offers.map((o) => o.id)).toEqual(['o1', 'o2', 'o3']);
+  });
+
+  it('drops a step that cannot fill its template after filtering', () => {
+    const f = flow({ excludeSubscribedProducts: true, steps: [step({ offerCount: 2, offerIds: ['o1', 'o2'] })] });
+    expect(resolveOfferFlow(f, offers, { subscribedFamilyIds: ['famA'] })).toEqual([]);
+  });
+
+  it('preserves the authored index of survivors when a middle step drops', () => {
+    const f = flow({
+      excludeSubscribedProducts: true,
+      steps: [step({ offerIds: ['o1'] }), step({ offerIds: ['o2'] }), step({ offerIds: ['o3'] })],
+    });
+    const resolved = resolveOfferFlow(f, offers, { subscribedFamilyIds: ['famB'] });
+    expect(resolved.map((s) => s.authoredIndex)).toEqual([0, 2]);
+  });
+
+  it('ignores offer ids not present in the lookup', () => {
+    const f = flow({ steps: [step({ offerCount: 1, offerIds: ['o1', 'missing'] })] });
+    const [resolved] = resolveOfferFlow(f, offers);
+    expect(resolved.offers.map((o) => o.id)).toEqual(['o1']);
+  });
+
+  it('defaults routing to +1 and clamps minResponses to the offer count', () => {
+    const f = flow({ steps: [step({ offerCount: 2, offerIds: ['o1', 'o2'], min: 5 })] });
+    const [resolved] = resolveOfferFlow(f, offers);
+    expect(resolved.stepCountOnAccept).toBe(1);
+    expect(resolved.stepCountOnDecline).toBe(1);
+    expect(resolved.minResponses).toBe(2);
+  });
+
+  it('treats a missing template offer count as 1', () => {
+    const f = flow({ steps: [{ offers: [{ offer: 'o1' }] } as FlowStep] });
+    const [resolved] = resolveOfferFlow(f, offers);
+    expect(resolved.offerCount).toBe(1);
+    expect(resolved.offers.map((o) => o.id)).toEqual(['o1']);
+  });
+});
+
+describe('nextResolvedStep', () => {
+  const rstep = (authoredIndex: number, acc = 1, dec = 1): ResolvedOfferStep => ({
+    authoredIndex,
+    template: undefined,
+    offers: [offer('x', 'famX')],
+    offerCount: 1,
+    stepCountOnAccept: acc,
+    stepCountOnDecline: dec,
+    minResponses: 1,
+  });
+
+  it('advances one step on both accept and decline by default', () => {
+    const steps = [rstep(0), rstep(1), rstep(2)];
+    expect(nextResolvedStep(steps, steps[0], true)?.authoredIndex).toBe(1);
+    expect(nextResolvedStep(steps, steps[0], false)?.authoredIndex).toBe(1);
+  });
+
+  it('jumps by the accept count while decline shows the next step', () => {
+    // Step 0 accepts → +2 (skip the downsell at index 1); declines → +1 (show it).
+    const steps = [rstep(0, 2, 1), rstep(1), rstep(2)];
+    expect(nextResolvedStep(steps, steps[0], true)?.authoredIndex).toBe(2);
+    expect(nextResolvedStep(steps, steps[0], false)?.authoredIndex).toBe(1);
+  });
+
+  it('skips a dropped step by resolving to the next surviving authored index', () => {
+    // Authored index 1 was dropped in resolution — a +1 jump lands on index 2.
+    const steps = [rstep(0), rstep(2), rstep(3)];
+    expect(nextResolvedStep(steps, steps[0], true)?.authoredIndex).toBe(2);
+  });
+
+  it('ends the flow when the jump lands past the last step', () => {
+    const steps = [rstep(0), rstep(1, 5, 5)];
+    expect(nextResolvedStep(steps, steps[1], true)).toBeNull();
+  });
+});
+
+describe('stepBranchAccepted', () => {
+  it('takes the accept path when at least one offer is accepted', () => {
+    expect(stepBranchAccepted(1)).toBe(true);
+    expect(stepBranchAccepted(3)).toBe(true);
+    expect(stepBranchAccepted(0)).toBe(false);
+  });
+});
+
+describe('canAdvanceStep', () => {
+  const s = { minResponses: 2 } as ResolvedOfferStep;
+
+  it('advances only once enough offers have been answered', () => {
+    expect(canAdvanceStep(s, 1)).toBe(false);
+    expect(canAdvanceStep(s, 2)).toBe(true);
+    expect(canAdvanceStep(s, 3)).toBe(true);
   });
 });

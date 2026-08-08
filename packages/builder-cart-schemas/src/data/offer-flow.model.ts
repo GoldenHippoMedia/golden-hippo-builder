@@ -125,6 +125,38 @@ export const createOfferFlowModel = (offerTemplateModelId: string, productModelI
               },
             ],
           },
+          {
+            name: 'stepCountOnAccept',
+            friendlyName: 'Step Count on Accept',
+            type: 'number',
+            defaultValue: 1,
+            defaultCollapsed: false,
+            helperText:
+              'How many steps forward to jump when the customer accepts. 1 = the next step. A jump past the' +
+              ' last step ends the flow.',
+          },
+          {
+            name: 'stepCountOnDecline',
+            friendlyName: 'Step Count on Decline',
+            type: 'number',
+            defaultValue: 1,
+            defaultCollapsed: false,
+            helperText:
+              'How many steps forward to jump when the customer declines. 1 = the next step. A jump past the' +
+              ' last step ends the flow.',
+          },
+          {
+            name: 'minResponses',
+            friendlyName: 'Minimum Responses',
+            type: 'number',
+            required: false,
+            defaultValue: 1,
+            defaultCollapsed: false,
+            helperText:
+              "For multi-offer templates: how many of the step's offers must be answered — accepted OR declined —" +
+              ' before the customer can advance. Counts responses, not accepts, so a decline-all customer is never' +
+              ' stuck. Ignored for single-offer templates.',
+          },
         ],
       },
       {
@@ -237,6 +269,9 @@ export type BuilderOfferFlowContent = BuilderContent &
         offers?: {
           offer?: string;
         }[];
+        stepCountOnAccept?: number;
+        stepCountOnDecline?: number;
+        minResponses?: number;
       }[];
       conditions?: {
         conditionType?: OfferFlowConditionType;
