@@ -19,7 +19,10 @@ export const createOfferTemplateModel = (editUrl: string): ModelShape => {
         helperText: 'How many offers this template presents (e.g. 1 for a single offer, 3 for a 3-up layout).',
       },
     ],
-    editingUrlLogic: 'return `' + editUrl + '/builder-offer-template?builder.preview=true&builder.frameEditing=true`',
+    editingUrlLogic:
+      'return `' +
+      editUrl +
+      '/builder-offer-template-editor?offerTemplate&builder.preview=true&builder.frameEditing=true`',
   };
 };
 
