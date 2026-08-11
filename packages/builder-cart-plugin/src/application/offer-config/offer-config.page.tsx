@@ -1,8 +1,10 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { observer } from 'mobx-react';
 import { LoadingSection, PageHeader, Section } from '@goldenhippo/builder-ui';
 import { BuilderOfferFlowContent } from '@goldenhippo/builder-cart-schemas';
 import { ExtendedApplicationContext } from '../../interfaces/application-context.interface';
 import BuilderApi from '../../services/builder-api';
+import { offerFlowStore } from './offer-flow.store';
 import OfferFlowList from './components/offer-flow-list';
 import OfferFlowEditor from './components/offer-flow-editor';
 
@@ -12,71 +14,34 @@ interface OfferConfigPageProps {
 
 const SUBTITLE = 'Post-checkout offer flows — the sequence of offers a customer walks through after checkout';
 
-const OfferConfigPage: React.FC<OfferConfigPageProps> = ({ context }) => {
+const OfferConfigPage: React.FC<OfferConfigPageProps> = observer(({ context }) => {
   const api = useMemo(() => new BuilderApi(context), [context]);
 
-  const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
-  const [creating, setCreating] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [flows, setFlows] = useState<BuilderOfferFlowContent[]>([]);
+  // View state stays local; the flow data lives in the shared store so it survives tab switches.
   const [activeFlowId, setActiveFlowId] = useState<string | null>(null);
-
-  const mounted = useRef(true);
-  useEffect(() => {
-    mounted.current = true;
-    return () => {
-      mounted.current = false;
-    };
-  }, []);
-
-  const load = useCallback(
-    async (initial: boolean) => {
-      if (initial) setLoading(true);
-      else setRefreshing(true);
-      setError(null);
-      try {
-        const results = await api.getOfferFlows();
-        if (!mounted.current) return;
-        setFlows(results);
-      } catch (e) {
-        if (!mounted.current) return;
-        setError(e instanceof Error ? e.message : String(e));
-      } finally {
-        if (mounted.current) {
-          if (initial) setLoading(false);
-          else setRefreshing(false);
-        }
-      }
-    },
-    [api],
-  );
+  const [creating, setCreating] = useState(false);
 
   useEffect(() => {
-    void load(true);
-  }, [load]);
+    void offerFlowStore.ensureLoaded(api);
+  }, [api]);
 
   const handleCreate = useCallback(async () => {
     setCreating(true);
-    setError(null);
+    offerFlowStore.setError(null);
     try {
       const created = await api.createOfferFlow('New Offer Flow');
-      if (!mounted.current) return;
-      // Show it immediately — the CDN list is eventually consistent, so we can't rely
-      // on an immediate refetch surfacing the fresh draft.
-      setFlows((prev) => [created as BuilderOfferFlowContent, ...prev]);
+      offerFlowStore.prepend(created as BuilderOfferFlowContent);
       if (created.id) setActiveFlowId(created.id);
     } catch (e) {
-      if (!mounted.current) return;
-      setError(e instanceof Error ? e.message : String(e));
+      offerFlowStore.setError(e instanceof Error ? e.message : String(e));
     } finally {
-      if (mounted.current) setCreating(false);
+      setCreating(false);
     }
   }, [api]);
 
-  const activeFlow = flows.find((f) => f.id === activeFlowId) ?? null;
+  const { items: flows, loading, refreshing, error } = offerFlowStore;
 
-  if (loading) {
+  if (loading && flows.length === 0) {
     return (
       <div>
         <PageHeader title="Offer Config" subtitle={SUBTITLE} />
@@ -96,6 +61,7 @@ const OfferConfigPage: React.FC<OfferConfigPageProps> = ({ context }) => {
     );
   }
 
+  const activeFlow = offerFlowStore.getById(activeFlowId);
   if (activeFlow) {
     return <OfferFlowEditor flow={activeFlow} onBack={() => setActiveFlowId(null)} />;
   }
@@ -103,7 +69,7 @@ const OfferConfigPage: React.FC<OfferConfigPageProps> = ({ context }) => {
   const actions = (
     <div className="flex items-center gap-2">
       <button
-        onClick={() => load(false)}
+        onClick={() => offerFlowStore.refresh(api)}
         disabled={refreshing}
         className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--border-glass)] bg-[var(--bg-glass)] px-3 py-1.5 text-xs font-medium text-[var(--text-secondary)] transition-colors hover:bg-[var(--bg-glass-hover)] disabled:cursor-not-allowed disabled:opacity-40"
         title="Re-fetch offer flows from Builder.io (cache-busted)"
@@ -152,6 +118,8 @@ const OfferConfigPage: React.FC<OfferConfigPageProps> = ({ context }) => {
       <OfferFlowList flows={flows} onSelect={setActiveFlowId} onCreate={handleCreate} />
     </div>
   );
-};
+});
+
+OfferConfigPage.displayName = 'OfferConfigPage';
 
 export default OfferConfigPage;
