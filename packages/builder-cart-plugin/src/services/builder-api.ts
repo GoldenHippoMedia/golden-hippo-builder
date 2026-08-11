@@ -87,6 +87,21 @@ class BuilderApi {
     } as Partial<BuilderContent>);
   }
 
+  async saveOfferFlow(entryId: string, data: Record<string, any>): Promise<void> {
+    const resp = await fetch(`https://builder.io/api/v1/write/offer-flow/${entryId}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${this.privateApiKey}`,
+      },
+      body: JSON.stringify({ data }),
+    });
+    if (!resp.ok) {
+      const body = await resp.text();
+      throw new Error(`Failed to save offer flow: ${resp.status} ${body}`);
+    }
+  }
+
   async getTabAccess(): Promise<BuilderTabAccessContent | null> {
     const entries = await this.fetchContent<BuilderTabAccessContent>({
       modelName: TAB_ACCESS_MODEL,

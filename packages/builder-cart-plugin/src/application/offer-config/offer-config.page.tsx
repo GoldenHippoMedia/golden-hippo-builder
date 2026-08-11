@@ -63,7 +63,9 @@ const OfferConfigPage: React.FC<OfferConfigPageProps> = observer(({ context }) =
 
   const activeFlow = offerFlowStore.getById(activeFlowId);
   if (activeFlow) {
-    return <OfferFlowEditor flow={activeFlow} onBack={() => setActiveFlowId(null)} />;
+    return (
+      <OfferFlowEditor key={activeFlow.id} context={context} flow={activeFlow} onBack={() => setActiveFlowId(null)} />
+    );
   }
 
   const actions = (
