@@ -1,10 +1,11 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
+import { observer } from 'mobx-react';
 import { LoadingSection, PageHeader, Section } from '@goldenhippo/builder-ui';
 import { ExtendedApplicationContext } from '../../interfaces/application-context.interface';
 import BuilderApi from '../../services/builder-api';
+import { adaPageStore } from './ada-page.store';
 import AdaPageList from './components/ada-page-list';
 import AssetList from './components/asset-list';
-import { type PageEntry } from './ada-page';
 
 interface AdaConfigPageProps {
   context: ExtendedApplicationContext;
@@ -12,63 +13,21 @@ interface AdaConfigPageProps {
 
 const SUBTITLE = 'Accessibility checklist derived from each page’s content — alt text, headings, and link quality';
 
-// Blocks make responses much heavier than the SEO audit's meta-only fetch, so
-// we cap lower. Pages beyond this are noted rather than silently dropped.
-const PAGE_LIMIT = 1000;
-
 type View = 'pages' | 'images';
 
-const AdaConfigPage: React.FC<AdaConfigPageProps> = ({ context }) => {
+const AdaConfigPage: React.FC<AdaConfigPageProps> = observer(({ context }) => {
   const api = useMemo(() => new BuilderApi(context), [context]);
-
-  const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [pages, setPages] = useState<PageEntry[]>([]);
   const [view, setView] = useState<View>('pages');
 
-  const mounted = useRef(true);
   useEffect(() => {
-    mounted.current = true;
-    return () => {
-      mounted.current = false;
-    };
-  }, []);
+    void adaPageStore.ensureLoaded(api);
+  }, [api]);
 
-  const load = useCallback(
-    async (initial: boolean) => {
-      if (initial) setLoading(true);
-      else setRefreshing(true);
-      setError(null);
-      try {
-        // includeBlocks is required — the audit inspects the visual block tree.
-        const results = await api.getModelEntries<PageEntry>('page', {
-          bustCache: true,
-          limit: PAGE_LIMIT,
-          includeBlocks: true,
-        });
-        if (!mounted.current) return;
-        setPages(results);
-      } catch (e) {
-        if (!mounted.current) return;
-        setError(e instanceof Error ? e.message : String(e));
-      } finally {
-        if (mounted.current) {
-          if (initial) setLoading(false);
-          else setRefreshing(false);
-        }
-      }
-    },
-    [api],
-  );
-
-  useEffect(() => {
-    void load(true);
-  }, [load]);
+  const { items: pages, loaded, refreshing, error } = adaPageStore;
 
   const refreshAction = (
     <button
-      onClick={() => load(false)}
+      onClick={() => adaPageStore.refresh(api)}
       disabled={refreshing}
       className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--border-glass)] bg-[var(--bg-glass)] px-3 py-1.5 text-xs font-medium text-[var(--text-secondary)] transition-colors hover:bg-[var(--bg-glass-hover)] disabled:cursor-not-allowed disabled:opacity-40"
       title="Re-fetch pages from Builder.io (cache-busted)"
@@ -93,22 +52,22 @@ const AdaConfigPage: React.FC<AdaConfigPageProps> = ({ context }) => {
     </button>
   );
 
-  if (loading) {
+  if (error && !loaded) {
     return (
       <div>
         <PageHeader title="Accessibility" subtitle={SUBTITLE} />
-        <LoadingSection />
+        <Section title="Failed to load pages" variant="danger">
+          <div className="break-all rounded-lg bg-[var(--error)]/10 px-4 py-3 text-sm text-[var(--error)]">{error}</div>
+        </Section>
       </div>
     );
   }
 
-  if (error) {
+  if (!loaded) {
     return (
       <div>
         <PageHeader title="Accessibility" subtitle={SUBTITLE} />
-        <Section title="Failed to load pages">
-          <div className="break-all rounded-lg bg-[var(--error)]/10 px-4 py-3 text-sm text-[var(--error)]">{error}</div>
-        </Section>
+        <LoadingSection />
       </div>
     );
   }
@@ -125,6 +84,11 @@ const AdaConfigPage: React.FC<AdaConfigPageProps> = ({ context }) => {
         subtitle={`${pages.length} page${pages.length === 1 ? '' : 's'}`}
         actions={refreshAction}
       />
+      {error && (
+        <div className="mb-4 break-all rounded-lg bg-[var(--error)]/10 px-4 py-3 text-sm text-[var(--error)]">
+          {error}
+        </div>
+      )}
 
       <div className="mb-4 inline-flex rounded-lg border border-[var(--border-glass)] bg-[var(--bg-glass)] p-0.5">
         {VIEW_TABS.map((tab) => (
@@ -145,6 +109,8 @@ const AdaConfigPage: React.FC<AdaConfigPageProps> = ({ context }) => {
       {view === 'pages' ? <AdaPageList pages={pages} /> : <AssetList pages={pages} />}
     </div>
   );
-};
+});
+
+AdaConfigPage.displayName = 'AdaConfigPage';
 
 export default AdaConfigPage;

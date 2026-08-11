@@ -1,4 +1,5 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { observer } from 'mobx-react';
 import { LoadingSection, PageHeader, Section } from '@goldenhippo/builder-ui';
 import type {
   BuilderProductContent,
@@ -14,6 +15,15 @@ import { resolveCurrentUserTabLevel } from '../../services/tab-access';
 import ProductList from './components/product-list';
 import ProductDetail from './components/product-detail';
 import { collectLocales } from './localization';
+import {
+  productData,
+  productStore,
+  productGroupStore,
+  productTagStore,
+  productCategoryStore,
+  productIngredientStore,
+  productUseCaseStore,
+} from './product-data.store';
 
 interface ProductConfigPageProps {
   context: ExtendedApplicationContext;
@@ -21,71 +31,23 @@ interface ProductConfigPageProps {
 
 type View = { kind: 'list' } | { kind: 'detail'; productId: string };
 
-const ProductConfigPage: React.FC<ProductConfigPageProps> = ({ context }) => {
+const ProductConfigPage: React.FC<ProductConfigPageProps> = observer(({ context }) => {
   const api = useMemo(() => new BuilderApi(context), [context]);
 
-  const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [products, setProducts] = useState<BuilderProductContent[]>([]);
-  const [groups, setGroups] = useState<BuilderProductGroupContent[]>([]);
-  const [tags, setTags] = useState<BuilderProductTagContent[]>([]);
-  const [categories, setCategories] = useState<BuilderProductCategoryContent[]>([]);
-  const [ingredients, setIngredients] = useState<BuilderIngredientContent[]>([]);
-  const [useCases, setUseCases] = useState<BuilderProductUseCaseContent[]>([]);
   const [view, setView] = useState<View>({ kind: 'list' });
   const [canWrite, setCanWrite] = useState(false);
 
-  // Tracks whether the component is still mounted so an in-flight load doesn't
-  // set state after unmount
-  const mounted = useRef(true);
   useEffect(() => {
-    mounted.current = true;
-    return () => {
-      mounted.current = false;
-    };
-  }, []);
+    void productData.ensureLoaded(api);
+  }, [api]);
 
-  const load = useCallback(
-    async (initial: boolean) => {
-      if (initial) setLoading(true);
-      else setRefreshing(true);
-      setError(null);
-      try {
-        // Fetch raw (unresolved) so localized fields stay as LocalizedValue
-        // objects — required to edit per-locale and to discover locales.
-        const [productResults, groupResults, tagResults, categoryResults, ingredientResults, useCaseResults] =
-          await Promise.all([
-            api.getModelEntries<BuilderProductContent>('product', { bustCache: true, raw: true }),
-            api.getModelEntries<BuilderProductGroupContent>('product-group', { bustCache: true, raw: true }),
-            api.getModelEntries<BuilderProductTagContent>('product-tag', { bustCache: true, raw: true }),
-            api.getModelEntries<BuilderProductCategoryContent>('product-category', { bustCache: true, raw: true }),
-            api.getModelEntries<BuilderIngredientContent>('product-ingredient', { bustCache: true, raw: true }),
-            api.getModelEntries<BuilderProductUseCaseContent>('product-use-case', { bustCache: true, raw: true }),
-          ]);
-        if (!mounted.current) return;
-        setProducts(productResults);
-        setGroups(groupResults);
-        setTags(tagResults);
-        setCategories(categoryResults);
-        setIngredients(ingredientResults);
-        setUseCases(useCaseResults);
-      } catch (e) {
-        if (!mounted.current) return;
-        setError(e instanceof Error ? e.message : String(e));
-      } finally {
-        if (mounted.current) {
-          if (initial) setLoading(false);
-          else setRefreshing(false);
-        }
-      }
-    },
-    [api],
-  );
-
-  useEffect(() => {
-    void load(true);
-  }, [load]);
+  const products: BuilderProductContent[] = productStore.items;
+  const groups: BuilderProductGroupContent[] = productGroupStore.items;
+  const tags: BuilderProductTagContent[] = productTagStore.items;
+  const categories: BuilderProductCategoryContent[] = productCategoryStore.items;
+  const ingredients: BuilderIngredientContent[] = productIngredientStore.items;
+  const useCases: BuilderProductUseCaseContent[] = productUseCaseStore.items;
+  const { loaded, refreshing, error } = productData;
 
   useEffect(() => {
     let active = true;
@@ -141,12 +103,12 @@ const ProductConfigPage: React.FC<ProductConfigPageProps> = ({ context }) => {
   );
 
   const handleProductSaved = useCallback((updated: BuilderProductContent) => {
-    setProducts((prev) => prev.map((p) => (p.id === updated.id ? updated : p)));
+    productStore.upsert(updated);
   }, []);
 
   const refreshAction = (
     <button
-      onClick={() => load(false)}
+      onClick={() => productData.refresh(api)}
       disabled={refreshing}
       className="px-3 py-1.5 rounded-lg text-xs font-medium border border-[var(--border-glass)] bg-[var(--bg-glass)] text-[var(--text-secondary)] cursor-pointer hover:bg-[var(--bg-glass-hover)] disabled:opacity-40 disabled:cursor-not-allowed transition-colors inline-flex items-center gap-1.5"
       title="Re-fetch products and taxonomy from Builder.io (cache-busted)"
@@ -179,7 +141,26 @@ const ProductConfigPage: React.FC<ProductConfigPageProps> = ({ context }) => {
     />
   );
 
-  if (loading) {
+  // Only shown once we have data — a failed initial load returns the error screen below instead.
+  const errorBanner = error ? (
+    <div className="mb-4 break-all rounded-lg bg-[var(--error)]/10 px-4 py-3 text-sm text-[var(--error)]">{error}</div>
+  ) : null;
+
+  if (!loaded && error) {
+    return (
+      <div>
+        <PageHeader
+          title="Product Configuration"
+          subtitle="Manage product tags, categories, ingredients, and use cases"
+        />
+        <Section title="Failed to load products" variant="danger">
+          <div className="text-sm text-[var(--error)] bg-[var(--error)]/10 rounded-lg px-4 py-3 break-all">{error}</div>
+        </Section>
+      </div>
+    );
+  }
+
+  if (!loaded) {
     return (
       <div>
         <PageHeader
@@ -191,24 +172,11 @@ const ProductConfigPage: React.FC<ProductConfigPageProps> = ({ context }) => {
     );
   }
 
-  if (error) {
-    return (
-      <div>
-        <PageHeader
-          title="Product Configuration"
-          subtitle="Manage product tags, categories, ingredients, and use cases"
-        />
-        <Section title="Failed to load products">
-          <div className="text-sm text-[var(--error)] bg-[var(--error)]/10 rounded-lg px-4 py-3 break-all">{error}</div>
-        </Section>
-      </div>
-    );
-  }
-
   if (view.kind === 'detail' && selectedProduct) {
     return (
       <div>
         {header}
+        {errorBanner}
         <ProductDetail
           product={selectedProduct}
           api={api}
@@ -228,6 +196,7 @@ const ProductConfigPage: React.FC<ProductConfigPageProps> = ({ context }) => {
   return (
     <div>
       {header}
+      {errorBanner}
       <ProductList
         products={products}
         groups={groups}
@@ -239,6 +208,8 @@ const ProductConfigPage: React.FC<ProductConfigPageProps> = ({ context }) => {
       />
     </div>
   );
-};
+});
+
+ProductConfigPage.displayName = 'ProductConfigPage';
 
 export default ProductConfigPage;
