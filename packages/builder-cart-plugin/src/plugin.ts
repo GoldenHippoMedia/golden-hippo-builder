@@ -3,12 +3,14 @@ import appState from '@builder.io/app-context';
 import HippoCMSBrandConfiguration from '@application/HippoCMSBrandConfiguration';
 import HippoCMSAdmin from '@application/HippoCMSAdmin';
 import HippoCMSProductConfig from '@application/HippoCMSProductConfig';
+import HippoCMSOfferConfig from '@application/HippoCMSOfferConfig';
 import HippoCMSSeoConfig from '@application/HippoCMSSeoConfig';
 import HippoCMSAdaConfig from '@application/HippoCMSAdaConfig';
 import {
   adminIcon,
   configIcon,
   productConfigIcon,
+  offerConfigIcon,
   seoConfigIcon,
   adaConfigIcon,
   pluginId,
@@ -119,6 +121,7 @@ const user = UserManagementService.getUserDetails(appState as ExtendedApplicatio
 const TAB_REGISTRY: Record<string, { name: string; icon: string; component: unknown; adminOnly?: boolean }> = {
   'gh/brand-config': { name: 'Hippo Config', icon: configIcon, component: HippoCMSBrandConfiguration },
   'gh/product-config': { name: 'Product Config', icon: productConfigIcon, component: HippoCMSProductConfig },
+  'gh/offer-config': { name: 'Offer Config', icon: offerConfigIcon, component: HippoCMSOfferConfig },
   'gh/seo-config': { name: 'SEO Config', icon: seoConfigIcon, component: HippoCMSSeoConfig },
   'gh/ada-config': { name: 'Accessibility', icon: adaConfigIcon, component: HippoCMSAdaConfig },
   'gh/admin': { name: 'Hippo Admin', icon: adminIcon, component: HippoCMSAdmin, adminOnly: true },

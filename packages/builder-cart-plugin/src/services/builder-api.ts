@@ -1,5 +1,10 @@
 import { BuilderContent } from '@builder.io/sdk';
-import { BuilderBrandConfigContent, BuilderTabAccessContent, TabAccessGrant } from '@goldenhippo/builder-cart-schemas';
+import {
+  BuilderBrandConfigContent,
+  BuilderOfferFlowContent,
+  BuilderTabAccessContent,
+  TabAccessGrant,
+} from '@goldenhippo/builder-cart-schemas';
 import { ExtendedApplicationContext } from '../interfaces/application-context.interface';
 import { pluginId, TAB_ACCESS_MODEL } from '../constants';
 
@@ -65,6 +70,21 @@ class BuilderApi {
       const body = await resp.text();
       throw new Error(`Failed to save brand config: ${resp.status} ${body}`);
     }
+  }
+
+  async getOfferFlows(): Promise<BuilderOfferFlowContent[]> {
+    return this.getModelEntries<BuilderOfferFlowContent>('offer-flow', {
+      bustCache: true,
+      limit: 200,
+    });
+  }
+
+  async createOfferFlow(name: string): Promise<BuilderContent> {
+    return this.context.createContent('offer-flow', {
+      name,
+      published: 'draft',
+      data: { name, active: true, isDefault: false, priority: 0, steps: [], conditions: [] },
+    } as Partial<BuilderContent>);
   }
 
   async getTabAccess(): Promise<BuilderTabAccessContent | null> {

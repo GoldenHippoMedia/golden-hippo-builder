@@ -14,6 +14,7 @@ export interface ControllableTab {
 export const CONTROLLABLE_TABS: ControllableTab[] = [
   { path: 'gh/brand-config', name: 'Hippo Config' },
   { path: 'gh/product-config', name: 'Product Config' },
+  { path: 'gh/offer-config', name: 'Offer Config' },
   { path: 'gh/seo-config', name: 'SEO Config' },
   { path: 'gh/ada-config', name: 'Accessibility' },
 ];
@@ -34,6 +35,15 @@ export const adminIcon = `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="h
 export const productConfigIcon = `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#C8A951" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
   <path d="M20.59 13.41 13.42 20.58a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/>
   <circle cx="7" cy="7" r="1"/>
+</svg>`)}`;
+
+// Offer Config icon — a branching flow (one step fanning out to two), for post-checkout offer flows
+export const offerConfigIcon = `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#C8A951" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+  <circle cx="5" cy="12" r="2.5"/>
+  <circle cx="19" cy="6" r="2.5"/>
+  <circle cx="19" cy="18" r="2.5"/>
+  <path d="M7.2 10.9 16.8 7.1"/>
+  <path d="M7.2 13.1 16.8 16.9"/>
 </svg>`)}`;
 
 // SEO Config icon — magnifier over a globe for search/SEO
