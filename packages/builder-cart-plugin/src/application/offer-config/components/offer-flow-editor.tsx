@@ -6,6 +6,7 @@ import BuilderApi from '@services/builder-api';
 import { resolveCurrentUserTabLevel } from '@services/tab-access';
 import { offerFlowStore } from '../offer-flow.store';
 import { offerTemplateStore } from '../offer-template.store';
+import { offerStore } from '../offer.store';
 import { productStore } from '../../product-config/product-data.store';
 import FlowSettingsBar from './flow-settings';
 import FlowTargeting from './flow-targeting';
@@ -33,6 +34,7 @@ const OfferFlowEditor: React.FC<OfferFlowEditorProps> = ({ context, flow, onBack
   useEffect(() => {
     void productStore.ensureLoaded(api);
     void offerTemplateStore.ensureLoaded(api);
+    void offerStore.ensureLoaded(context);
     void resolveCurrentUserTabLevel(context, 'gh/offer-config').then((level) => {
       store.canWrite = level === 'write';
     });
@@ -120,6 +122,7 @@ const OfferFlowEditor: React.FC<OfferFlowEditorProps> = ({ context, flow, onBack
           <FlowSteps
             data={data}
             templates={offerTemplateStore.items}
+            offers={offerStore.offers}
             markDirty={markDirty}
             disabled={!store.canWrite}
           />
