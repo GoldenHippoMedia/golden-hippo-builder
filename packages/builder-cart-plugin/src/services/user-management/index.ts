@@ -17,6 +17,8 @@ export interface HippoUser {
     password: string;
     url: string;
   };
+  /** The consuming site's base URL (plugin `editUrl` setting) — used to build preview iframes. */
+  editUrl: string;
 }
 
 class UserManagementService {
@@ -42,6 +44,7 @@ class UserManagementService {
         password: (appSettings?.apiPassword as string) ?? '',
         url: appSettings?.apiUrl,
       },
+      editUrl: (appSettings?.editUrl as string) ?? '',
     };
   }
 }

@@ -3,6 +3,7 @@ import { useLocalStore, useObserver } from 'mobx-react';
 import { BuilderOfferFlowContent } from '@goldenhippo/builder-cart-schemas';
 import { ExtendedApplicationContext } from '../../../interfaces/application-context.interface';
 import BuilderApi from '@services/builder-api';
+import UserManagementService from '@services/user-management';
 import { resolveCurrentUserTabLevel } from '@services/tab-access';
 import { offerFlowStore } from '../offer-flow.store';
 import { offerTemplateStore } from '../offer-template.store';
@@ -21,6 +22,7 @@ interface OfferFlowEditorProps {
 
 const OfferFlowEditor: React.FC<OfferFlowEditorProps> = ({ context, flow, onBack }) => {
   const api = useMemo(() => new BuilderApi(context), [context]);
+  const editUrl = useMemo(() => UserManagementService.getUserDetails(context).editUrl, [context]);
 
   // A local editable draft of the flow's data. Cloned so edits don't touch the shared
   // store until Save, then persisted whole (settings, targeting, audience, and steps).
@@ -123,6 +125,7 @@ const OfferFlowEditor: React.FC<OfferFlowEditorProps> = ({ context, flow, onBack
             data={data}
             templates={offerTemplateStore.items}
             offers={offerStore.offers}
+            editUrl={editUrl}
             markDirty={markDirty}
             disabled={!store.canWrite}
           />

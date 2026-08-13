@@ -5,11 +5,13 @@ import { type BuilderOfferTemplateContent } from '@goldenhippo/builder-cart-sche
 import { type CommerceOffer } from '@services/commerce-api';
 import OfferSummary from './offer-summary';
 import OfferPicker from './offer-picker';
+import TemplateGallery from './template-gallery';
 
 interface FlowStepsProps {
   data: Record<string, any>;
   templates: BuilderOfferTemplateContent[];
   offers: CommerceOffer[];
+  editUrl: string;
   markDirty: () => void;
   disabled: boolean;
 }
@@ -73,7 +75,7 @@ const Stepper: React.FC<{ value: number; onChange: (delta: number) => void; disa
   </div>
 );
 
-const FlowSteps: React.FC<FlowStepsProps> = observer(({ data, templates, offers, markDirty, disabled }) => {
+const FlowSteps: React.FC<FlowStepsProps> = observer(({ data, templates, offers, editUrl, markDirty, disabled }) => {
   const steps: any[] = data.steps ?? [];
   const total = steps.length;
 
@@ -81,6 +83,7 @@ const FlowSteps: React.FC<FlowStepsProps> = observer(({ data, templates, offers,
   const [dragIndex, setDragIndex] = useState<number | null>(null);
   const [overIndex, setOverIndex] = useState<number | null>(null);
   const [pickerIndex, setPickerIndex] = useState<number | null>(null);
+  const [galleryIndex, setGalleryIndex] = useState<number | null>(null);
 
   const offersById = new Map(offers.map((o) => [o.id, o]));
   const templatesById = new Map(templates.map((t) => [t.id, t]));
@@ -214,7 +217,20 @@ const FlowSteps: React.FC<FlowStepsProps> = observer(({ data, templates, offers,
                   </div>
 
                   {/* template */}
-                  <div className="relative flex items-center gap-3 border-b border-[var(--border-glass)] bg-[var(--bg-glass)] px-3.5 py-3 hover:bg-[var(--bg-glass-hover)]">
+                  <div
+                    role="button"
+                    tabIndex={disabled ? -1 : 0}
+                    onClick={() => !disabled && setGalleryIndex(index)}
+                    onKeyDown={(e) => {
+                      if (!disabled && (e.key === 'Enter' || e.key === ' ')) {
+                        e.preventDefault();
+                        setGalleryIndex(index);
+                      }
+                    }}
+                    className={`flex items-center gap-3 border-b border-[var(--border-glass)] bg-[var(--bg-glass)] px-3.5 py-3 ${
+                      disabled ? '' : 'cursor-pointer hover:bg-[var(--bg-glass-hover)]'
+                    }`}
+                  >
                     <TemplateGlyph count={offerCount} empty={!template} />
                     <div className="min-w-0 flex-1">
                       <div className="truncate text-[13px] font-semibold text-[var(--text-primary)]">
@@ -222,28 +238,13 @@ const FlowSteps: React.FC<FlowStepsProps> = observer(({ data, templates, offers,
                       </div>
                       {template && (
                         <div className="mt-0.5 text-[11px] text-[var(--text-muted)]">
-                          {offerCount}-up · presents {offerCount} offer{offerCount === 1 ? '' : 's'}
+                          Presents {offerCount} offer{offerCount === 1 ? '' : 's'}
                         </div>
                       )}
                     </div>
                     <span className="shrink-0 text-[11px] text-[var(--text-secondary)]">
                       {template ? 'Change ▸' : 'Choose ▸'}
                     </span>
-                    {!disabled && (
-                      <select
-                        aria-label="Choose template"
-                        className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
-                        value={templateRefId(step)}
-                        onChange={(e) => setTemplate(step, e.target.value)}
-                      >
-                        <option value="">{templates.length ? 'Choose a template…' : 'No templates available'}</option>
-                        {templates.map((t) => (
-                          <option key={t.id} value={t.id}>
-                            {(t.name || t.id) + ` · ${t.data?.offerCount ?? 1}-up`}
-                          </option>
-                        ))}
-                      </select>
-                    )}
                   </div>
 
                   {/* offer pool */}
@@ -252,6 +253,14 @@ const FlowSteps: React.FC<FlowStepsProps> = observer(({ data, templates, offers,
                       <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)]">
                         Offer pool ({offers.length})
                       </span>
+                      <button
+                        type="button"
+                        disabled={disabled}
+                        onClick={() => setPickerIndex(index)}
+                        className="inline-flex items-center gap-1 rounded-md border border-[var(--accent)]/30 bg-[var(--accent-subtle)] px-2 py-1 text-[11px] font-semibold text-[var(--accent)] hover:brightness-110 disabled:opacity-40"
+                      >
+                        + Add offers
+                      </button>
                     </div>
                     {offers.length === 0 && (
                       <div className="rounded-lg border border-dashed border-[var(--border-glass)] px-3 py-2 text-center text-[11px] text-[var(--text-muted)]">
@@ -290,14 +299,6 @@ const FlowSteps: React.FC<FlowStepsProps> = observer(({ data, templates, offers,
                         </React.Fragment>
                       );
                     })}
-                    <button
-                      type="button"
-                      disabled={disabled}
-                      onClick={() => setPickerIndex(index)}
-                      className="mt-0.5 inline-flex items-center gap-1 self-start rounded-md bg-[var(--accent-subtle)] px-2 py-1 text-[11px] font-semibold text-[var(--accent)] hover:brightness-110 disabled:opacity-40"
-                    >
-                      + Add offers
-                    </button>
                   </div>
 
                   {/* routing */}
@@ -359,7 +360,7 @@ const FlowSteps: React.FC<FlowStepsProps> = observer(({ data, templates, offers,
             disabled={disabled}
             onClick={addStep}
             className={`flex shrink-0 flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-[var(--border-strong)] text-sm font-semibold text-[var(--text-secondary)] transition-colors hover:border-[var(--accent)] hover:bg-[var(--accent-subtle)] hover:text-[var(--accent)] disabled:cursor-not-allowed disabled:opacity-40 ${
-              steps.length ? 'ml-2 w-[130px]' : 'min-h-[260px] w-[300px]'
+              steps.length ? 'ml-2 w-[130px]' : 'min-h-[300px] w-[130px]'
             }`}
           >
             <span className="grid h-9 w-9 place-items-center rounded-lg border border-current text-xl">+</span>
@@ -375,6 +376,20 @@ const FlowSteps: React.FC<FlowStepsProps> = observer(({ data, templates, offers,
           offers={offers}
           onToggle={(offerId) => toggleOffer(steps[pickerIndex], offerId)}
           onClose={() => setPickerIndex(null)}
+        />
+      )}
+
+      {galleryIndex !== null && steps[galleryIndex] && (
+        <TemplateGallery
+          templates={templates}
+          currentId={templateRefId(steps[galleryIndex])}
+          editUrl={editUrl}
+          stepLabel={`Step ${galleryIndex + 1}`}
+          onSelect={(id) => {
+            setTemplate(steps[galleryIndex], id);
+            setGalleryIndex(null);
+          }}
+          onClose={() => setGalleryIndex(null)}
         />
       )}
     </>

@@ -102,13 +102,39 @@ const OfferPicker: React.FC<OfferPickerProps> = observer(({ step, stepLabel, off
                 <button
                   onClick={() => onToggle(offer.id)}
                   aria-label={added ? 'Remove from step' : 'Add to step'}
-                  className={`grid h-7 w-7 shrink-0 place-items-center rounded-lg text-lg leading-none ${
+                  className={`grid h-7 w-7 shrink-0 cursor-pointer place-items-center rounded-lg ${
                     added
                       ? 'bg-[var(--accent)] text-[#1a1300]'
                       : 'border border-[var(--border-glass)] text-[var(--text-secondary)] hover:border-[var(--accent)] hover:text-[var(--accent)]'
                   }`}
                 >
-                  {added ? '✓' : '+'}
+                  {added ? (
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="3"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M20 6 9 17l-5-5" />
+                    </svg>
+                  ) : (
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M12 5v14M5 12h14" />
+                    </svg>
+                  )}
                 </button>
               </div>
             );
