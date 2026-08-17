@@ -20,10 +20,10 @@ const ORDER_TYPES = Object.values(OfferFlowOrderType);
 const productRefId = (entry: any): string => entry?.product?.value?.id ?? entry?.product?.id ?? '';
 
 const iconButtonClass =
-  'shrink-0 rounded-md border border-[var(--border-glass)] px-2 py-1 text-[11px] font-medium text-[var(--text-secondary)] transition-colors hover:border-[var(--error)]/40 hover:text-[var(--error)] disabled:cursor-not-allowed disabled:opacity-40';
+  'shrink-0 rounded-md border border-[var(--border-glass)] px-2 py-1 text-[11px] font-medium text-[var(--text-secondary)] cursor-pointer transition-colors hover:border-[var(--error)]/40 hover:text-[var(--error)] disabled:cursor-not-allowed disabled:opacity-40';
 
 const addButtonClass =
-  'inline-flex items-center gap-1.5 rounded-lg border border-dashed border-[var(--accent)]/40 px-3 py-1.5 text-xs font-semibold text-[var(--accent)] transition-colors hover:bg-[var(--accent-subtle)] disabled:cursor-not-allowed disabled:opacity-40';
+  'inline-flex items-center gap-1.5 rounded-lg border border-dashed border-[var(--accent)]/40 px-3 py-1.5 cursor-pointer text-xs font-semibold text-[var(--accent)] transition-colors hover:bg-[var(--accent-subtle)] disabled:cursor-not-allowed disabled:opacity-40';
 
 const FlowTargeting: React.FC<FlowTargetingProps> = observer(({ data, products, markDirty, disabled }) => {
   const conditions: any[] = data.conditions ?? [];

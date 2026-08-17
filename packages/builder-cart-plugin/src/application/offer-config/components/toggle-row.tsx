@@ -17,7 +17,7 @@ const ToggleRow: React.FC<ToggleRowProps> = ({ label, helper, checked, onChange,
       aria-label={label}
       disabled={disabled}
       onClick={() => onChange(!checked)}
-      className={`relative mt-0.5 h-5 w-9 shrink-0 rounded-full transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${
+      className={`relative mt-0.5 h-5 w-9 shrink-0 cursor-pointer rounded-full transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${
         checked ? 'bg-[var(--accent)]' : 'bg-[var(--border-strong)]'
       }`}
     >

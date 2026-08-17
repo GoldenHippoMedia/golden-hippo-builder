@@ -3,7 +3,7 @@ import CommerceApi, { type CommerceOffer } from '@services/commerce-api';
 import UserManagementService from '@services/user-management';
 import type { ExtendedApplicationContext } from '../../interfaces/application-context.interface';
 
-// Offers come from the commerce offers datasource (mock data for now — see CommerceApi).
+// Offers come from the commerce service's offer catalog (GET /offer) — see CommerceApi.
 const state = observable({
   offers: [] as CommerceOffer[],
   loading: false,

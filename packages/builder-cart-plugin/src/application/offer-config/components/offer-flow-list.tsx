@@ -40,7 +40,7 @@ const OfferFlowList: React.FC<OfferFlowListProps> = ({ flows, onSelect, onCreate
           <button
             key={flow.id}
             onClick={() => flow.id && onSelect(flow.id)}
-            className="group flex w-full items-center justify-between gap-4 rounded-xl border border-[var(--border-glass)] bg-[var(--bg-glass)] px-4 py-3 text-left transition-colors hover:border-[var(--accent)]/30 hover:bg-[var(--bg-glass-hover)]"
+            className="group flex w-full cursor-pointer items-center justify-between gap-4 rounded-xl border border-[var(--border-glass)] bg-[var(--bg-glass)] px-4 py-3 text-left transition-colors hover:border-[var(--accent)]/30 hover:bg-[var(--bg-glass-hover)]"
           >
             <div className="min-w-0">
               <div className="flex items-center gap-2">

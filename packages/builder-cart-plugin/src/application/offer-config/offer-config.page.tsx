@@ -73,7 +73,7 @@ const OfferConfigPage: React.FC<OfferConfigPageProps> = observer(({ context }) =
       <button
         onClick={() => offerFlowStore.refresh(api)}
         disabled={refreshing}
-        className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--border-glass)] bg-[var(--bg-glass)] px-3 py-1.5 text-xs font-medium text-[var(--text-secondary)] transition-colors hover:bg-[var(--bg-glass-hover)] disabled:cursor-not-allowed disabled:opacity-40"
+        className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--border-glass)] bg-[var(--bg-glass)] px-3 py-1.5 text-xs font-medium cursor-pointer text-[var(--text-secondary)] transition-colors hover:bg-[var(--bg-glass-hover)] disabled:cursor-not-allowed disabled:opacity-40"
         title="Re-fetch offer flows from Builder.io (cache-busted)"
       >
         <svg
@@ -97,7 +97,7 @@ const OfferConfigPage: React.FC<OfferConfigPageProps> = observer(({ context }) =
       <button
         onClick={handleCreate}
         disabled={creating}
-        className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--accent)] px-3 py-1.5 text-xs font-semibold text-[#1a1300] transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-40"
+        className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--accent)] px-3 py-1.5 text-xs font-semibold cursor-pointer text-[#1a1300] transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-40"
         title="Create a new offer flow"
       >
         {creating ? 'Creating...' : '+ New flow'}

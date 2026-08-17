@@ -20,7 +20,7 @@ const Switch: React.FC<{ checked: boolean; onChange: (v: boolean) => void; disab
     aria-label={label}
     disabled={disabled}
     onClick={() => onChange(!checked)}
-    className={`relative h-5 w-9 shrink-0 rounded-full transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${
+    className={`relative h-5 w-9 shrink-0 cursor-pointer rounded-full transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${
       checked ? 'bg-[var(--accent)]' : 'bg-[var(--border-strong)]'
     }`}
   >

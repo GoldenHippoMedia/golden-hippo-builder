@@ -11,6 +11,8 @@ interface FlowStepsProps {
   data: Record<string, any>;
   templates: BuilderOfferTemplateContent[];
   offers: CommerceOffer[];
+  offersLoading: boolean;
+  offersError: string | null;
   editUrl: string;
   markDirty: () => void;
   disabled: boolean;
@@ -54,7 +56,7 @@ const Stepper: React.FC<{ value: number; onChange: (delta: number) => void; disa
   <div className="inline-flex items-center overflow-hidden rounded-md border border-[var(--border-glass)] bg-[var(--bg-secondary)]">
     <button
       type="button"
-      className="grid h-6 w-6 place-items-center text-[var(--text-secondary)] hover:bg-[var(--bg-glass-hover)] disabled:opacity-40"
+      className="grid h-6 w-6 cursor-pointer place-items-center text-[var(--text-secondary)] hover:bg-[var(--bg-glass-hover)] disabled:cursor-not-allowed disabled:opacity-40"
       disabled={disabled}
       onClick={() => onChange(-1)}
     >
@@ -66,7 +68,7 @@ const Stepper: React.FC<{ value: number; onChange: (delta: number) => void; disa
     </span>
     <button
       type="button"
-      className="grid h-6 w-6 place-items-center text-[var(--text-secondary)] hover:bg-[var(--bg-glass-hover)] disabled:opacity-40"
+      className="grid h-6 w-6 cursor-pointer place-items-center text-[var(--text-secondary)] hover:bg-[var(--bg-glass-hover)] disabled:cursor-not-allowed disabled:opacity-40"
       disabled={disabled}
       onClick={() => onChange(1)}
     >
@@ -75,7 +77,8 @@ const Stepper: React.FC<{ value: number; onChange: (delta: number) => void; disa
   </div>
 );
 
-const FlowSteps: React.FC<FlowStepsProps> = observer(({ data, templates, offers, editUrl, markDirty, disabled }) => {
+const FlowSteps: React.FC<FlowStepsProps> = observer((props) => {
+  const { data, templates, offers, offersLoading, offersError, editUrl, markDirty, disabled } = props;
   const steps: any[] = data.steps ?? [];
   const total = steps.length;
 
@@ -210,7 +213,7 @@ const FlowSteps: React.FC<FlowStepsProps> = observer(({ data, templates, offers,
                       title="Remove step"
                       disabled={disabled}
                       onClick={() => removeStep(index)}
-                      className="rounded px-1 text-[var(--text-muted)] hover:text-[var(--error)] disabled:opacity-40"
+                      className="cursor-pointer rounded px-1 text-[var(--text-muted)] hover:text-[var(--error)] disabled:cursor-not-allowed disabled:opacity-40"
                     >
                       ✕
                     </button>
@@ -257,7 +260,7 @@ const FlowSteps: React.FC<FlowStepsProps> = observer(({ data, templates, offers,
                         type="button"
                         disabled={disabled}
                         onClick={() => setPickerIndex(index)}
-                        className="inline-flex items-center gap-1 rounded-md border border-[var(--accent)]/30 bg-[var(--accent-subtle)] px-2 py-1 text-[11px] font-semibold text-[var(--accent)] hover:brightness-110 disabled:opacity-40"
+                        className="inline-flex items-center gap-1 rounded-md border border-[var(--accent)]/30 bg-[var(--accent-subtle)] px-2 py-1 cursor-pointer text-[11px] font-semibold text-[var(--accent)] hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-40"
                       >
                         + Add offers
                       </button>
@@ -291,7 +294,7 @@ const FlowSteps: React.FC<FlowStepsProps> = observer(({ data, templates, offers,
                               aria-label="Remove offer"
                               disabled={disabled}
                               onClick={() => removeOffer(step, oi)}
-                              className="shrink-0 rounded px-1 text-[var(--text-muted)] hover:text-[var(--error)] disabled:opacity-40"
+                              className="shrink-0 cursor-pointer rounded px-1 text-[var(--text-muted)] hover:text-[var(--error)] disabled:cursor-not-allowed disabled:opacity-40"
                             >
                               ✕
                             </button>
@@ -359,7 +362,7 @@ const FlowSteps: React.FC<FlowStepsProps> = observer(({ data, templates, offers,
             type="button"
             disabled={disabled}
             onClick={addStep}
-            className={`flex shrink-0 flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-[var(--border-strong)] text-sm font-semibold text-[var(--text-secondary)] transition-colors hover:border-[var(--accent)] hover:bg-[var(--accent-subtle)] hover:text-[var(--accent)] disabled:cursor-not-allowed disabled:opacity-40 ${
+            className={`flex shrink-0 cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-[var(--border-strong)] text-sm font-semibold text-[var(--text-secondary)] transition-colors hover:border-[var(--accent)] hover:bg-[var(--accent-subtle)] hover:text-[var(--accent)] disabled:cursor-not-allowed disabled:opacity-40 ${
               steps.length ? 'ml-2 w-[130px]' : 'min-h-[300px] w-[130px]'
             }`}
           >
@@ -374,6 +377,8 @@ const FlowSteps: React.FC<FlowStepsProps> = observer(({ data, templates, offers,
           step={steps[pickerIndex]}
           stepLabel={`Step ${pickerIndex + 1}`}
           offers={offers}
+          loading={offersLoading}
+          error={offersError}
           onToggle={(offerId) => toggleOffer(steps[pickerIndex], offerId)}
           onClose={() => setPickerIndex(null)}
         />

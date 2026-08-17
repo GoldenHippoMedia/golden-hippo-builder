@@ -1,9 +1,5 @@
 import { HippoUser } from '../user-management';
 import { CommerceOffer } from './types';
-import { MOCK_OFFERS, findMockOffer } from './mock-offers';
-
-/** Serve mock offers until the commerce offers endpoint exists. */
-const USE_MOCK_OFFERS = true;
 
 class CommerceApi {
   private readonly apiUrl: string;
@@ -16,51 +12,33 @@ class CommerceApi {
     this.apiPassword = user.hippoApi.password;
   }
 
+  /**
+   * The brand's full offer catalog — the authoring datasource for offer flows.
+   *
+   * This endpoint has no order context, so `tax` is always 0 and the locale prices use the
+   * brand's default conversion rate. Don't surface either as an order-accurate figure.
+   */
   async getOffers(brandName: string): Promise<CommerceOffer[]> {
-    if (USE_MOCK_OFFERS) {
-      return Promise.resolve(MOCK_OFFERS);
-    }
-
-    const url = this.buildRequestUrl('offers');
+    const url = this.buildRequestUrl('offer');
     const res = await fetch(url, {
       headers: this.headersWithBrand(brandName),
       credentials: 'include',
     });
-    if (res.ok) {
-      return res.json();
+    if (!res.ok) {
+      const body = await res.text();
+      console.error('[Hippo Commerce] Offers Error', {
+        res: body,
+        status: res.status,
+        statusText: res.statusText,
+      });
+      throw new Error('Failed to retrieve offers. Check your plugin settings!');
     }
-    const body = await res.text();
-    console.error('[Hippo Commerce] Offers Error', {
-      res: body,
-      status: res.status,
-      statusText: res.statusText,
-    });
-    throw new Error('Failed to retrieve offers. Check your plugin settings!');
-  }
-
-  async getOfferById(id: string, brandName: string): Promise<CommerceOffer | undefined> {
-    if (USE_MOCK_OFFERS) {
-      return Promise.resolve(findMockOffer(id));
+    const offers = await res.json();
+    if (!Array.isArray(offers)) {
+      console.error('[Hippo Commerce] Offers Error', { res: offers, expected: 'array' });
+      throw new Error('Unexpected response from the offers endpoint. Check your plugin settings!');
     }
-
-    const url = this.buildRequestUrl(`offers/${id}`);
-    const res = await fetch(url, {
-      headers: this.headersWithBrand(brandName),
-      credentials: 'include',
-    });
-    if (res.ok) {
-      return res.json();
-    }
-    if (res.status === 404) {
-      return undefined;
-    }
-    const body = await res.text();
-    console.error('[Hippo Commerce] Offer Error', {
-      res: body,
-      status: res.status,
-      statusText: res.statusText,
-    });
-    throw new Error(`Failed to retrieve offer - ID: ${id}. Check your plugin settings!`);
+    return offers as CommerceOffer[];
   }
 
   private headersWithBrand(brandName: string): Headers {
@@ -80,4 +58,3 @@ class CommerceApi {
 
 export default CommerceApi;
 export type { CommerceOffer, CommerceOfferProduct } from './types';
-export { MOCK_OFFERS, findMockOffer } from './mock-offers';

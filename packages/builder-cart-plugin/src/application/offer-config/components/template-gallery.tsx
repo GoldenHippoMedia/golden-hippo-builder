@@ -120,7 +120,7 @@ const TemplateGallery: React.FC<TemplateGalleryProps> = observer(
               <button
                 onClick={onClose}
                 aria-label="Close"
-                className="ml-auto grid h-8 w-8 place-items-center rounded-lg border border-[var(--border-glass)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+                className="ml-auto grid h-8 w-8 cursor-pointer place-items-center rounded-lg border border-[var(--border-glass)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
               >
                 ✕
               </button>
@@ -136,7 +136,7 @@ const TemplateGallery: React.FC<TemplateGalleryProps> = observer(
                 <button
                   key={l.key}
                   onClick={() => setLayout(l.key)}
-                  className={`rounded-md px-3 py-1 text-xs font-semibold transition-colors ${
+                  className={`cursor-pointer rounded-md px-3 py-1 text-xs font-semibold transition-colors ${
                     layout === l.key
                       ? 'bg-[var(--bg-secondary)] text-[var(--text-primary)] shadow'
                       : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
@@ -165,7 +165,7 @@ const TemplateGallery: React.FC<TemplateGalleryProps> = observer(
                     <button
                       key={t.id}
                       onClick={() => t.id && onSelect(t.id)}
-                      className={`flex w-[200px] flex-col overflow-hidden rounded-xl border text-left transition-all hover:-translate-y-0.5 ${
+                      className={`flex w-[200px] cursor-pointer flex-col overflow-hidden rounded-xl border text-left transition-all hover:-translate-y-0.5 ${
                         selected
                           ? 'border-[var(--accent)] shadow-[0_0_0_2px_var(--accent-glow)]'
                           : 'border-[var(--border-glass)] hover:border-[var(--border-strong)]'
