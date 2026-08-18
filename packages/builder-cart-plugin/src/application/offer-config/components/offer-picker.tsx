@@ -23,15 +23,37 @@ const FILTERS: { key: Filter; label: string }[] = [
   { key: 'Downsell', label: 'Downsell' },
 ];
 
+const chipClass = (active: boolean): string =>
+  `cursor-pointer rounded-md px-3 py-1 text-xs font-semibold transition-colors ${
+    active
+      ? 'bg-[var(--bg-secondary)] text-[var(--text-primary)] shadow'
+      : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+  }`;
+
+const quantityOptions = (offers: CommerceOffer[]): { value: number; label: string }[] => {
+  const sizes = new Set<number>();
+  offers.forEach(({ product }) => {
+    if (typeof product?.quantity === 'number') sizes.add(product.quantity);
+  });
+  return [...sizes]
+    .sort((a, b) => a - b)
+    .map((value) => ({ value, label: `${value} ${value === 1 ? 'Unit' : 'Units'}` }));
+};
+
 const OfferPicker: React.FC<OfferPickerProps> = observer(
   ({ step, stepLabel, offers, loading, error, onToggle, onClose }) => {
     const [query, setQuery] = useState('');
     const [filter, setFilter] = useState<Filter>('all');
+    const [size, setSize] = useState<number | 'all'>('all');
 
     const poolIds = new Set<string>((step.offers ?? []).map((e: any) => e.offer).filter(Boolean));
 
+    // Derived from the whole catalog, not the current matches, so the chips don't shift as you filter.
+    const sizes = quantityOptions(offers);
+
     const matches = offers.filter((offer) => {
       if (filter !== 'all' && offer.type !== filter) return false;
+      if (size !== 'all' && offer.product?.quantity !== size) return false;
       if (query) {
         const q = query.toLowerCase();
         if (!offerName(offer).toLowerCase().includes(q) && !(offer.product?.name ?? '').toLowerCase().includes(q)) {
@@ -67,19 +89,27 @@ const OfferPicker: React.FC<OfferPickerProps> = observer(
             />
             <div className="mt-3 inline-flex gap-1 rounded-lg border border-[var(--border-glass)] bg-[var(--input-bg)] p-1">
               {FILTERS.map((f) => (
-                <button
-                  key={f.key}
-                  onClick={() => setFilter(f.key)}
-                  className={`cursor-pointer rounded-md px-3 py-1 text-xs font-semibold transition-colors ${
-                    filter === f.key
-                      ? 'bg-[var(--bg-secondary)] text-[var(--text-primary)] shadow'
-                      : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
-                  }`}
-                >
+                <button key={f.key} onClick={() => setFilter(f.key)} className={chipClass(filter === f.key)}>
                   {f.label}
                 </button>
               ))}
             </div>
+
+            {sizes.length > 1 && (
+              <div className="mt-2 flex flex-wrap items-center gap-1 rounded-lg border border-[var(--border-glass)] bg-[var(--input-bg)] p-1">
+                <span className="pl-1.5 pr-0.5 text-[10px] font-bold uppercase tracking-wide text-[var(--text-muted)]">
+                  Size
+                </span>
+                <button onClick={() => setSize('all')} className={chipClass(size === 'all')}>
+                  Any
+                </button>
+                {sizes.map((s) => (
+                  <button key={s.value} onClick={() => setSize(s.value)} className={chipClass(size === s.value)}>
+                    {s.label}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
           {!loading && !error && (
@@ -104,7 +134,7 @@ const OfferPicker: React.FC<OfferPickerProps> = observer(
             )}
             {!loading && !error && matches.length === 0 && (
               <div className="py-12 text-center text-sm text-[var(--text-muted)]">
-                {offers.length === 0 ? 'This brand has no offers in the catalog.' : 'No offers match your search.'}
+                {offers.length === 0 ? 'This brand has no offers in the catalog.' : 'No offers match your filters.'}
               </div>
             )}
             {matches.map((offer) => {
