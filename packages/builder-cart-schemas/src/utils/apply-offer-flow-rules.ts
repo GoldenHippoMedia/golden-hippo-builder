@@ -171,10 +171,15 @@ export const resolveOfferFlow = <T extends FlowOffer>(
   (flow.data?.steps ?? []).forEach((step, authoredIndex) => {
     const offerCount = Math.max(1, step.template?.value?.data?.offerCount ?? 1);
 
+    // Filter the step's offers to those that exist, are unique, and pass the audience context rules.
     const survivors: T[] = [];
+    const seen = new Set<string>();
     for (const ref of step.offers ?? []) {
       const offer = ref.offer ? offersById.get(ref.offer) : undefined;
-      if (offer && isOfferAllowed(offer, flow, context)) survivors.push(offer);
+      if (!offer || seen.has(offer.id)) continue;
+      if (!isOfferAllowed(offer, flow, context)) continue;
+      seen.add(offer.id);
+      survivors.push(offer);
     }
 
     if (survivors.length < offerCount) return; // can't fill the template — drop the step

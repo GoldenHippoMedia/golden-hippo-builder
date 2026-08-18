@@ -513,6 +513,25 @@ describe('resolveOfferFlow', () => {
     expect(resolved.map((s) => s.authoredIndex)).toEqual([0, 2]);
   });
 
+  // Repeating an offer in one step is never intentional, so the repeat is dropped rather than
+  // allowed to occupy a second slot of the same template.
+  it('counts a repeated offer once within a step', () => {
+    const f = flow({ steps: [step({ offerCount: 2, offerIds: ['o1', 'o1', 'o2'] })] });
+    const [resolved] = resolveOfferFlow(f, offers);
+    expect(resolved.offers.map((o) => o.id)).toEqual(['o1', 'o2']);
+  });
+
+  it('drops a step that only reaches its offer count by repeating an offer', () => {
+    const f = flow({ steps: [step({ offerCount: 2, offerIds: ['o1', 'o1'] })] });
+    expect(resolveOfferFlow(f, offers)).toEqual([]);
+  });
+
+  it('still allows the same offer in different steps', () => {
+    const f = flow({ steps: [step({ offerIds: ['o1'] }), step({ offerIds: ['o1'] })] });
+    const resolved = resolveOfferFlow(f, offers);
+    expect(resolved.map((s) => s.offers.map((o) => o.id))).toEqual([['o1'], ['o1']]);
+  });
+
   it('ignores offer ids not present in the lookup', () => {
     const f = flow({ steps: [step({ offerCount: 1, offerIds: ['o1', 'missing'] })] });
     const [resolved] = resolveOfferFlow(f, offers);

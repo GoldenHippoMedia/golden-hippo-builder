@@ -95,6 +95,27 @@ const FlowSteps: React.FC<FlowStepsProps> = observer((props) => {
   const destLabel = (index: number, advance: number): string =>
     index + advance >= total ? 'Ends flow' : `Step ${index + advance + 1}`;
 
+  const stepNumbersByOffer = new Map<string, number[]>();
+  steps.forEach((s: any, i: number) => {
+    for (const entry of s.offers ?? []) {
+      if (!entry?.offer) continue;
+      stepNumbersByOffer.set(entry.offer, [...(stepNumbersByOffer.get(entry.offer) ?? []), i + 1]);
+    }
+  });
+
+  const joinLabels = (parts: string[]): string =>
+    parts.length > 1 ? `${parts.slice(0, -1).join(', ')} and ${parts[parts.length - 1]}` : (parts[0] ?? '');
+
+  /** Hover text when this offer appears more than once in the flow; undefined when it appears once. */
+  const duplicateHint = (offerId: string, stepIndex: number): string | undefined => {
+    const appearances = stepNumbersByOffer.get(offerId) ?? [];
+    if (appearances.length < 2) return undefined;
+    const elsewhere = [...new Set(appearances)].filter((n) => n !== stepIndex + 1);
+    return elsewhere.length
+      ? `Also in ${joinLabels(elsewhere.map((n) => `Step ${n}`))} — the same customer could be shown this offer more than once.`
+      : 'Listed more than once in this step — only the first copy is used. Remove the extra.';
+  };
+
   const addStep = () => {
     if (!data.steps) data.steps = [];
     data.steps.push({ template: undefined, offers: [], stepCountOnAccept: 1, stepCountOnDecline: 1, minResponses: 1 });
@@ -272,6 +293,7 @@ const FlowSteps: React.FC<FlowStepsProps> = observer((props) => {
                     )}
                     {offers.map((entry, oi) => {
                       const offer = offersById.get(entry.offer);
+                      const duplicate = entry.offer ? duplicateHint(entry.offer, index) : undefined;
                       return (
                         <React.Fragment key={oi}>
                           {oi === offerCount && offers.length > offerCount && (
@@ -281,12 +303,27 @@ const FlowSteps: React.FC<FlowStepsProps> = observer((props) => {
                               <span className="h-px flex-1 bg-[var(--border-glass)]" />
                             </div>
                           )}
-                          <div className="flex items-center gap-2 rounded-lg border border-[var(--border-glass)] bg-[var(--bg-glass)] px-2 py-1.5">
+                          <div
+                            title={duplicate}
+                            className={`flex items-center gap-2 rounded-lg border px-2 py-1.5 ${
+                              duplicate
+                                ? 'border-[var(--warning)]/50 bg-[var(--warning)]/10'
+                                : 'border-[var(--border-glass)] bg-[var(--bg-glass)]'
+                            }`}
+                          >
                             {offer ? (
                               <OfferSummary offer={offer} />
                             ) : (
                               <span className="min-w-0 flex-1 truncate text-[11px] text-[var(--text-muted)]">
                                 Unknown offer: {entry.offer || '(empty)'}
+                              </span>
+                            )}
+                            {duplicate && (
+                              <span
+                                aria-label={duplicate}
+                                className="shrink-0 cursor-help text-[11px] leading-none text-[var(--warning)]"
+                              >
+                                ⚠
                               </span>
                             )}
                             <button
