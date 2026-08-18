@@ -434,6 +434,51 @@ describe('isOfferAllowed', () => {
     const f = flow({ excludeSubscribedProducts: true });
     expect(isOfferAllowed(offer('off-1', ''), f, { subscribedFamilyIds: [''] })).toBe(true);
   });
+
+  // Stepping back a month from a day the target month doesn't have used to overflow forward
+  // ("Feb 31" → 3 Mar), shortening the window and letting a just-purchased product be offered again.
+  it('clamps the lookback to the target month instead of overflowing past it', () => {
+    const f = flow({
+      excludePreviouslyPurchased: true,
+      previousPurchaseLookback: PreviousPurchaseLookback.OneMonth,
+    });
+    const purchased = (iso: string) => [{ familyId: 'a19FAM000van', purchasedAt: Date.parse(iso) }];
+
+    // 31 Mar − 1 month is 28 Feb, so a 1 Mar purchase is inside the window.
+    const endOfMarch = Date.parse('2026-03-31T00:00:00Z');
+    expect(isOfferAllowed(o, f, { previousPurchases: purchased('2026-03-01T00:00:00Z'), now: endOfMarch })).toBe(false);
+    expect(isOfferAllowed(o, f, { previousPurchases: purchased('2026-02-27T00:00:00Z'), now: endOfMarch })).toBe(true);
+
+    // 31 May − 1 month is 30 Apr, not 1 May.
+    const endOfMay = Date.parse('2026-05-31T00:00:00Z');
+    expect(isOfferAllowed(o, f, { previousPurchases: purchased('2026-04-30T00:00:00Z'), now: endOfMay })).toBe(false);
+    expect(isOfferAllowed(o, f, { previousPurchases: purchased('2026-04-29T00:00:00Z'), now: endOfMay })).toBe(true);
+  });
+
+  it('keeps the boundary purchase inside the window and the one before it outside', () => {
+    const f = flow({
+      excludePreviouslyPurchased: true,
+      previousPurchaseLookback: PreviousPurchaseLookback.ThreeMonths,
+    });
+    const now = Date.parse('2026-06-15T12:00:00Z');
+    const at = (iso: string) => [{ familyId: 'a19FAM000van', purchasedAt: Date.parse(iso) }];
+
+    expect(isOfferAllowed(o, f, { previousPurchases: at('2026-03-15T12:00:00Z'), now })).toBe(false);
+    expect(isOfferAllowed(o, f, { previousPurchases: at('2026-03-15T11:59:59Z'), now })).toBe(true);
+  });
+
+  it('steps back across a year boundary', () => {
+    const f = flow({
+      excludePreviouslyPurchased: true,
+      previousPurchaseLookback: PreviousPurchaseLookback.ThreeMonths,
+    });
+    const now = Date.parse('2026-01-31T00:00:00Z');
+    const at = (iso: string) => [{ familyId: 'a19FAM000van', purchasedAt: Date.parse(iso) }];
+
+    // 31 Jan 2026 − 3 months is 31 Oct 2025.
+    expect(isOfferAllowed(o, f, { previousPurchases: at('2025-11-01T00:00:00Z'), now })).toBe(false);
+    expect(isOfferAllowed(o, f, { previousPurchases: at('2025-10-30T00:00:00Z'), now })).toBe(true);
+  });
 });
 
 describe('filterOffers', () => {

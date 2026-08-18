@@ -118,12 +118,15 @@ const LOOKBACK_MONTHS: Record<PreviousPurchaseLookback, number> = {
   [PreviousPurchaseLookback.Ever]: Infinity,
 };
 
-/** Epoch-ms cutoff for a lookback window; a purchase at or after it counts as "previous". */
 const lookbackCutoff = (lookback: PreviousPurchaseLookback | undefined, now: number): number => {
   const months = LOOKBACK_MONTHS[lookback ?? PreviousPurchaseLookback.ThreeMonths] ?? 3;
   if (!Number.isFinite(months)) return -Infinity; // "Ever" — any past purchase counts
-  const cutoff = new Date(now);
-  cutoff.setMonth(cutoff.getMonth() - months);
+
+  const from = new Date(now);
+  const cutoff = new Date(Date.UTC(from.getUTCFullYear(), from.getUTCMonth() - months, 1));
+  const daysInCutoffMonth = new Date(Date.UTC(cutoff.getUTCFullYear(), cutoff.getUTCMonth() + 1, 0)).getUTCDate();
+  cutoff.setUTCDate(Math.min(from.getUTCDate(), daysInCutoffMonth));
+  cutoff.setUTCHours(from.getUTCHours(), from.getUTCMinutes(), from.getUTCSeconds(), from.getUTCMilliseconds());
   return cutoff.getTime();
 };
 
