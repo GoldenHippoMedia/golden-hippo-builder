@@ -79,11 +79,14 @@ class BuilderApi {
     });
   }
 
-  async createOfferFlow(name: string): Promise<BuilderContent> {
+  async createOfferFlow(
+    name: string,
+    conditions: NonNullable<BuilderOfferFlowContent['data']>['conditions'] = [],
+  ): Promise<BuilderContent> {
     return this.context.createContent('offer-flow', {
       name,
       published: 'draft',
-      data: { name, active: true, isDefault: false, priority: 0, steps: [], conditions: [] },
+      data: { name, active: true, isDefault: false, priority: 0, steps: [], conditions },
     } as Partial<BuilderContent>);
   }
 

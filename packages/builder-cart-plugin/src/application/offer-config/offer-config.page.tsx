@@ -11,6 +11,7 @@ import { productStore } from '../product-config/product-data.store';
 import OfferFlowList from './components/offer-flow-list';
 import OfferFlowEditor from './components/offer-flow-editor';
 import ProductPicker from './components/product-picker';
+import FlowSimulator from './components/flow-simulator';
 
 interface OfferConfigPageProps {
   context: ExtendedApplicationContext;
@@ -41,19 +42,23 @@ const OfferConfigPage: React.FC<OfferConfigPageProps> = observer(({ context }) =
     void offerStore.ensureLoaded(context);
   }, [api, context]);
 
-  const handleCreate = useCallback(async () => {
-    setCreating(true);
-    offerFlowStore.setError(null);
-    try {
-      const created = await api.createOfferFlow('New Offer Flow');
-      offerFlowStore.prepend(created as BuilderOfferFlowContent);
-      if (created.id) setActiveFlowId(created.id);
-    } catch (e) {
-      offerFlowStore.setError(e instanceof Error ? e.message : String(e));
-    } finally {
-      setCreating(false);
-    }
-  }, [api]);
+  const createFlow = useCallback(
+    async (name: string, conditions: NonNullable<BuilderOfferFlowContent['data']>['conditions'] = []) => {
+      setCreating(true);
+      offerFlowStore.setError(null);
+      try {
+        const created = await api.createOfferFlow(name, conditions);
+        offerFlowStore.prepend(created as BuilderOfferFlowContent);
+        if (created.id) setActiveFlowId(created.id);
+      } catch (e) {
+        offerFlowStore.setError(e instanceof Error ? e.message : String(e));
+      } finally {
+        setCreating(false);
+      }
+    },
+    [api],
+  );
+  const handleCreate = useCallback(() => createFlow('New Offer Flow'), [createFlow]);
 
   const { items: flows, loading, refreshing, error } = offerFlowStore;
 
@@ -137,6 +142,16 @@ const OfferConfigPage: React.FC<OfferConfigPageProps> = observer(({ context }) =
         <div className="mb-4 break-all rounded-lg bg-[var(--error)]/10 px-4 py-3 text-sm text-[var(--error)]">
           {error}
         </div>
+      )}
+      {total > 0 && (
+        <FlowSimulator
+          flows={flows}
+          products={productStore.items}
+          productsLoading={productStore.loading}
+          productsError={productStore.error}
+          onOpenFlow={setActiveFlowId}
+          onCreateFromCart={createFlow}
+        />
       )}
       {total > 0 && (
         <div className="mb-4 flex flex-wrap items-center gap-3">
