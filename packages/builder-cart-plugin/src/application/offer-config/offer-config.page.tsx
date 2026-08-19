@@ -12,6 +12,7 @@ import OfferFlowList from './components/offer-flow-list';
 import OfferFlowEditor from './components/offer-flow-editor';
 import ProductPicker from './components/product-picker';
 import FlowSimulator from './components/flow-simulator';
+import { productRefId } from './refs';
 
 interface OfferConfigPageProps {
   context: ExtendedApplicationContext;
@@ -22,7 +23,7 @@ const SUBTITLE = 'Post-checkout offer flows — the sequence of offers a custome
 /** True when any of the flow's targeting conditions references the given product entry. */
 const flowTargetsProduct = (flow: BuilderOfferFlowContent, productId: string): boolean =>
   (flow.data?.conditions ?? []).some((condition) =>
-    (condition.products ?? []).some((p: any) => (p?.product?.value?.id ?? p?.product?.id) === productId),
+    (condition.products ?? []).some((p) => productRefId(p) === productId),
   );
 
 const OfferConfigPage: React.FC<OfferConfigPageProps> = observer(({ context }) => {

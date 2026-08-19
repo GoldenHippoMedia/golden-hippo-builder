@@ -8,7 +8,8 @@ import {
   PreviousPurchaseLookback,
 } from '@goldenhippo/builder-cart-schemas';
 import { type CommerceOffer } from '@services/commerce-api';
-import { offerName } from './offer-summary';
+import { offerName, offerQuantityLabel } from './offer-summary';
+import { productRefId, templateRefId } from '../refs';
 
 interface OfferFlowListProps {
   flows: BuilderOfferFlowContent[];
@@ -27,12 +28,7 @@ const MAX_OFFER_NAMES = 3;
 
 type Step = NonNullable<NonNullable<BuilderOfferFlowContent['data']>['steps']>[number];
 
-// A condition product reference carries either a resolved `value` or just an id.
-const productRefId = (entry: any): string => entry?.product?.value?.id ?? entry?.product?.id ?? '';
 const productRefName = (entry: any): string | undefined => entry?.product?.value?.name;
-
-// A step's template reference carries either a resolved `value` or just an id.
-const templateRefId = (step: any): string => step?.template?.value?.id ?? step?.template?.id ?? '';
 
 // A tiny grid standing in for the template's layout (1-up, 2-up, 3-up grid, …),
 // mirroring the glyph used in the flow editor.
@@ -68,10 +64,7 @@ const money = (n: number | undefined): string => {
 
 /** "3 bottles" or "3 bottles subscription" — quantity + packaging, flagged when it enrolls a subscription. */
 const offerQtyLabel = (offer: CommerceOffer): string => {
-  const base = [offer.product?.quantity, offer.product?.packaging]
-    .filter((part) => part !== undefined && part !== '')
-    .join(' ')
-    .trim();
+  const base = offerQuantityLabel(offer);
   return offer.subscription ? `${base} subscription`.trim() : base;
 };
 
@@ -143,7 +136,7 @@ const configWarnings = (flow: BuilderOfferFlowContent): string[] => {
     warnings.push('No steps configured');
     return warnings;
   }
-  const noTemplate = steps.filter((s: any) => !(s?.template?.value?.id ?? s?.template?.id)).length;
+  const noTemplate = steps.filter((s) => !templateRefId(s)).length;
   if (noTemplate) warnings.push(`${noTemplate} step${noTemplate === 1 ? '' : 's'} missing a template`);
   const noOffers = steps.filter((s) => (s.offers?.length ?? 0) === 0).length;
   if (noOffers) warnings.push(`${noOffers} step${noOffers === 1 ? '' : 's'} with no offers`);

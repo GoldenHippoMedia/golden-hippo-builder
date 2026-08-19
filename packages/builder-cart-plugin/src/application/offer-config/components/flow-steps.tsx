@@ -6,6 +6,7 @@ import { type CommerceOffer } from '@services/commerce-api';
 import OfferSummary from './offer-summary';
 import OfferPicker from './offer-picker';
 import TemplateGallery from './template-gallery';
+import { contentRef, templateRefId } from '../refs';
 
 interface FlowStepsProps {
   data: Record<string, any>;
@@ -17,10 +18,6 @@ interface FlowStepsProps {
   markDirty: () => void;
   disabled: boolean;
 }
-
-const REF_TYPE = '@builder.io/core:Reference';
-
-const templateRefId = (step: any): string => step?.template?.value?.id ?? step?.template?.id ?? '';
 
 // A tiny grid standing in for the template's layout (1-up, 3-up, 4-up grid, …).
 const TemplateGlyph: React.FC<{ count: number; empty?: boolean }> = ({ count, empty }) => {
@@ -142,7 +139,7 @@ const FlowSteps: React.FC<FlowStepsProps> = observer((props) => {
     markDirty();
   };
   const setTemplate = (step: any, id: string) => {
-    step.template = id ? { '@type': REF_TYPE, model: 'offer-template', id } : undefined;
+    step.template = id ? contentRef('offer-template', id) : undefined;
     markDirty();
   };
   const toggleOffer = (step: any, offerId: string) => {

@@ -3,6 +3,7 @@ import { observer } from 'mobx-react';
 import { FormField, Section } from '@goldenhippo/builder-ui';
 import { PreviousPurchaseLookback } from '@goldenhippo/builder-cart-schemas';
 import ToggleRow from './toggle-row';
+import Select from './select';
 
 interface FlowAudienceProps {
   data: Record<string, any>;
@@ -10,7 +11,7 @@ interface FlowAudienceProps {
   disabled: boolean;
 }
 
-const LOOKBACKS = Object.values(PreviousPurchaseLookback);
+const LOOKBACK_OPTIONS = Object.values(PreviousPurchaseLookback).map((value) => ({ value, label: value }));
 
 const FlowAudience: React.FC<FlowAudienceProps> = observer(({ data, set, disabled }) => (
   <Section title="Audience filters" subtitle="Drop offers that don’t fit the customer">
@@ -32,18 +33,13 @@ const FlowAudience: React.FC<FlowAudienceProps> = observer(({ data, set, disable
       {data.excludePreviouslyPurchased && (
         <div className="ml-12 max-w-xs">
           <FormField label="Lookback window">
-            <select
-              className="hippo-input"
+            <Select
+              fullWidth
+              options={LOOKBACK_OPTIONS}
               value={data.previousPurchaseLookback ?? PreviousPurchaseLookback.ThreeMonths}
               disabled={disabled}
-              onChange={(e) => set('previousPurchaseLookback', e.target.value)}
-            >
-              {LOOKBACKS.map((value) => (
-                <option key={value} value={value}>
-                  {value}
-                </option>
-              ))}
-            </select>
+              onChange={(value) => set('previousPurchaseLookback', value)}
+            />
           </FormField>
         </div>
       )}

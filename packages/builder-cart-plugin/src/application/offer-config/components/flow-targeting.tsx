@@ -7,6 +7,8 @@ import {
   type BuilderProductContent,
 } from '@goldenhippo/builder-cart-schemas';
 import ProductPicker from './product-picker';
+import Select from './select';
+import { contentRef, productRefId } from '../refs';
 
 interface FlowTargetingProps {
   data: Record<string, any>;
@@ -17,10 +19,10 @@ interface FlowTargetingProps {
   disabled: boolean;
 }
 
-const PRODUCT_REF_TYPE = '@builder.io/core:Reference';
-const ORDER_TYPES = Object.values(OfferFlowOrderType);
-
-const productRefId = (entry: any): string => entry?.product?.value?.id ?? entry?.product?.id ?? '';
+const ORDER_TYPE_OPTIONS = Object.values(OfferFlowOrderType).map((value) => ({ value, label: value }));
+const CONDITION_TYPE_OPTIONS = [
+  { value: OfferFlowConditionType.PurchasedProduct, label: OfferFlowConditionType.PurchasedProduct },
+];
 
 const iconButtonClass =
   'shrink-0 rounded-md border border-[var(--border-glass)] px-2 py-1 text-[11px] font-medium text-[var(--text-secondary)] cursor-pointer transition-colors hover:border-[var(--error)]/40 hover:text-[var(--error)] disabled:cursor-not-allowed disabled:opacity-40';
@@ -51,7 +53,7 @@ const FlowTargeting: React.FC<FlowTargetingProps> = observer(
       markDirty();
     };
     const setProduct = (entry: any, id: string) => {
-      entry.product = id ? { '@type': PRODUCT_REF_TYPE, model: 'product', id } : undefined;
+      entry.product = id ? contentRef('product', id) : undefined;
       markDirty();
     };
 
@@ -72,19 +74,16 @@ const FlowTargeting: React.FC<FlowTargetingProps> = observer(
               <div key={ci} className="rounded-xl border border-[var(--border-glass)] bg-[var(--bg-glass)] p-4">
                 <div className="mb-3 flex items-center gap-2">
                   <span className="text-xs font-semibold text-[var(--text-secondary)]">Condition {ci + 1} —</span>
-                  <select
-                    className="hippo-input w-auto! py-1! text-xs"
+                  <Select
+                    className="py-1! text-xs"
+                    options={CONDITION_TYPE_OPTIONS}
                     value={condition.conditionType ?? OfferFlowConditionType.PurchasedProduct}
                     disabled={disabled}
-                    onChange={(e) => {
-                      condition.conditionType = e.target.value;
+                    onChange={(value) => {
+                      condition.conditionType = value;
                       markDirty();
                     }}
-                  >
-                    <option value={OfferFlowConditionType.PurchasedProduct}>
-                      {OfferFlowConditionType.PurchasedProduct}
-                    </option>
-                  </select>
+                  />
                   <div className="flex-1" />
                   <button
                     type="button"
@@ -122,22 +121,16 @@ const FlowTargeting: React.FC<FlowTargetingProps> = observer(
                           markDirty();
                         }}
                       />
-                      <select
-                        className="hippo-input w-auto!"
+                      <Select
                         title="Order type"
+                        options={ORDER_TYPE_OPTIONS}
                         value={entry.orderType ?? OfferFlowOrderType.Either}
                         disabled={disabled}
-                        onChange={(e) => {
-                          entry.orderType = e.target.value;
+                        onChange={(value) => {
+                          entry.orderType = value;
                           markDirty();
                         }}
-                      >
-                        {ORDER_TYPES.map((value) => (
-                          <option key={value} value={value}>
-                            {value}
-                          </option>
-                        ))}
-                      </select>
+                      />
                       <button
                         type="button"
                         className={`${iconButtonClass} mt-2`}

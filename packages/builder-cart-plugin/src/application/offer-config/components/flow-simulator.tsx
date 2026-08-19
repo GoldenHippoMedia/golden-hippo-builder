@@ -9,6 +9,13 @@ import {
   type PurchasedLineItem,
 } from '@goldenhippo/builder-cart-schemas';
 import ProductPicker from './product-picker';
+import Select from './select';
+import { contentRef, productRefId } from '../refs';
+
+const ORDER_TYPE_OPTIONS = [
+  { value: 'one', label: 'One-time' },
+  { value: 'sub', label: 'Subscription' },
+];
 
 type OfferFlowConditions = NonNullable<BuilderOfferFlowContent['data']>['conditions'];
 
@@ -21,16 +28,12 @@ interface FlowSimulatorProps {
   onCreateFromCart: (name: string, conditions: OfferFlowConditions) => void;
 }
 
-const PRODUCT_REF_TYPE = '@builder.io/core:Reference';
-
 interface CartRow {
   productId: string;
   /** Units the purchased SKU ships (maps to a condition's "represents quantity"); blank = any. */
   units: string;
   subscription: boolean;
 }
-
-const productRefId = (entry: any): string => entry?.product?.value?.id ?? entry?.product?.id ?? '';
 
 /**
  * The plugin fetches flows without resolving references, but `selectOfferFlow` matches on each
@@ -124,7 +127,7 @@ const FlowSimulator: React.FC<FlowSimulatorProps> = ({
       {
         conditionType: OfferFlowConditionType.PurchasedProduct,
         products: activeRows.map((r) => ({
-          product: { '@type': PRODUCT_REF_TYPE, model: 'product', id: r.productId },
+          product: contentRef('product', r.productId),
           representsQuantity: r.units.trim() === '' ? undefined : Number(r.units),
           orderType: r.subscription ? OfferFlowOrderType.Subscription : OfferFlowOrderType.OneTimePurchase,
         })),
@@ -202,15 +205,12 @@ const FlowSimulator: React.FC<FlowSimulatorProps> = ({
                     value={row.units}
                     onChange={(e) => setRow(i, { units: e.target.value })}
                   />
-                  <select
-                    className="hippo-input w-auto!"
+                  <Select
                     title="Order type"
+                    options={ORDER_TYPE_OPTIONS}
                     value={row.subscription ? 'sub' : 'one'}
-                    onChange={(e) => setRow(i, { subscription: e.target.value === 'sub' })}
-                  >
-                    <option value="one">One-time</option>
-                    <option value="sub">Subscription</option>
-                  </select>
+                    onChange={(value) => setRow(i, { subscription: value === 'sub' })}
+                  />
                   <button
                     type="button"
                     className={iconButtonClass}
