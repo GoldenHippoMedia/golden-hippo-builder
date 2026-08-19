@@ -90,6 +90,17 @@ class BuilderApi {
     } as Partial<BuilderContent>);
   }
 
+  async duplicateOfferFlow(source: BuilderOfferFlowContent, name: string): Promise<BuilderContent> {
+    const data = JSON.parse(JSON.stringify(source.data ?? {}));
+    data.name = name;
+    data.isDefault = false;
+    return this.context.createContent('offer-flow', {
+      name,
+      published: 'draft',
+      data,
+    } as Partial<BuilderContent>);
+  }
+
   async saveOfferFlow(entryId: string, data: Record<string, any>): Promise<void> {
     const resp = await fetch(`https://builder.io/api/v1/write/offer-flow/${entryId}`, {
       method: 'PATCH',

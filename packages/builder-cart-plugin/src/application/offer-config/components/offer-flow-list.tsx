@@ -21,6 +21,7 @@ interface OfferFlowListProps {
   offers: CommerceOffer[];
   onSelect: (id: string) => void;
   onCreate: () => void;
+  onDuplicate: (flow: BuilderOfferFlowContent) => void;
 }
 
 /** How many offer names to show inline before collapsing the rest into a "+N". */
@@ -143,7 +144,15 @@ const configWarnings = (flow: BuilderOfferFlowContent): string[] => {
   return warnings;
 };
 
-const OfferFlowList: React.FC<OfferFlowListProps> = ({ flows, products, templates, offers, onSelect, onCreate }) => {
+const OfferFlowList: React.FC<OfferFlowListProps> = ({
+  flows,
+  products,
+  templates,
+  offers,
+  onSelect,
+  onCreate,
+  onDuplicate,
+}) => {
   if (flows.length === 0) {
     return (
       <EmptyState
@@ -171,10 +180,18 @@ const OfferFlowList: React.FC<OfferFlowListProps> = ({ flows, products, template
         const warnings = configWarnings(flow);
         const steps: Step[] = flow.data?.steps ?? [];
         return (
-          <button
+          <div
             key={flow.id}
+            role="button"
+            tabIndex={0}
             onClick={() => flow.id && onSelect(flow.id)}
-            className="group flex w-full cursor-pointer items-center justify-between gap-4 rounded-xl border border-[var(--border-glass)] bg-[var(--bg-glass)] px-4 py-3 text-left transition-colors hover:border-[var(--accent)]/30 hover:bg-[var(--bg-glass-hover)]"
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                if (flow.id) onSelect(flow.id);
+              }
+            }}
+            className="group flex w-full cursor-pointer items-center justify-between gap-4 rounded-xl border border-[var(--border-glass)] bg-[var(--bg-glass)] px-4 py-3 text-left transition-colors hover:border-[var(--accent)]/30 hover:bg-[var(--bg-glass-hover)] focus:outline-none focus-visible:border-[var(--accent)]"
           >
             <div className="min-w-0">
               <div className="flex items-center gap-2">
@@ -321,7 +338,31 @@ const OfferFlowList: React.FC<OfferFlowListProps> = ({ flows, products, template
                 </div>
               )}
             </div>
-            <div className="flex shrink-0 items-center gap-3">
+            <div className="flex shrink-0 items-center gap-2">
+              <button
+                type="button"
+                title="Duplicate this flow"
+                aria-label="Duplicate this flow"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onDuplicate(flow);
+                }}
+                className="cursor-pointer rounded-md p-1.5 text-[var(--text-muted)] opacity-0 transition-opacity hover:bg-[var(--bg-glass-hover)] hover:text-[var(--text-primary)] focus-visible:opacity-100 group-hover:opacity-100"
+              >
+                <svg
+                  width="15"
+                  height="15"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                </svg>
+              </button>
               <svg
                 width="16"
                 height="16"
@@ -336,7 +377,7 @@ const OfferFlowList: React.FC<OfferFlowListProps> = ({ flows, products, template
                 <path d="m9 18 6-6-6-6" />
               </svg>
             </div>
-          </button>
+          </div>
         );
       })}
     </div>

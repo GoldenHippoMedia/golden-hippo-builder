@@ -61,6 +61,27 @@ const OfferConfigPage: React.FC<OfferConfigPageProps> = observer(({ context }) =
   );
   const handleCreate = useCallback(() => createFlow('New Offer Flow'), [createFlow]);
 
+  const handleDuplicate = useCallback(
+    async (flow: BuilderOfferFlowContent) => {
+      setCreating(true);
+      offerFlowStore.setError(null);
+      try {
+        const taken = new Set(offerFlowStore.items.map((f) => f.data?.name).filter(Boolean));
+        const base = flow.data?.name || 'Untitled flow';
+        let name = `${base} (copy)`;
+        for (let n = 2; taken.has(name); n += 1) name = `${base} (copy ${n})`;
+        const created = await api.duplicateOfferFlow(flow, name);
+        offerFlowStore.prepend(created as BuilderOfferFlowContent);
+        if (created.id) setActiveFlowId(created.id);
+      } catch (e) {
+        offerFlowStore.setError(e instanceof Error ? e.message : String(e));
+      } finally {
+        setCreating(false);
+      }
+    },
+    [api],
+  );
+
   const { items: flows, loading, refreshing, error } = offerFlowStore;
 
   if (loading && flows.length === 0) {
@@ -187,6 +208,7 @@ const OfferConfigPage: React.FC<OfferConfigPageProps> = observer(({ context }) =
           offers={offerStore.offers}
           onSelect={setActiveFlowId}
           onCreate={handleCreate}
+          onDuplicate={handleDuplicate}
         />
       )}
     </div>
