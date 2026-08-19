@@ -183,17 +183,14 @@ const ProductPicker: React.FC<ProductPickerProps> = ({
                       draft
                     </span>
                   )}
-                  {option.type && <span className="shrink-0 text-[10px] text-[var(--text-muted)]">{option.type}</span>}
-                  <span
-                    className={`shrink-0 font-mono text-[10px] ${
-                      option.productionId ? 'text-[var(--text-muted)]' : 'text-[var(--warning)]'
-                    }`}
-                    title={
-                      option.productionId ? 'Product family id' : 'No Production ID — this product can never match'
-                    }
-                  >
-                    {option.productionId || 'no id'}
-                  </span>
+                  {!option.productionId && (
+                    <span
+                      className="shrink-0 text-[10px] text-[var(--warning)]"
+                      title="No Production ID — this product can never match"
+                    >
+                      no id
+                    </span>
+                  )}
                   {isTaken && <span className="shrink-0 text-[10px] text-[var(--text-muted)]">added</span>}
                 </button>
               );
