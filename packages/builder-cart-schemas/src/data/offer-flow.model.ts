@@ -8,7 +8,6 @@ export enum OfferType {
   Downsell = 'Downsell',
 }
 
-/** Targeting condition type. Extensible — add new types here + a `showIf`-gated field group. */
 export enum OfferFlowConditionType {
   PurchasedProduct = 'Purchased Product',
 }
@@ -19,7 +18,6 @@ export enum OfferFlowOrderType {
   Either = 'Either',
 }
 
-/** Lookback window for the "exclude previously purchased" filter. `Ever` = any past purchase. */
 export enum PreviousPurchaseLookback {
   OneMonth = '1 month',
   TwoMonths = '2 months',
@@ -30,15 +28,6 @@ export enum PreviousPurchaseLookback {
   Ever = 'Ever',
 }
 
-/**
- * Post-checkout offer flow: an ordered list of steps the customer walks in
- * sequence. Each step pairs an offer-template with a pool of offers. Progression
- * and per-customer filtering/resiliency are handled by the cart app — see
- * `wiki/upsell-configuration.md`.
- *
- * @param offerTemplateModelId  Resolved id of the `offer-template` model (for the step template reference).
- * @param productModelId        Resolved id of the `product` model (for targeting conditions).
- */
 export const createOfferFlowModel = (offerTemplateModelId: string, productModelId: string): ModelShape => {
   return {
     name: 'offer-flow',

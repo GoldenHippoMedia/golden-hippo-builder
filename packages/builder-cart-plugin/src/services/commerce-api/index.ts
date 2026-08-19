@@ -12,12 +12,7 @@ class CommerceApi {
     this.apiPassword = user.hippoApi.password;
   }
 
-  /**
-   * The brand's full offer catalog — the authoring datasource for offer flows.
-   *
-   * This endpoint has no order context, so `tax` is always 0 and the locale prices use the
-   * brand's default conversion rate. Don't surface either as an order-accurate figure.
-   */
+  //Only for use in the builder UI, there is no tax information included.
   async getOffers(brandName: string): Promise<CommerceOffer[]> {
     const url = this.buildRequestUrl('offer');
     const res = await fetch(url, {
