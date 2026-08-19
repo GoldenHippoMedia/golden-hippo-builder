@@ -35,11 +35,6 @@ interface CartRow {
   subscription: boolean;
 }
 
-/**
- * The plugin fetches flows without resolving references, but `selectOfferFlow` matches on each
- * condition product's `gh.productionId`. Inject that family id from the loaded product catalog so
- * the authoritative selector runs exactly as it does in the cart app.
- */
 const hydrateFlow = (
   flow: BuilderOfferFlowContent,
   familyByEntry: Map<string, string | undefined>,

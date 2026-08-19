@@ -13,26 +13,21 @@ import { productRefId, templateRefId } from '../refs';
 
 interface OfferFlowListProps {
   flows: BuilderOfferFlowContent[];
-  /** Product catalog, used to resolve targeting-condition references to names. */
   products: BuilderProductContent[];
-  /** Offer templates, used to resolve each step's reference to its offer count. */
   templates: BuilderOfferTemplateContent[];
-  /** Offer catalog, used to resolve each step's offer ids to names. */
   offers: CommerceOffer[];
   onSelect: (id: string) => void;
   onCreate: () => void;
   onDuplicate: (flow: BuilderOfferFlowContent) => void;
 }
 
-/** How many offer names to show inline before collapsing the rest into a "+N". */
-const MAX_OFFER_NAMES = 3;
+const DISPLAY_MAX_OFFER_NAMES = 3;
 
 type Step = NonNullable<NonNullable<BuilderOfferFlowContent['data']>['steps']>[number];
 
 const productRefName = (entry: any): string | undefined => entry?.product?.value?.name;
 
-// A tiny grid standing in for the template's layout (1-up, 2-up, 3-up grid, …),
-// mirroring the glyph used in the flow editor.
+//Placeholder for offer templates with {{ count }} offers
 const MiniGlyph: React.FC<{ count: number; empty?: boolean }> = ({ count, empty }) => {
   const n = empty ? 1 : Math.max(1, count);
   const cols = n <= 3 ? n : Math.ceil(Math.sqrt(n));
@@ -271,7 +266,7 @@ const OfferFlowList: React.FC<OfferFlowListProps> = ({
                       .map((e) => e?.offer)
                       .filter((id): id is string => Boolean(id))
                       .map((id) => ({ id, offer: offerById.get(id) }));
-                    const shown = entries.slice(0, MAX_OFFER_NAMES);
+                    const shown = entries.slice(0, DISPLAY_MAX_OFFER_NAMES);
                     const more = entries.length - shown.length;
                     // The first `offerCount` offers are live; the rest are backups.
                     const backupBoundary = hasTemplate && entries.length > offerCount ? offerCount : -1;
