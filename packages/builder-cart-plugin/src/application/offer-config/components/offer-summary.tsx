@@ -20,9 +20,14 @@ const money = (n: number | undefined): string => `$${(n ?? 0).toFixed(2)}`;
 export const offerName = (offer: CommerceOffer): string =>
   offer.product?.friendlyName || offer.product?.name || offer.id;
 
+/** "3 bottles" — the units the offer's SKU ships. Empty when quantity/packaging are unknown. */
+export const offerQuantityLabel = (offer: CommerceOffer): string =>
+  [offer.product?.quantity, offer.product?.packaging].filter((part) => part !== undefined && part !== '').join(' ');
+
 // Thumb + name + type badge + price (+ subscription pill). Shared by the pool rows and the picker.
 const OfferSummary: React.FC<{ offer: CommerceOffer; showProduct?: boolean }> = ({ offer, showProduct }) => {
   const name = offerName(offer);
+  const quantity = offerQuantityLabel(offer);
   const isUpsell = offer.type === 'Upsell';
   return (
     <>
@@ -45,6 +50,7 @@ const OfferSummary: React.FC<{ offer: CommerceOffer; showProduct?: boolean }> = 
           >
             {offer.type}
           </span>
+          {quantity && <span className="text-[11px] text-[var(--text-secondary)]">{quantity}</span>}
           <span className="font-mono text-[11px] tabular-nums text-[var(--text-secondary)]">
             <span className="mr-1 text-[var(--text-muted)] line-through">{money(offer.retailPrice)}</span>
             {money(offer.salePrice)}
