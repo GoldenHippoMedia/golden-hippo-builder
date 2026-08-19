@@ -91,10 +91,11 @@ export const createOfferFlowModel = (offerTemplateModelId: string, productModelI
             friendlyName: 'Template',
             type: 'reference',
             modelId: offerTemplateModelId,
+            required: true,
             copyOnAdd: false,
             defaultCollapsed: false,
             helperText: 'The offer template used to render this step.',
-          },
+          }
           {
             name: 'offers',
             friendlyName: 'Offers',
