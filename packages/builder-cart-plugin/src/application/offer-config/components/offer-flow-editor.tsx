@@ -115,7 +115,14 @@ const OfferFlowEditor: React.FC<OfferFlowEditorProps> = ({ context, flow, onBack
 
         {/* flow-level config, side by side */}
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-          <FlowTargeting data={data} products={productStore.items} markDirty={markDirty} disabled={!store.canWrite} />
+          <FlowTargeting
+            data={data}
+            products={productStore.items}
+            productsLoading={productStore.loading}
+            productsError={productStore.error}
+            markDirty={markDirty}
+            disabled={!store.canWrite}
+          />
           <FlowAudience data={data} set={set} disabled={!store.canWrite} />
         </div>
 

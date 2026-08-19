@@ -12,11 +12,13 @@ import { CollectionStore } from '@core/stores/collection-store';
 // Raw (unresolved) so localized fields stay as LocalizedValue objects — required to edit per-locale.
 const RAW = { bustCache: true, raw: true } as const;
 
+const CATALOG = { ...RAW, limit: 500 } as const;
+
 export const productStore = new CollectionStore<BuilderProductContent>((api) =>
-  api.getModelEntries<BuilderProductContent>('product', RAW),
+  api.getModelEntries<BuilderProductContent>('product', CATALOG),
 );
 export const productGroupStore = new CollectionStore<BuilderProductGroupContent>((api) =>
-  api.getModelEntries<BuilderProductGroupContent>('product-group', RAW),
+  api.getModelEntries<BuilderProductGroupContent>('product-group', CATALOG),
 );
 export const productTagStore = new CollectionStore<BuilderProductTagContent>((api) =>
   api.getModelEntries<BuilderProductTagContent>('product-tag', RAW),

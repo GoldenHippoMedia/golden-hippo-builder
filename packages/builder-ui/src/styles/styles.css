@@ -195,3 +195,9 @@ select.hippo-input {
 #hippo-app[data-theme='light'] select.hippo-input {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='rgba(0,0,0,0.4)' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
 }
+
+select.hippo-input option,
+select.hippo-input optgroup {
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+}
