@@ -52,25 +52,22 @@ const MiniGlyph: React.FC<{ count: number; empty?: boolean }> = ({ count, empty 
   );
 };
 
-/** Compact price: trims a whole-dollar ".00" but keeps cents when the amount has them. */
+//Format dollars $47.00 -> $47, $47.14 -> $47.15
 const money = (n: number | undefined): string => {
   const v = n ?? 0;
   return `$${Number.isInteger(v) ? v : v.toFixed(2)}`;
 };
 
-/** "3 bottles" or "3 bottles subscription" — quantity + packaging, flagged when it enrolls a subscription. */
 const offerQtyLabel = (offer: CommerceOffer): string => {
   const base = offerQuantityLabel(offer);
   return offer.subscription ? `${base} subscription`.trim() : base;
 };
 
-// Default flows first (the brand-wide fallback), then highest priority, then name.
 const byListOrder = (a: BuilderOfferFlowContent, b: BuilderOfferFlowContent): number =>
   Number(b.data?.isDefault ?? false) - Number(a.data?.isDefault ?? false) ||
   (b.data?.priority ?? 0) - (a.data?.priority ?? 0) ||
   (a.data?.name ?? '').localeCompare(b.data?.name ?? '');
 
-// "Shows N of M steps" once a target trims the list; otherwise just the count.
 const stepLabel = (flow: BuilderOfferFlowContent): string => {
   const total = flow.data?.steps?.length ?? 0;
   const target = flow.data?.stepTarget;
@@ -124,7 +121,6 @@ const exclusionChips = (flow: BuilderOfferFlowContent): string[] => {
   return chips;
 };
 
-// Config problems worth flagging before a marketer clicks in.
 const configWarnings = (flow: BuilderOfferFlowContent): string[] => {
   const steps: Step[] = flow.data?.steps ?? [];
   const warnings: string[] = [];
@@ -158,11 +154,10 @@ const OfferFlowList: React.FC<OfferFlowListProps> = ({
   }
 
   const nameById = new Map<string, string>(products.map((p) => [p.id ?? '', p.name || p.id || 'Untitled product']));
-  // How many offers each template presents (its "N-up" shape), by entry id.
+
   const offerCountById = new Map<string, number>(
     templates.map((t) => [t.id ?? '', Math.max(1, t.data?.offerCount ?? 1)]),
   );
-  // Full offer record for each id in the catalog, for name + quantity + price.
   const offerById = new Map<string, CommerceOffer>(offers.map((o) => [o.id, o]));
   const sorted = [...flows].sort(byListOrder);
 
