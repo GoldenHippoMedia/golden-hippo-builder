@@ -1,5 +1,10 @@
 import { BuilderContent } from '@builder.io/sdk';
-import { BuilderBrandConfigContent, BuilderTabAccessContent, TabAccessGrant } from '@goldenhippo/builder-cart-schemas';
+import {
+  BuilderBrandConfigContent,
+  BuilderOfferFlowContent,
+  BuilderTabAccessContent,
+  TabAccessGrant,
+} from '@goldenhippo/builder-cart-schemas';
 import { ExtendedApplicationContext } from '../interfaces/application-context.interface';
 import { pluginId, TAB_ACCESS_MODEL } from '../constants';
 
@@ -64,6 +69,50 @@ class BuilderApi {
     if (!resp.ok) {
       const body = await resp.text();
       throw new Error(`Failed to save brand config: ${resp.status} ${body}`);
+    }
+  }
+
+  async getOfferFlows(): Promise<BuilderOfferFlowContent[]> {
+    return this.getModelEntries<BuilderOfferFlowContent>('offer-flow', {
+      bustCache: true,
+      limit: 200,
+    });
+  }
+
+  async createOfferFlow(
+    name: string,
+    conditions: NonNullable<BuilderOfferFlowContent['data']>['conditions'] = [],
+  ): Promise<BuilderContent> {
+    return this.context.createContent('offer-flow', {
+      name,
+      published: 'draft',
+      data: { name, active: true, isDefault: false, priority: 0, steps: [], conditions },
+    } as Partial<BuilderContent>);
+  }
+
+  async duplicateOfferFlow(source: BuilderOfferFlowContent, name: string): Promise<BuilderContent> {
+    const data = JSON.parse(JSON.stringify(source.data ?? {}));
+    data.name = name;
+    data.isDefault = false;
+    return this.context.createContent('offer-flow', {
+      name,
+      published: 'draft',
+      data,
+    } as Partial<BuilderContent>);
+  }
+
+  async saveOfferFlow(entryId: string, data: Record<string, any>): Promise<void> {
+    const resp = await fetch(`https://builder.io/api/v1/write/offer-flow/${entryId}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${this.privateApiKey}`,
+      },
+      body: JSON.stringify({ data }),
+    });
+    if (!resp.ok) {
+      const body = await resp.text();
+      throw new Error(`Failed to save offer flow: ${resp.status} ${body}`);
     }
   }
 

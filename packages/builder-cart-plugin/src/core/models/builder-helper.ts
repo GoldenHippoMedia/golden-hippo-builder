@@ -13,7 +13,8 @@ import {
   createSiteBannerModel,
   createDefaultWebsiteSectionModel,
   createSubscriptionCancellationPanelModel,
-  createUpsellTemplateModel,
+  createOfferTemplateModel,
+  createOfferFlowModel,
   createPageModel,
   createProfileReferenceRuleModel,
   createRecommendationConfigModel,
@@ -74,8 +75,12 @@ class BuilderHelper {
     return createSubscriptionCancellationPanelModel(editUrl);
   }
 
-  upsellTemplate(editUrl: string): ModelShape {
-    return createUpsellTemplateModel(editUrl);
+  offerTemplate(editUrl: string): ModelShape {
+    return createOfferTemplateModel(editUrl);
+  }
+
+  offerFlow(offerTemplateModelId: string, productModelId: string): ModelShape {
+    return createOfferFlowModel(offerTemplateModelId, productModelId);
   }
 
   headerModel(editUrl: string): ModelShape {

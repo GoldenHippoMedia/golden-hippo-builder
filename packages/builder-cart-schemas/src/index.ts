@@ -4,6 +4,7 @@ export {
   createBlogCommentModel,
   createProductModel,
   createProductGroupModel,
+  createOfferFlowModel,
   createCategoryModel,
   createProductGridConfigModel,
   createIngredientsModel,
@@ -25,6 +26,11 @@ export {
   SubscriptionCancelButtonType,
   ProfileFieldReference,
   ProfileReferenceApplicationType,
+  OfferType,
+  OfferFlowConditionType,
+  OfferFlowOrderType,
+  PreviousPurchaseLookback,
+  type BuilderOfferFlowContent,
   type BuilderBlogCategoryContent,
   type BuilderBlogCommentContent,
   type BuilderProductContent,
@@ -47,13 +53,13 @@ export {
   createHeaderModel,
   createFooterModel,
   createSubscriptionCancellationPanelModel,
-  createUpsellTemplateModel,
+  createOfferTemplateModel,
   createOfferSelectorContentModel,
   createPromotionalCardModel,
   type BuilderDefaultWebsiteSectionContent,
   type BuilderSiteBannerModelContent,
   type BuilderSubscriptionCancellationPanelContent,
-  type BuilderUpsellTemplateContent,
+  type BuilderOfferTemplateContent,
   type BuilderHeaderModelContent,
   type BuilderFooterModelContent,
   type BuilderOfferSelectorContentModelContent,
@@ -69,3 +75,4 @@ export {
 } from './page';
 
 export { applyProfileReferenceRules } from './utils';
+export { selectOfferFlow, doesFlowMatchOrder, countMatchedProducts, type PurchasedLineItem } from './utils';

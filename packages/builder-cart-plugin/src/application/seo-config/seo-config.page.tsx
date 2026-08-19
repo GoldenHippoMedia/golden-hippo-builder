@@ -1,9 +1,10 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo } from 'react';
+import { observer } from 'mobx-react';
 import { LoadingSection, PageHeader, Section } from '@goldenhippo/builder-ui';
 import { ExtendedApplicationContext } from '../../interfaces/application-context.interface';
 import BuilderApi from '../../services/builder-api';
+import { seoPageStore } from './seo-page.store';
 import SeoPageList from './components/seo-page-list';
-import { type PageEntry } from './seo-page';
 
 interface SeoConfigPageProps {
   context: ExtendedApplicationContext;
@@ -11,53 +12,18 @@ interface SeoConfigPageProps {
 
 const SUBTITLE = 'A bird’s-eye view of every page’s SEO and sitemap configuration';
 
-const SeoConfigPage: React.FC<SeoConfigPageProps> = ({ context }) => {
+const SeoConfigPage: React.FC<SeoConfigPageProps> = observer(({ context }) => {
   const api = useMemo(() => new BuilderApi(context), [context]);
 
-  const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [pages, setPages] = useState<PageEntry[]>([]);
-
-  // Tracks whether the component is still mounted so an in-flight load doesn't
-  // set state after unmount.
-  const mounted = useRef(true);
   useEffect(() => {
-    mounted.current = true;
-    return () => {
-      mounted.current = false;
-    };
-  }, []);
+    void seoPageStore.ensureLoaded(api);
+  }, [api]);
 
-  const load = useCallback(
-    async (initial: boolean) => {
-      if (initial) setLoading(true);
-      else setRefreshing(true);
-      setError(null);
-      try {
-        const results = await api.getModelEntries<PageEntry>('page', { bustCache: true, limit: 2000 });
-        if (!mounted.current) return;
-        setPages(results);
-      } catch (e) {
-        if (!mounted.current) return;
-        setError(e instanceof Error ? e.message : String(e));
-      } finally {
-        if (mounted.current) {
-          if (initial) setLoading(false);
-          else setRefreshing(false);
-        }
-      }
-    },
-    [api],
-  );
-
-  useEffect(() => {
-    void load(true);
-  }, [load]);
+  const { items: pages, loaded, refreshing, error } = seoPageStore;
 
   const refreshAction = (
     <button
-      onClick={() => load(false)}
+      onClick={() => seoPageStore.refresh(api)}
       disabled={refreshing}
       className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--border-glass)] bg-[var(--bg-glass)] px-3 py-1.5 text-xs font-medium text-[var(--text-secondary)] transition-colors hover:bg-[var(--bg-glass-hover)] disabled:cursor-not-allowed disabled:opacity-40"
       title="Re-fetch pages from Builder.io (cache-busted)"
@@ -82,22 +48,22 @@ const SeoConfigPage: React.FC<SeoConfigPageProps> = ({ context }) => {
     </button>
   );
 
-  if (loading) {
+  if (error && !loaded) {
     return (
       <div>
         <PageHeader title="SEO Config" subtitle={SUBTITLE} />
-        <LoadingSection />
+        <Section title="Failed to load pages" variant="danger">
+          <div className="break-all rounded-lg bg-[var(--error)]/10 px-4 py-3 text-sm text-[var(--error)]">{error}</div>
+        </Section>
       </div>
     );
   }
 
-  if (error) {
+  if (!loaded) {
     return (
       <div>
         <PageHeader title="SEO Config" subtitle={SUBTITLE} />
-        <Section title="Failed to load pages">
-          <div className="break-all rounded-lg bg-[var(--error)]/10 px-4 py-3 text-sm text-[var(--error)]">{error}</div>
-        </Section>
+        <LoadingSection />
       </div>
     );
   }
@@ -109,10 +75,16 @@ const SeoConfigPage: React.FC<SeoConfigPageProps> = ({ context }) => {
         subtitle={`${pages.length} page${pages.length === 1 ? '' : 's'}`}
         actions={refreshAction}
       />
-
+      {error && (
+        <div className="mb-4 break-all rounded-lg bg-[var(--error)]/10 px-4 py-3 text-sm text-[var(--error)]">
+          {error}
+        </div>
+      )}
       <SeoPageList pages={pages} />
     </div>
   );
-};
+});
+
+SeoConfigPage.displayName = 'SeoConfigPage';
 
 export default SeoConfigPage;
