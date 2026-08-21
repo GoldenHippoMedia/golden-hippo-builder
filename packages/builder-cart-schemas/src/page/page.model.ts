@@ -535,7 +535,19 @@ export const createPageModel = (props: PageModelInputProps): ModelShape => {
                     Default: '<span class="material-icons">keyboard_arrow_up</span> Back to top',
                   },
                   outOfStock: {
-                    Default: 'Sorry, we"re currently out of stock',
+                    Default: "Sorry, we're currently out of stock",
+                  },
+                  outOfStockOneClickText: {
+                    Default: '<p class="text-center">We will email $EMAIL as soon as this item is back in stock.</p>',
+                  },
+                  outOfStockOneClickButtonText: {
+                    Default: 'Add me to the waitlist',
+                  },
+                  outOfStockDifferentEmailText: {
+                    Default: 'Use a different email',
+                  },
+                  outOfStockSubmitButtonText: {
+                    Default: 'E-mail me when available',
                   },
                   outOfStockFormSuccess: {
                     Default: '<p class="text-center">We will notify you as soon as this item is back in stock.</p>',
@@ -606,10 +618,55 @@ export const createPageModel = (props: PageModelInputProps): ModelShape => {
                     friendlyName: 'Out of Stock',
                     type: 'text',
                     defaultValue: {
-                      Default: 'Sorry, we"re currently out of stock',
+                      Default: "Sorry, we're currently out of stock",
                     },
                     required: false,
                     helperText: 'The text to display when this product is marked as Out of Stock.',
+                    defaultCollapsed: false,
+                  },
+                  {
+                    name: 'outOfStockOneClickText',
+                    friendlyName: 'Out of Stock One-Click Text',
+                    type: 'html',
+                    defaultValue: {
+                      Default: '<p class="text-center">We will email $EMAIL as soon as this item is back in stock.</p>',
+                    },
+                    required: false,
+                    helperText:
+                      'Shown above the one-click notify button for logged-in customers. $EMAIL is replaced with their email.',
+                    defaultCollapsed: false,
+                  },
+                  {
+                    name: 'outOfStockOneClickButtonText',
+                    friendlyName: 'Out of Stock One-Click Button',
+                    type: 'text',
+                    defaultValue: {
+                      Default: 'Add me to the waitlist',
+                    },
+                    required: false,
+                    helperText: 'Text on the one-click notify button, shown only to logged-in customers',
+                    defaultCollapsed: false,
+                  },
+                  {
+                    name: 'outOfStockDifferentEmailText',
+                    friendlyName: 'Out of Stock Different Email Link',
+                    type: 'text',
+                    defaultValue: {
+                      Default: 'Use a different email',
+                    },
+                    required: false,
+                    helperText: 'Label for the link that swaps the one-click button for the notify form',
+                    defaultCollapsed: false,
+                  },
+                  {
+                    name: 'outOfStockSubmitButtonText',
+                    friendlyName: 'Out of Stock Submit Button',
+                    type: 'text',
+                    defaultValue: {
+                      Default: 'E-mail me when available',
+                    },
+                    required: false,
+                    helperText: 'Text on the notify form submit button',
                     defaultCollapsed: false,
                   },
                   {
@@ -1126,6 +1183,10 @@ export type BuilderPdpPageContent = BuilderContent &
               subscriptionToggle?: string;
               otpToggle?: string;
               outOfStock?: string;
+              outOfStockOneClickText?: string;
+              outOfStockOneClickButtonText?: string;
+              outOfStockDifferentEmailText?: string;
+              outOfStockSubmitButtonText?: string;
               outOfStockFormSuccess?: string;
               scrollButton?: string;
               packageSelector?: string;
