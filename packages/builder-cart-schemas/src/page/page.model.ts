@@ -341,34 +341,6 @@ export const createPageModel = (props: PageModelInputProps): ModelShape => {
             defaultCollapsed: true,
           },
           {
-            name: 'reviewConfirmation',
-            friendlyName: 'Review Confirmation',
-            type: 'object',
-            required: false,
-            subFields: [
-              {
-                name: 'title',
-                friendlyName: 'Title',
-                type: 'text',
-                localized: true,
-                required: false,
-                helperText: `Overrides Yotpo's default confirmation headline.`,
-                defaultCollapsed: false,
-              },
-              {
-                name: 'message',
-                friendlyName: 'Message',
-                type: 'html',
-                localized: true,
-                required: false,
-                helperText: `Overrides Yotpo's default confirmation body.`,
-                defaultCollapsed: false,
-              },
-            ],
-            helperText: `Overrides the Yotpo review confirmation popup's title/message (leave empty to keep Yotpo's default).`,
-            defaultCollapsed: true,
-          },
-          {
             '@type': '@builder.io/core:Field',
             name: 'hideNativeOfferSelector',
             friendlyName: 'Hide Native Offer Selector',
@@ -1100,10 +1072,6 @@ export type BuilderPdpPageContent = BuilderContent &
             showGlobalFiveStarRating?: boolean;
             globalRatingText?: string;
             globalRatingLink?: string;
-          };
-          reviewConfirmation?: {
-            title?: string;
-            message?: string;
           };
           hideNativeOfferSelector?: boolean;
           offerSelector: {
