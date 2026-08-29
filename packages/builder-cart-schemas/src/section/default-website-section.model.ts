@@ -29,6 +29,7 @@ export const createDefaultWebsiteSectionModel = (editUrl: string): ModelShape =>
           'subscriptionCancellationContent',
           'notFoundContent',
           'productNotAvailableContent',
+          'subsEditPageNoAddonsAvailableContent',
         ],
         helperText: 'Choose where this content section appears on the website',
       },
@@ -52,6 +53,7 @@ export type BuilderDefaultWebsiteSectionContent = BuilderContent & {
       | 'subscriptionManagementNoSubsContent'
       | 'subscriptionCancellationContent'
       | 'notFoundContent'
-      | 'productNotAvailableContent';
+      | 'productNotAvailableContent'
+      | 'subsEditPageNoAddonsAvailableContent';
   };
 };
