@@ -26,6 +26,7 @@ export const createDefaultWebsiteSectionModel = (editUrl: string): ModelShape =>
           'offerSelectorAboveCTAContent',
           'offerSelectorBelowCTAContent',
           'subscriptionManagementNoSubsContent',
+          'subscriptionManagementBottomContent',
           'subscriptionCancellationContent',
           'notFoundContent',
           'productNotAvailableContent',
@@ -50,6 +51,7 @@ export type BuilderDefaultWebsiteSectionContent = BuilderContent & {
       | 'offerSelectorAboveCTAContent'
       | 'offerSelectorBelowCTAContent'
       | 'subscriptionManagementNoSubsContent'
+      | 'subscriptionManagementBottomContent'
       | 'subscriptionCancellationContent'
       | 'notFoundContent'
       | 'productNotAvailableContent';
