@@ -1,5 +1,21 @@
 # @goldenhippo/builder-cart-schemas
 
+## 0.26.0
+
+### Minor Changes
+
+- [#99](https://github.com/GoldenHippoMedia/golden-hippo-builder/pull/99) [`1acd0d9`](https://github.com/GoldenHippoMedia/golden-hippo-builder/commit/1acd0d94a89fa059721f70af195e43e723965ab3) - **Breaking:** remove `subscriptionUpgradeModuleEnabled` from the cart page config in brand-config — replaced by the dedicated `cartLineSubscriptionOfferContent` sectionType on `default-website-section`. — [@vbhavsargh](https://github.com/vbhavsargh)
+
+- [#96](https://github.com/GoldenHippoMedia/golden-hippo-builder/pull/96) [`12edc8b`](https://github.com/GoldenHippoMedia/golden-hippo-builder/commit/12edc8bd3d34aa6d127bb07276195532c5fcd4d5) - added new out of stock labels to Page model in Offer Selector object. This is to support one-click add to waitlist feature for logged in customers. — [@vbhavsargh](https://github.com/vbhavsargh)
+
+### Patch Changes
+
+- [#97](https://github.com/GoldenHippoMedia/golden-hippo-builder/pull/97) [`c836889`](https://github.com/GoldenHippoMedia/golden-hippo-builder/commit/c836889c8c5fbea2af703ae84fae1622428aae04) - removed Review Confirmation object from PDP and moved it to Yotpo Product Review component as the requirements for Gundry MD grew to be outside of PDP. — [@vbhavsargh](https://github.com/vbhavsargh)
+
+- [#98](https://github.com/GoldenHippoMedia/golden-hippo-builder/pull/98) [`0a32354`](https://github.com/GoldenHippoMedia/golden-hippo-builder/commit/0a3235431feddba2add3612cb617ea4dfe04eb9d) - add back missing - `subscriptionManagementBottomContent` - sectionType to default-website-section model — [@vbhavsargh](https://github.com/vbhavsargh)
+
+- [#99](https://github.com/GoldenHippoMedia/golden-hippo-builder/pull/99) [`ad1da34`](https://github.com/GoldenHippoMedia/golden-hippo-builder/commit/ad1da346f14d5d6776d44d82785cde4b21cd2024) - add new sectionType: `cartLineSubscriptionOfferContent` to default-website-section model — [@vbhavsargh](https://github.com/vbhavsargh)
+
 ## 0.25.0
 
 ### Minor Changes
