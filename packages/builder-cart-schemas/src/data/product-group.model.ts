@@ -92,6 +92,15 @@ export const createProductGroupModel = (productModelId: string, sectionModelId: 
             defaultCollapsed: false,
             helperText: 'Whether this product is a trial size variant.',
           },
+          {
+            name: 'color',
+            friendlyName: 'Color',
+            type: 'color',
+            required: false,
+            localized: false,
+            defaultCollapsed: false,
+            helperText: 'Brand color for this product (e.g. flavor color).',
+          },
         ],
       },
       {
@@ -178,6 +187,7 @@ export type BuilderProductGroupContent = BuilderContent &
         product: BuilderContentReference<BuilderProductContent['data']>;
         displayName?: string;
         isTrialSize?: boolean;
+        color?: string;
       }[];
       selectionLabel?: string;
       hidden?: boolean;
