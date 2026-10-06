@@ -405,6 +405,29 @@ const PagesSection: React.FC<SectionProps> = observer(({ data, markDirty }) => {
               />
             </FormField>
 
+            {/* Leave A Review Button */}
+            <div className="flex items-center gap-3 my-5">
+              <div className="flex-1 h-px bg-[var(--border-glass)]" />
+              <span className="text-[11px] font-semibold tracking-widest uppercase text-[var(--text-muted)]">
+                Leave A Review Button
+              </span>
+              <div className="flex-1 h-px bg-[var(--border-glass)]" />
+            </div>
+            <FormField label="Leave A Review Button Text">
+              <HtmlEditor
+                value={orderDetails.leaveAReviewButton?.text ?? ''}
+                onChange={(html) => setNested(['orderDetails', 'leaveAReviewButton', 'text'], html)}
+              />
+            </FormField>
+            <FormField label="CSS Classes" helper="CSS classes to apply to the button">
+              <input
+                type="text"
+                className="hippo-input"
+                value={orderDetails.leaveAReviewButton?.classes ?? ''}
+                onChange={(e) => setNested(['orderDetails', 'leaveAReviewButton', 'classes'], e.target.value)}
+              />
+            </FormField>
+
             {/* Re-Order All Button */}
             <div className="flex items-center gap-3 my-5">
               <div className="flex-1 h-px bg-[var(--border-glass)]" />
