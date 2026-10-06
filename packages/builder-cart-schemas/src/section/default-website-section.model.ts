@@ -21,6 +21,7 @@ export const createDefaultWebsiteSectionModel = (editUrl: string): ModelShape =>
           'cartPageBelowSummaryContent',
           'cartPageEmptyCartContent',
           'cartPageTopSectionContent',
+          'cartLineSubscriptionOfferContent',
           'gdprContent',
           'mainFooter',
           'offerSelectorAboveCTAContent',
@@ -47,6 +48,7 @@ export type BuilderDefaultWebsiteSectionContent = BuilderContent & {
       | 'cartPageBelowSummaryContent'
       | 'cartPageEmptyCartContent'
       | 'cartPageTopSectionContent'
+      | 'cartLineSubscriptionOfferContent'
       | 'gdprContent'
       | 'mainFooter'
       | 'offerSelectorAboveCTAContent'
