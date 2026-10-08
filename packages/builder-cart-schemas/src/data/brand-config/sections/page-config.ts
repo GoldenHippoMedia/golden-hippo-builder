@@ -557,7 +557,7 @@ export const createPageConfig = (): BuilderIOFieldTypes => {
               {
                 name: 'text',
                 friendlyName: 'Button Text',
-                type: 'html',
+                type: 'text',
                 required: false,
                 localized: true,
                 helperText: 'Text to display on the "Leave A Review" button',
