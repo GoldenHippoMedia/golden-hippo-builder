@@ -25,7 +25,7 @@ export const createProductTagModel = (): ModelShape => ({
       required: true,
       defaultCollapsed: true,
       localized: false,
-      defaultValue: 'gba(255, 233, 214, 1)',
+      defaultValue: 'rgba(255, 233, 214, 1)',
       helperText: 'The background color shown behind the tag label on product cards',
     },
     {
