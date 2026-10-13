@@ -75,11 +75,14 @@ export const createBrandConfigModel = (gridFilterModelId: string, bannerModelId:
           {
             name: 'hideReviewSchemaBelowStars',
             friendlyName: 'Hide Review Schema Below Stars',
-            type: 'select',
+            type: 'number',
+            defaultValue: undefined,
+            required: false,
+            min: 0,
+            max: 5,
             defaultCollapsed: false,
             helperText:
-              'Hides the aggregateRating schema fields (reviewCount and reviewRating) for products at or below the selected star rating.',
-            enum: ['1 Star', '2 Stars', '3 Stars', '4 Stars', '5 Stars'],
+              'Hides the aggregateRating schema fields (reviewCount and reviewRating) for products at or below this star rating. Decimals are allowed (e.g. 1.2 or 2.5).',
           },
         ],
       },
@@ -423,7 +426,7 @@ export type BuilderBrandConfigContent = BuilderContent &
       seo?: {
         description?: string;
         knowsAbout?: string[];
-        hideReviewSchemaBelowStars?: string;
+        hideReviewSchemaBelowStars?: number;
       };
     };
   }>;
