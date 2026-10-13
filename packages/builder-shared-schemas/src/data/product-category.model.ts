@@ -54,6 +54,15 @@ export const createCategoryModel = (): ModelShape => ({
       helperText: 'When true, this category will not be displayed in product grids or search results for this locale',
     },
     {
+      name: 'loggedInOnly',
+      friendlyName: 'Logged In Only',
+      type: 'boolean',
+      required: false,
+      localized: false,
+      defaultCollapsed: true,
+      helperText: 'Display this category only when the user is logged in',
+    },
+    {
       name: 'slug',
       friendlyName: 'Page Slug',
       type: 'text',
@@ -83,6 +92,7 @@ export type BuilderProductCategoryContent = BuilderContent &
       desktopImage?: string;
       mobileImage?: string;
       hidden?: boolean;
+      loggedInOnly?: boolean;
       slug?: string;
       searchKeys?: string[];
     };
