@@ -404,7 +404,9 @@ export const createPageModel = (props: PageModelInputProps): ModelShape => {
                     name: 'showSavings',
                     friendlyName: 'Show Savings?',
                     type: 'boolean',
+                    localized: true,
                     defaultValue: {
+                      '@type': '@builder.io/core:LocalizedValue',
                       Default: true,
                     },
                     required: false,
@@ -425,7 +427,9 @@ export const createPageModel = (props: PageModelInputProps): ModelShape => {
                     name: 'showMemberPriceMessage',
                     friendlyName: 'Show Member Price Message',
                     type: 'boolean',
+                    localized: true,
                     defaultValue: {
+                      '@type': '@builder.io/core:LocalizedValue',
                       Default: true,
                     },
                     required: false,
@@ -436,7 +440,9 @@ export const createPageModel = (props: PageModelInputProps): ModelShape => {
                     name: 'showSubscriptionPriceMessage',
                     friendlyName: 'Show Subscription Price Message',
                     type: 'boolean',
+                    localized: true,
                     defaultValue: {
+                      '@type': '@builder.io/core:LocalizedValue',
                       Default: true,
                     },
                     required: false,
@@ -489,42 +495,55 @@ export const createPageModel = (props: PageModelInputProps): ModelShape => {
                     '@type': '@builder.io/core:LocalizedValue',
                   },
                   actionButton: {
+                    '@type': '@builder.io/core:LocalizedValue',
                     Default: 'ADD TO CART',
                   },
                   subscriptionOffer: {
+                    '@type': '@builder.io/core:LocalizedValue',
                     Default: 'Or $PRICE when you subscribe & save',
                   },
                   flavorSelector: {
+                    '@type': '@builder.io/core:LocalizedValue',
                     Default: 'Choose a flavor',
                   },
                   otpToggle: {
+                    '@type': '@builder.io/core:LocalizedValue',
                     Default: 'Single purchase',
                   },
                   memberOffer: {
+                    '@type': '@builder.io/core:LocalizedValue',
                     Default: 'Or pay member price of',
                   },
                   scrollButton: {
+                    '@type': '@builder.io/core:LocalizedValue',
                     Default: '<span class="material-icons">keyboard_arrow_up</span> Back to top',
                   },
                   outOfStock: {
+                    '@type': '@builder.io/core:LocalizedValue',
                     Default: "Sorry, we're currently out of stock",
                   },
                   outOfStockOneClickText: {
+                    '@type': '@builder.io/core:LocalizedValue',
                     Default: '<p class="text-center">We will email $EMAIL as soon as this item is back in stock.</p>',
                   },
                   outOfStockOneClickButtonText: {
+                    '@type': '@builder.io/core:LocalizedValue',
                     Default: 'Add me to the waitlist',
                   },
                   outOfStockDifferentEmailText: {
+                    '@type': '@builder.io/core:LocalizedValue',
                     Default: 'Use a different email',
                   },
                   outOfStockSubmitButtonText: {
+                    '@type': '@builder.io/core:LocalizedValue',
                     Default: 'E-mail me when available',
                   },
                   outOfStockFormSuccess: {
+                    '@type': '@builder.io/core:LocalizedValue',
                     Default: '<p class="text-center">We will notify you as soon as this item is back in stock.</p>',
                   },
                   subscriptionToggle: {
+                    '@type': '@builder.io/core:LocalizedValue',
                     Default: 'Subscribe & save',
                   },
                 },
@@ -534,7 +553,9 @@ export const createPageModel = (props: PageModelInputProps): ModelShape => {
                     name: 'actionButton',
                     friendlyName: 'Action Button',
                     type: 'text',
+                    localized: true,
                     defaultValue: {
+                      '@type': '@builder.io/core:LocalizedValue',
                       Default: 'ADD TO CART',
                     },
                     required: false,
@@ -545,7 +566,9 @@ export const createPageModel = (props: PageModelInputProps): ModelShape => {
                     name: 'subscriptionOffer',
                     friendlyName: 'Subscription Offer',
                     type: 'text',
+                    localized: true,
                     defaultValue: {
+                      '@type': '@builder.io/core:LocalizedValue',
                       Default: 'Or $PRICE when you subscribe & save',
                     },
                     required: false,
@@ -556,7 +579,9 @@ export const createPageModel = (props: PageModelInputProps): ModelShape => {
                     name: 'memberOffer',
                     friendlyName: 'Member Offer',
                     type: 'text',
+                    localized: true,
                     defaultValue: {
+                      '@type': '@builder.io/core:LocalizedValue',
                       Default: 'Or pay member price of',
                     },
                     required: false,
@@ -567,7 +592,9 @@ export const createPageModel = (props: PageModelInputProps): ModelShape => {
                     name: 'subscriptionToggle',
                     friendlyName: 'Subscription Toggle',
                     type: 'text',
+                    localized: true,
                     defaultValue: {
+                      '@type': '@builder.io/core:LocalizedValue',
                       Default: 'Subscribe & save',
                     },
                     required: false,
@@ -578,7 +605,9 @@ export const createPageModel = (props: PageModelInputProps): ModelShape => {
                     name: 'otpToggle',
                     friendlyName: 'One-Time Purchase Toggle',
                     type: 'text',
+                    localized: true,
                     defaultValue: {
+                      '@type': '@builder.io/core:LocalizedValue',
                       Default: 'Single purchase',
                     },
                     required: false,
@@ -589,7 +618,9 @@ export const createPageModel = (props: PageModelInputProps): ModelShape => {
                     name: 'outOfStock',
                     friendlyName: 'Out of Stock',
                     type: 'text',
+                    localized: true,
                     defaultValue: {
+                      '@type': '@builder.io/core:LocalizedValue',
                       Default: "Sorry, we're currently out of stock",
                     },
                     required: false,
@@ -600,7 +631,9 @@ export const createPageModel = (props: PageModelInputProps): ModelShape => {
                     name: 'outOfStockOneClickText',
                     friendlyName: 'Out of Stock One-Click Text',
                     type: 'html',
+                    localized: true,
                     defaultValue: {
+                      '@type': '@builder.io/core:LocalizedValue',
                       Default: '<p class="text-center">We will email $EMAIL as soon as this item is back in stock.</p>',
                     },
                     required: false,
@@ -612,7 +645,9 @@ export const createPageModel = (props: PageModelInputProps): ModelShape => {
                     name: 'outOfStockOneClickButtonText',
                     friendlyName: 'Out of Stock One-Click Button',
                     type: 'text',
+                    localized: true,
                     defaultValue: {
+                      '@type': '@builder.io/core:LocalizedValue',
                       Default: 'Add me to the waitlist',
                     },
                     required: false,
@@ -623,7 +658,9 @@ export const createPageModel = (props: PageModelInputProps): ModelShape => {
                     name: 'outOfStockDifferentEmailText',
                     friendlyName: 'Out of Stock Different Email Link',
                     type: 'text',
+                    localized: true,
                     defaultValue: {
+                      '@type': '@builder.io/core:LocalizedValue',
                       Default: 'Use a different email',
                     },
                     required: false,
@@ -634,7 +671,9 @@ export const createPageModel = (props: PageModelInputProps): ModelShape => {
                     name: 'outOfStockSubmitButtonText',
                     friendlyName: 'Out of Stock Submit Button',
                     type: 'text',
+                    localized: true,
                     defaultValue: {
+                      '@type': '@builder.io/core:LocalizedValue',
                       Default: 'E-mail me when available',
                     },
                     required: false,
@@ -645,7 +684,9 @@ export const createPageModel = (props: PageModelInputProps): ModelShape => {
                     name: 'outOfStockFormSuccess',
                     friendlyName: 'Out of Stock Form Success Message',
                     type: 'html',
+                    localized: true,
                     defaultValue: {
+                      '@type': '@builder.io/core:LocalizedValue',
                       Default: '<p class="text-center">We will notify you as soon as this item is back in stock.</p>',
                     },
                     required: false,
@@ -657,7 +698,9 @@ export const createPageModel = (props: PageModelInputProps): ModelShape => {
                     name: 'scrollButton',
                     friendlyName: 'Scroll Button Content',
                     type: 'html',
+                    localized: true,
                     defaultValue: {
+                      '@type': '@builder.io/core:LocalizedValue',
                       Default: '<span class="material-icons">keyboard_arrow_up</span> Back to top',
                     },
                     required: false,
@@ -677,7 +720,9 @@ export const createPageModel = (props: PageModelInputProps): ModelShape => {
                     name: 'flavorSelector',
                     friendlyName: 'Flavor / Option Selector',
                     type: 'text',
+                    localized: true,
                     defaultValue: {
+                      '@type': '@builder.io/core:LocalizedValue',
                       Default: 'Choose a flavor',
                     },
                     required: false,
