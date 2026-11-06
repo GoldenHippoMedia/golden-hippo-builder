@@ -242,25 +242,13 @@ export const createPageModel = (props: PageModelInputProps): ModelShape => {
                 copyOnAdd: true,
                 defaultCollapsed: false,
               },
-            ],
-            helperText:
-              "Select the image slides to display for this product. If no slides are provided, the product's default image will be used.",
-            copyOnAdd: true,
-            defaultCollapsed: false,
-          },
-          {
-            name: 'slideThumbs',
-            friendlyName: 'Product Slides Thumbnails',
-            type: 'list',
-            required: false,
-            subFields: [
               {
-                name: 'image',
-                friendlyName: 'Image',
-                type: 'file',
-                required: true,
-                helperText: 'Upload a thumbnail image',
-                allowedFileTypes: ['jpeg', 'png', 'svg', 'webp'],
+                name: 'product',
+                friendlyName: 'Product',
+                type: 'reference',
+                required: false,
+                helperText: 'Shows this slide only when this flavor is selected. Leave empty for all flavors.',
+                modelId: productModelId,
                 copyOnAdd: true,
                 defaultCollapsed: false,
               },
@@ -1118,9 +1106,7 @@ export type BuilderPdpPageContent = BuilderContent &
           }[];
           slides?: {
             image: string;
-          }[];
-          slideThumbs?: {
-            image: string;
+            product?: BuilderContentReference<BuilderProductContent['data']>;
           }[];
           sliderComponent?: OfferSelectorSliderTypes;
           disableZoom?: boolean;
