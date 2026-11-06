@@ -439,6 +439,33 @@ export const createPageConfig = (): BuilderIOFieldTypes => {
               },
             ],
           },
+          {
+            name: 'phoneNumber',
+            friendlyName: 'Phone Number',
+            helperText: 'Use these settings to control the phone number field on the checkout form.',
+            type: 'object',
+            defaultCollapsed: true,
+            subFields: [
+              {
+                name: 'required',
+                friendlyName: 'Required?',
+                type: 'boolean',
+                required: false,
+                localized: true,
+                helperText: 'Require customers to enter a phone number at checkout',
+                defaultCollapsed: true,
+              },
+              {
+                name: 'placeholderText',
+                friendlyName: 'Placeholder Text',
+                type: 'text',
+                required: false,
+                localized: true,
+                helperText: 'Placeholder text for the phone number input',
+                defaultCollapsed: true,
+              },
+            ],
+          },
         ],
       },
       {
