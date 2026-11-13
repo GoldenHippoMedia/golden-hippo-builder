@@ -266,6 +266,7 @@ export type BuilderBrandConfigContent = BuilderContent &
         passwordlessLoginDefault: boolean;
         subscriptionExperience: 'Classic' | 'Version 2';
         useDefaultFrequencies: boolean;
+        skipToMainContentEnabled: boolean;
         dynamicBrowserTab?: {
           enabled: boolean;
           awayTitle: string;

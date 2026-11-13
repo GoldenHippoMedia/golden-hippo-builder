@@ -140,6 +140,16 @@ export const createFeatureConfig = (gridFilterModelId: string): BuilderIOFieldTy
         defaultCollapsed: false,
       },
       {
+        name: 'skipToMainContentEnabled',
+        friendlyName: 'Skip to Main Content',
+        type: 'boolean',
+        helperText:
+          'When enabled, a "Skip to main content" link is shown to keyboard and screen reader users for ADA compliance.',
+        localized: false,
+        defaultValue: true,
+        defaultCollapsed: false,
+      },
+      {
         name: 'recommendationConfig',
         friendlyName: 'Recommendation Config',
         type: 'reference',
