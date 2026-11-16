@@ -1,5 +1,19 @@
 # @goldenhippo/builder-cart-schemas
 
+## 0.27.0
+
+### Minor Changes
+
+- [#106](https://github.com/GoldenHippoMedia/golden-hippo-builder/pull/106) [`70e4c59`](https://github.com/GoldenHippoMedia/golden-hippo-builder/commit/70e4c59b7e411544a152dda09653f7a685d22e69) - Add `phoneNumber` config (`required`, `placeholderText`) to the checkout page brand config — [@vbhavsargh](https://github.com/vbhavsargh)
+
+- [#107](https://github.com/GoldenHippoMedia/golden-hippo-builder/pull/107) [`e52e9c4`](https://github.com/GoldenHippoMedia/golden-hippo-builder/commit/e52e9c4e6869e23a0e3ebcdd05a2a5822e63fb14) - PDP slides: add optional `product` reference to each slide and remove `slideThumbs` (thumbnails are now derived from the slide images) — [@vbhavsargh](https://github.com/vbhavsargh)
+
+### Patch Changes
+
+- [#105](https://github.com/GoldenHippoMedia/golden-hippo-builder/pull/105) [`8c73e67`](https://github.com/GoldenHippoMedia/golden-hippo-builder/commit/8c73e6729c477df90a2d04d6d165b95cda076ec0) - Fix Page model PDP config defaults: offer selector toggles and labels used `{ Default: ... }` locale-map defaults without being localized, which stored raw objects and crashed Builder's HTML editor (`html.includes is not a function`). These fields are now `localized: true` with `@builder.io/core:LocalizedValue` defaults. — [@vbhavsargh](https://github.com/vbhavsargh)
+
+- [#108](https://github.com/GoldenHippoMedia/golden-hippo-builder/pull/108) [`1c81663`](https://github.com/GoldenHippoMedia/golden-hippo-builder/commit/1c81663f482b0ec8d71a6a5ef190ebaa2efa461f) - adds Skip to Main Content (ADA) toggle to brand config features (default on) — [@vbhavsargh](https://github.com/vbhavsargh)
+
 ## 0.26.2
 
 ### Patch Changes
