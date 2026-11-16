@@ -28,6 +28,11 @@ const TOGGLE_FIELDS = [
     label: 'Use Default Frequencies',
     helper: 'Calculate selected frequency based on product and quantity',
   },
+  {
+    key: 'skipToMainContentEnabled',
+    label: 'Skip to Main Content',
+    helper: 'Show a "Skip to main content" link for keyboard and screen reader users',
+  },
 ];
 
 const FeaturesSection: React.FC<SectionProps> = observer(({ data, onChange, markDirty, api }) => {
