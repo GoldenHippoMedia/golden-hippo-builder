@@ -376,6 +376,10 @@ export type BuilderBrandConfigContent = BuilderContent &
             text: string;
             classes: string;
           };
+          leaveAReviewButton: {
+            text: string;
+            classes: string;
+          };
           reOrderAllButton: {
             text: string;
             classes: string;
