@@ -362,6 +362,10 @@ export type BuilderBrandConfigContent = BuilderContent &
             title: string;
             content: string;
           };
+          phoneNumber: {
+            required: boolean;
+            placeholderText: string;
+          };
         };
         orderDetails: {
           title: string;
