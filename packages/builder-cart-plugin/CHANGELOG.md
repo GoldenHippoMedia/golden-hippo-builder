@@ -1,5 +1,14 @@
 # @goldenhippo/builder-cart-plugin
 
+## 1.0.1
+
+### Patch Changes
+
+- [#102](https://github.com/GoldenHippoMedia/golden-hippo-builder/pull/102) [`2ea0e80`](https://github.com/GoldenHippoMedia/golden-hippo-builder/commit/2ea0e809a7089d016ddd742c4772faf467a2e00f) - adds Leave A Review button field options to Order Details page config — [@vbhavsargh](https://github.com/vbhavsargh)
+
+- Updated dependencies [[`2ea0e80`](https://github.com/GoldenHippoMedia/golden-hippo-builder/commit/2ea0e809a7089d016ddd742c4772faf467a2e00f), [`b3d6bf3`](https://github.com/GoldenHippoMedia/golden-hippo-builder/commit/b3d6bf3eaf7854b1dca4a03592f689ce2dad05b9)]:
+  - @goldenhippo/builder-cart-schemas@0.26.2
+
 ## 1.0.0
 
 ### Major Changes

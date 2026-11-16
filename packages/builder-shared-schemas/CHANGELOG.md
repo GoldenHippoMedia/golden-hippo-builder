@@ -1,5 +1,11 @@
 # @goldenhippo/builder-shared-schemas
 
+## 0.26.2
+
+### Patch Changes
+
+- [#104](https://github.com/GoldenHippoMedia/golden-hippo-builder/pull/104) [`310a92b`](https://github.com/GoldenHippoMedia/golden-hippo-builder/commit/310a92b5a4b39ced882480f5f38c9be932e90eb7) - tagColor value was malformed `gba` instead of `rgba`. Fixed in this patch. — [@vbhavsargh](https://github.com/vbhavsargh)
+
 ## 0.22.2
 
 ### Patch Changes
