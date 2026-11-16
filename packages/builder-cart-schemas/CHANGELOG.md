@@ -1,5 +1,11 @@
 # @goldenhippo/builder-cart-schemas
 
+## 0.26.1
+
+### Patch Changes
+
+- [#100](https://github.com/GoldenHippoMedia/golden-hippo-builder/pull/100) [`afea0d8`](https://github.com/GoldenHippoMedia/golden-hippo-builder/commit/afea0d812fdcaa0cd3a051b82206c4d8f6da993d) - Add `hideReviewSchemaBelowStars` field to the brand config SEO section. — [@vbhavsargh](https://github.com/vbhavsargh)
+
 ## 0.26.0
 
 ### Minor Changes
