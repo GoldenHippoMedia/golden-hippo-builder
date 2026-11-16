@@ -1,5 +1,14 @@
 # @goldenhippo/builder-cart-plugin
 
+## 1.0.2
+
+### Patch Changes
+
+- [#108](https://github.com/GoldenHippoMedia/golden-hippo-builder/pull/108) [`1c81663`](https://github.com/GoldenHippoMedia/golden-hippo-builder/commit/1c81663f482b0ec8d71a6a5ef190ebaa2efa461f) - adds Skip to Main Content (ADA) toggle to brand config features (default on) — [@vbhavsargh](https://github.com/vbhavsargh)
+
+- Updated dependencies [[`70e4c59`](https://github.com/GoldenHippoMedia/golden-hippo-builder/commit/70e4c59b7e411544a152dda09653f7a685d22e69), [`8c73e67`](https://github.com/GoldenHippoMedia/golden-hippo-builder/commit/8c73e6729c477df90a2d04d6d165b95cda076ec0), [`e52e9c4`](https://github.com/GoldenHippoMedia/golden-hippo-builder/commit/e52e9c4e6869e23a0e3ebcdd05a2a5822e63fb14), [`1c81663`](https://github.com/GoldenHippoMedia/golden-hippo-builder/commit/1c81663f482b0ec8d71a6a5ef190ebaa2efa461f)]:
+  - @goldenhippo/builder-cart-schemas@0.27.0
+
 ## 1.0.1
 
 ### Patch Changes
