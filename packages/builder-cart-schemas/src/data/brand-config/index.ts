@@ -72,6 +72,18 @@ export const createBrandConfigModel = (gridFilterModelId: string, bannerModelId:
             defaultCollapsed: false,
             helperText: 'Topics the brand is knowledgeable about, used in structured data for search engines',
           },
+          {
+            name: 'hideReviewSchemaBelowStars',
+            friendlyName: 'Hide Review Schema Below Stars',
+            type: 'number',
+            defaultValue: undefined,
+            required: false,
+            min: 0,
+            max: 5,
+            defaultCollapsed: false,
+            helperText:
+              'Hides the aggregateRating schema fields (reviewCount and reviewRating) for products at or below this star rating. Decimals are allowed (e.g. 1.2 or 2.5).',
+          },
         ],
       },
     ],
@@ -413,6 +425,7 @@ export type BuilderBrandConfigContent = BuilderContent &
       seo?: {
         description?: string;
         knowsAbout?: string[];
+        hideReviewSchemaBelowStars?: number;
       };
     };
   }>;
