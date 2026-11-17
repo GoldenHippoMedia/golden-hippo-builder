@@ -408,6 +408,7 @@ export type BuilderBrandConfigContent = BuilderContent &
         };
         subscriptionEdit: {
           subscriptionItemDefaultImage: string;
+          swapProductEnabled: boolean;
           shipNow: {
             modalHeadlineContent: string;
             modalContent: string;
