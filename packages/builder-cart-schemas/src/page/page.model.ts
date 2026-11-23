@@ -885,16 +885,6 @@ export const createPageModel = (props: PageModelInputProps): ModelShape => {
                     copyOnAdd: true,
                     defaultCollapsed: false,
                   },
-                  {
-                    name: 'subscriptionBenefitsContent',
-                    friendlyName: 'Subscription Benefits Content',
-                    type: 'reference',
-                    required: false,
-                    helperText: 'Choose the content to display for the subscription benefits',
-                    model: 'offer-selector-content',
-                    copyOnAdd: true,
-                    defaultCollapsed: false,
-                  },
                 ],
               },
               {
@@ -1322,7 +1312,6 @@ export type BuilderPdpPageContent = BuilderContent &
               belowCTAContent?: BuilderContentReference<BuilderOfferSelectorContentModelContent['data']>;
               pdpBelowSliderContent?: BuilderContentReference<BuilderOfferSelectorContentModelContent['data']>;
               belowDescriptionContent?: BuilderContentReference<BuilderOfferSelectorContentModelContent['data']>;
-              subscriptionBenefitsContent?: BuilderContentReference<BuilderOfferSelectorContentModelContent['data']>;
             };
             cssOverrides?: {
               signupOfferCustomCssProps?: Record<string, string>;
