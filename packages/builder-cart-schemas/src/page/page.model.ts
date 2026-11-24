@@ -254,6 +254,28 @@ export const createPageModel = (props: PageModelInputProps): ModelShape => {
               },
             ],
             helperText:
+              "Select the image slides to display for this product. If no slides are provided, the product's default image will be used.",
+            copyOnAdd: true,
+            defaultCollapsed: false,
+          },
+          {
+            name: 'slideThumbs',
+            friendlyName: 'Product Slides Thumbnails',
+            type: 'list',
+            required: false,
+            subFields: [
+              {
+                name: 'image',
+                friendlyName: 'Image',
+                type: 'file',
+                required: true,
+                helperText: 'Upload a product slide thumbnail image',
+                allowedFileTypes: ['jpeg', 'png', 'svg', 'webp'],
+                copyOnAdd: true,
+                defaultCollapsed: false,
+              },
+            ],
+            helperText:
               'Select the image thumbnails slides to display for this product. If no slides are provided, the Product Slides will be used',
             copyOnAdd: true,
             defaultCollapsed: false,
@@ -279,6 +301,42 @@ export const createPageModel = (props: PageModelInputProps): ModelShape => {
             required: false,
             helperText: 'When true, disables the zoom interaction on the product image slider',
             showIf: `return options.get('sliderComponent') === '${OfferSelectorSliderTypes.SLIDER_ZOOM}'`,
+            defaultCollapsed: false,
+          },
+          {
+            name: 'enableHoverZoom',
+            friendlyName: 'Mouse Hover Zoom',
+            type: 'boolean',
+            required: false,
+            helperText: 'When true, enables the hover zoom interaction on the product image slider',
+            defaultCollapsed: false,
+          },
+          {
+            name: 'disableSliderArrows',
+            friendlyName: 'Disable Slider Arrows',
+            type: 'boolean',
+            required: false,
+            helperText: 'When true, disables the slider arrows interaction on the product image slider',
+            defaultCollapsed: false,
+          },
+          {
+            name: 'sealImage',
+            friendlyName: 'Seal Image',
+            type: 'file',
+            required: false,
+            allowedFileTypes: ['jpeg', 'png', 'svg', 'webp'],
+            helperText:
+              'A seal shown on the product image slider, such as a discount badge. Separate from any seals coming from product tags.',
+            defaultCollapsed: false,
+          },
+          {
+            name: 'sealPosition',
+            friendlyName: 'Seal Position',
+            type: 'select',
+            required: false,
+            enum: ['Bottom Left', 'Bottom Right'],
+            defaultValue: 'Bottom Right',
+            helperText: 'Which bottom corner the Seal Image sits in. Seals from product tags are unaffected.',
             defaultCollapsed: false,
           },
           {
@@ -534,6 +592,10 @@ export const createPageModel = (props: PageModelInputProps): ModelShape => {
                     '@type': '@builder.io/core:LocalizedValue',
                     Default: 'Subscribe & save',
                   },
+                  standardOffer: {
+                    '@type': '@builder.io/core:LocalizedValue',
+                    Default: 'Price',
+                  },
                 },
                 required: false,
                 subFields: [
@@ -727,6 +789,19 @@ export const createPageModel = (props: PageModelInputProps): ModelShape => {
                       '(Optional) Provide a label for the quantity selection. Only displayed if your selected offer selector supports this feature.',
                     defaultCollapsed: false,
                   },
+                  {
+                    name: 'standardOffer',
+                    friendlyName: 'Standard Offer',
+                    type: 'text',
+                    localized: true,
+                    defaultValue: {
+                      '@type': '@builder.io/core:LocalizedValue',
+                      Default: 'Price',
+                    },
+                    required: false,
+                    helperText: 'Message shown for standard offer pricing (e.g. "Regular Price")',
+                    defaultCollapsed: false,
+                  },
                 ],
                 helperText: 'Customize the various labels on the offer selector',
                 defaultCollapsed: false,
@@ -744,12 +819,21 @@ export const createPageModel = (props: PageModelInputProps): ModelShape => {
               },
               {
                 name: 'bestValueImage',
-                friendlyName: 'Best Value Image',
+                friendlyName: 'Best Value Image - Desktop',
                 type: 'file',
                 defaultValue:
                   'https://cdn.builder.io/api/v1/image/assets%2Fcf992cf7343c4ca182a884e9a45f394e%2F82105508987e4459bc4405617d4bee33',
                 required: false,
-                helperText: 'The small image to display alongside the best value offer (highest quantity)',
+                helperText: 'The small image to display alongside the best value offer for desktop',
+                allowedFileTypes: ['jpeg', 'png', 'svg', 'webp'],
+                defaultCollapsed: true,
+              },
+              {
+                name: 'bestValueImgMobile',
+                friendlyName: 'Best Value Image - Mobile',
+                type: 'file',
+                required: false,
+                helperText: 'The small image to display alongside the best value offer for mobile',
                 allowedFileTypes: ['jpeg', 'png', 'svg', 'webp'],
                 defaultCollapsed: true,
               },
@@ -779,6 +863,26 @@ export const createPageModel = (props: PageModelInputProps): ModelShape => {
                     helperText: 'Choose the content to display below the offer selector CTA',
                     model: 'offer-selector-content',
                     copyOnAdd: false,
+                    defaultCollapsed: false,
+                  },
+                  {
+                    name: 'pdpBelowSliderContent',
+                    friendlyName: 'Below Slider Content',
+                    type: 'reference',
+                    required: false,
+                    helperText: 'Choose the content to display below the PDP product image slider',
+                    model: 'offer-selector-content',
+                    copyOnAdd: true,
+                    defaultCollapsed: false,
+                  },
+                  {
+                    name: 'belowDescriptionContent',
+                    friendlyName: 'Below Description Content',
+                    type: 'reference',
+                    required: false,
+                    helperText: 'Choose the content to display below the PDP description',
+                    model: 'offer-selector-content',
+                    copyOnAdd: true,
                     defaultCollapsed: false,
                   },
                 ],
@@ -1153,8 +1257,15 @@ export type BuilderPdpPageContent = BuilderContent &
             image: string;
             product?: BuilderContentReference<BuilderProductContent['data']>;
           }[];
+          slideThumbs?: {
+            image: string;
+          }[];
           sliderComponent?: OfferSelectorSliderTypes;
           disableZoom?: boolean;
+          enableHoverZoom?: boolean;
+          disableSliderArrows?: boolean;
+          sealImage?: string;
+          sealPosition?: 'Bottom Left' | 'Bottom Right';
           reviewSettings?: {
             showStarRating?: boolean;
             showGlobalFiveStarRating?: boolean;
@@ -1191,12 +1302,16 @@ export type BuilderPdpPageContent = BuilderContent &
               packageSelector?: string;
               flavorSelector?: string;
               quantitySelector?: string;
+              standardOffer?: string;
             };
             bestSellerImage?: string;
             bestValueImage?: string;
+            bestValueImgMobile?: string;
             content?: {
               aboveCTAContent?: BuilderContentReference<BuilderOfferSelectorContentModelContent['data']>;
               belowCTAContent?: BuilderContentReference<BuilderOfferSelectorContentModelContent['data']>;
+              pdpBelowSliderContent?: BuilderContentReference<BuilderOfferSelectorContentModelContent['data']>;
+              belowDescriptionContent?: BuilderContentReference<BuilderOfferSelectorContentModelContent['data']>;
             };
             cssOverrides?: {
               signupOfferCustomCssProps?: Record<string, string>;
