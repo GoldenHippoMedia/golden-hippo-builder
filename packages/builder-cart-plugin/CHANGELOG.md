@@ -1,5 +1,14 @@
 # @goldenhippo/builder-cart-plugin
 
+## 1.0.3
+
+### Patch Changes
+
+- [#112](https://github.com/GoldenHippoMedia/golden-hippo-builder/pull/112) [`c49d4cf`](https://github.com/GoldenHippoMedia/golden-hippo-builder/commit/c49d4cf9eb3eb2b06469464b09ac4a7aa2541166) - adds Swap Product toggle to Subscription Edit page config — [@kewinnerygoldenhippo](https://github.com/kewinnerygoldenhippo)
+
+- Updated dependencies [[`3ccd777`](https://github.com/GoldenHippoMedia/golden-hippo-builder/commit/3ccd77726976baecfe0abb916fedc8817720dea2), [`7fdd8e6`](https://github.com/GoldenHippoMedia/golden-hippo-builder/commit/7fdd8e6f88a11ce371e1154e77a5c89a5a864147), [`c49d4cf`](https://github.com/GoldenHippoMedia/golden-hippo-builder/commit/c49d4cf9eb3eb2b06469464b09ac4a7aa2541166)]:
+  - @goldenhippo/builder-cart-schemas@0.28.0
+
 ## 1.0.2
 
 ### Patch Changes
