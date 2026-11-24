@@ -1,5 +1,17 @@
 # @goldenhippo/builder-cart-schemas
 
+## 0.28.0
+
+### Minor Changes
+
+- [#114](https://github.com/GoldenHippoMedia/golden-hippo-builder/pull/114) [`7fdd8e6`](https://github.com/GoldenHippoMedia/golden-hippo-builder/commit/7fdd8e6f88a11ce371e1154e77a5c89a5a864147) - adds the `offerFlowsEnabled` feature flag to brand config, which switches post-purchase offers from the traditional upsell list to Offer Flows — [@dkidwell999](https://github.com/dkidwell999)
+
+### Patch Changes
+
+- [#113](https://github.com/GoldenHippoMedia/golden-hippo-builder/pull/113) [`3ccd777`](https://github.com/GoldenHippoMedia/golden-hippo-builder/commit/3ccd77726976baecfe0abb916fedc8817720dea2) - adds BHMD offer selector and PDP slider fields to the Page model (standard offer label, mobile best value image, below slider/description content, hover zoom, slider arrows, seal image/position, slide thumbnails) and the cart page coupon banner section type — [@kewinnerygoldenhippo](https://github.com/kewinnerygoldenhippo)
+
+- [#112](https://github.com/GoldenHippoMedia/golden-hippo-builder/pull/112) [`c49d4cf`](https://github.com/GoldenHippoMedia/golden-hippo-builder/commit/c49d4cf9eb3eb2b06469464b09ac4a7aa2541166) - adds Swap Product toggle to Subscription Edit page config — [@kewinnerygoldenhippo](https://github.com/kewinnerygoldenhippo)
+
 ## 0.27.0
 
 ### Minor Changes
