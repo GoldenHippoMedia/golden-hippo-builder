@@ -276,6 +276,7 @@ export type BuilderBrandConfigContent = BuilderContent &
         cartDrawerEnabled: boolean;
         passwordlessLoginEnabled: boolean;
         passwordlessLoginDefault: boolean;
+        offerFlowsEnabled: boolean;
         subscriptionExperience: 'Classic' | 'Version 2';
         useDefaultFrequencies: boolean;
         skipToMainContentEnabled: boolean;

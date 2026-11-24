@@ -123,6 +123,15 @@ export const createFeatureConfig = (gridFilterModelId: string): BuilderIOFieldTy
         showIf: `return options.get('passwordlessLoginEnabled') === true`,
       },
       {
+        name: 'offerFlowsEnabled',
+        friendlyName: 'Enable Offer Flows',
+        helperText:
+          'When enabled, post-purchase offers come from Offer Flows instead of the traditional upsell list. The upsell list is still used when no flow applies to an order.',
+        type: 'boolean',
+        localized: false,
+        defaultCollapsed: true,
+      },
+      {
         name: 'subscriptionExperience',
         friendlyName: 'Subscription Experience',
         type: 'select',
