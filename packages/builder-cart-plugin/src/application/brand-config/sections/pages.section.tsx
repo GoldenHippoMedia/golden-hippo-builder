@@ -710,6 +710,12 @@ const PagesSection: React.FC<SectionProps> = observer(({ data, markDirty }) => {
                 />
               </div>
             </FormField>
+            <ToggleField
+              label="Swap Product"
+              helper="Show a Swap button on subscription items that have other products available to swap to"
+              checked={!!subscriptionEdit.swapProductEnabled}
+              onChange={(v) => setNested(['subscriptionEdit', 'swapProductEnabled'], v)}
+            />
             <FormField label="Ship Now Modal Headline (HTML)">
               <HtmlEditor
                 value={subscriptionEdit.shipNow?.modalHeadlineContent ?? ''}

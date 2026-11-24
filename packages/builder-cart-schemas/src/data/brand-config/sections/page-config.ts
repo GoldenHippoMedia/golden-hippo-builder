@@ -779,6 +779,17 @@ export const createPageConfig = (): BuilderIOFieldTypes => {
             helperText: 'Default image to display for subscription items',
           },
           {
+            name: 'swapProductEnabled',
+            friendlyName: 'Swap Product',
+            type: 'boolean',
+            required: false,
+            localized: false,
+            defaultValue: false,
+            defaultCollapsed: true,
+            helperText:
+              'When enabled, a "Swap" button is shown on subscription items that have other products available to swap to',
+          },
+          {
             name: 'shipNow',
             friendlyName: 'Ship Now',
             type: 'object',
